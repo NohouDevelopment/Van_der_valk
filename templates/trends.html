@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trendanalyse — {{ org.naam }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+      --green: #66BB6A; --blue: #6495ED;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
+    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+
+    .main { flex: 1; max-width: 800px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .header-actions { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; white-space: nowrap; }
+    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm.gold { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    /* Stats row */
+    .stats-row { display: flex; gap: 1.25rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+    .stat { font-size: .78rem; color: var(--text-dim); display: flex; align-items: center; gap: .3rem; }
+    .stat .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    /* Geen segment / geen analyse */
+    .geen-data { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem 2rem; text-align: center; }
+    .geen-data p { color: var(--text-dim); font-size: .9rem; margin-bottom: 1rem; }
+    .btn-primary { background: var(--gold); color: #0F0F0F; font-size: .85rem; font-weight: 600; border: none; border-radius: 8px; padding: .6rem 1.2rem; cursor: pointer; text-decoration: none; display: inline-block; transition: background .2s; }
+    .btn-primary:hover { background: var(--gold-light); }
+
+    /* Sectie titel */
+    .sectie-titel { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); margin-bottom: .75rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+    .meta-info { font-size: .78rem; color: var(--text-dim); margin-bottom: 1rem; margin-top: -.4rem; }
+
+    /* Trend card */
+    .trend-card { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: .65rem; transition: border-color .2s; }
+    .trend-card:hover { border-color: var(--gold); }
+    .trend-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; margin-bottom: .35rem; }
+    .trend-naam { font-weight: 600; font-size: .95rem; }
+    .trend-score { font-size: .78rem; font-weight: 700; color: var(--gold); background: var(--gold-dim); border: 1px solid var(--border); border-radius: 6px; padding: .2rem .55rem; white-space: nowrap; flex-shrink: 0; }
+    .trend-beschrijving { font-size: .85rem; color: var(--text-dim); line-height: 1.55; margin-bottom: .45rem; }
+    .trend-meta { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .trend-categorie { font-size: .7rem; padding: .15rem .5rem; border-radius: 4px; background: var(--gold-dim); color: var(--gold); font-weight: 600; }
+    .trend-tag { font-size: .68rem; padding: .15rem .45rem; border-radius: 4px; background: var(--dark-3); color: var(--text-dim); border: 1px solid var(--border); }
+    .trend-inspiratie { font-size: .68rem; padding: .15rem .45rem; border-radius: 4px; background: rgba(100,149,237,.1); color: var(--blue); border: 1px solid rgba(100,149,237,.2); }
+
+    /* Samenvatting */
+    .samenvatting-card { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem; }
+    .samenvatting-card .sectie-titel { border-bottom: none; padding-bottom: 0; margin-bottom: .5rem; font-size: .95rem; }
+    .samenvatting-card p { font-size: .88rem; color: var(--text-dim); line-height: 1.6; }
+
+    /* Config suggesties banner */
+    .suggestie-banner { background: var(--dark-2); border: 1px solid var(--gold); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .suggestie-banner-titel { font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 600; color: var(--gold); margin-bottom: .25rem; }
+    .suggestie-banner-hint { font-size: .78rem; color: var(--text-dim); margin-bottom: .75rem; }
+    .suggestie-item { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; font-size: .82rem; }
+    .suggestie-actie { font-size: .68rem; font-weight: 700; padding: .15rem .45rem; border-radius: 4px; flex-shrink: 0; text-transform: uppercase; letter-spacing: .03em; }
+    .suggestie-actie.verwijder { background: rgba(239,83,80,.1); color: #EF5350; }
+    .suggestie-actie.toevoeg { background: rgba(102,187,106,.1); color: var(--green); }
+    .suggestie-label { font-weight: 600; }
+    .suggestie-reden { color: var(--text-dim); font-size: .78rem; }
+    .suggestie-banner .btn-sm { margin-top: .75rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('menu.menu_overzicht') }}" class="nav-link">Menu's</a>
+  </div>
+</nav>
+
+<div class="main">
+  {% if not segment %}
+  <!-- Geen menusegment -->
+  <div class="geen-data">
+    <p>Stel eerst een menusegment in voordat je trends kunt analyseren.</p>
+    <a href="{{ url_for('segment.segment_overzicht') }}" class="btn-primary">Menusegment instellen</a>
+  </div>
+
+  {% else %}
+  <div class="page-header">
+    <h1 class="page-title">Trend<em>analyse</em></h1>
+    <div class="header-actions">
+      <a href="{{ url_for('trend.trends_config') }}" class="btn-sm">Configuratie</a>
+      {% if geheugen %}
+      <a href="{{ url_for('trend.trends_geheugen') }}" class="btn-sm">Geheugen (v{{ geheugen.versie }})</a>
+      {% endif %}
+      <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-sm gold">Nieuwe analyse</a>
+    </div>
+  </div>
+
+  {% if geheugen %}
+  <div class="stats-row">
+    <span class="stat"><span class="dot"></span> {{ geheugen.data.statistieken.totaal_actief if geheugen.data.statistieken else geheugen.data.trends|length }} actieve trends</span>
+    <span class="stat">v{{ geheugen.versie }}</span>
+    <span class="stat">Laatst: {{ geheugen.laatst_bijgewerkt.strftime('%d-%m-%Y') if geheugen.laatst_bijgewerkt else '' }}</span>
+  </div>
+  {% endif %}
+
+  {% if config and config.data.get('suggesties') %}
+  <!-- Config suggesties -->
+  <div class="suggestie-banner">
+    <div class="suggestie-banner-titel">Configuratie-suggesties</div>
+    <p class="suggestie-banner-hint">Op basis van je trendgeheugen heeft het systeem suggesties om je configuratie bij te werken.</p>
+    {% for s in config.data.suggesties %}
+    <div class="suggestie-item">
+      {% if s.type == 'verwijder_focus' %}
+      <span class="suggestie-actie verwijder">Verwijder</span>
+      {% else %}
+      <span class="suggestie-actie toevoeg">Voeg toe</span>
+      {% endif %}
+      <span class="suggestie-label">{{ s.label }}</span>
+      <span class="suggestie-reden">— {{ s.reden }}</span>
+    </div>
+    {% endfor %}
+    <a href="{{ url_for('trend.trends_config') }}" class="btn-sm gold">Configuratie aanpassen</a>
+  </div>
+  {% endif %}
+
+  {% if laatste_analyse %}
+  <!-- Laatste analyse resultaten -->
+  <div class="sectie-titel">Laatste analyse</div>
+  <p class="meta-info">{{ laatste_analyse.gegenereerd_op.strftime('%d-%m-%Y %H:%M') if laatste_analyse.gegenereerd_op else '' }} · v{{ laatste_analyse.versie }}</p>
+
+  {% for trend in (laatste_analyse.data.trends or [])[:15] %}
+  <div class="trend-card">
+    <div class="trend-header">
+      <span class="trend-naam">{{ trend.naam }}</span>
+      <span class="trend-score">{{ trend.relevantie_score }}/10</span>
+    </div>
+    {% if trend.beschrijving %}
+    <p class="trend-beschrijving">{{ trend.beschrijving }}</p>
+    {% endif %}
+    <div class="trend-meta">
+      {% if trend.categorie %}
+      <span class="trend-categorie">{{ trend.categorie }}</span>
+      {% endif %}
+      {% if trend.inspiratiebron %}
+      <span class="trend-inspiratie">{{ trend.inspiratiebron }}</span>
+      {% endif %}
+      {% for tag in (trend.tags or []) %}
+      <span class="trend-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if laatste_analyse.data.samenvatting %}
+  <div class="samenvatting-card">
+    <div class="sectie-titel">Samenvatting</div>
+    <p>{{ laatste_analyse.data.samenvatting }}</p>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Nog geen analyse -->
+  <div class="geen-data">
+    <p>Er zijn nog geen trendanalyses uitgevoerd.</p>
+    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:1rem">Klik op "Nieuwe analyse" om AI te laten zoeken naar relevante food- en horecatrends.</p>
+    <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-primary">Eerste analyse starten</a>
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+</body>
+</html>

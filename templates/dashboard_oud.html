@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — {{ org.naam }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    /* --- CSS Custom Property for animated border glow --- */
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424; --mid: #3A3A3A;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+      --green: #66BB6A; --orange: #FFA726; --red: #EF5350; --blue: #6495ED;
+      --ease: cubic-bezier(.16,1,.32,1);
+      --spring: cubic-bezier(.03,.98,.52,.99);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- Noise grain overlay for depth --- */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: .08;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 180px 180px;
+    }
+
+    /* --- Ambient glow behind content --- */
+    .main::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(201,168,76,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
+    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+    .nav-user { color: var(--text-dim); font-size: .8rem; white-space: nowrap; }
+    .nav-user strong { color: var(--text); }
+    .btn-logout { color: var(--text-dim); font-size: .8rem; text-decoration: none; padding: .3rem .65rem; border: 1px solid var(--border); border-radius: 6px; transition: border-color .2s, color .2s; white-space: nowrap; }
+    .btn-logout:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* MAIN */
+    .main { flex: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; position: relative; z-index: 1; }
+
+    /* HERO */
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: hero-enter .7s var(--ease) .05s forwards;
+    }
+    @keyframes hero-enter {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .org-logo {
+      width: 56px; height: 56px; border-radius: 10px; object-fit: contain;
+      background: #fff !important; border: 1px solid var(--border); padding: 5px; flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(201,168,76,.08);
+      transition: box-shadow .3s;
+    }
+    .org-logo:hover {
+      box-shadow: 0 0 30px rgba(201,168,76,.18);
+    }
+    .org-logo-placeholder { width: 56px; height: 56px; border-radius: 10px; background: var(--gold-dim); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+    .hero-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 700;
+    }
+    .hero-text h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-text p { color: var(--text-dim); font-size: .82rem; margin-top: .2rem; }
+
+    /* SECTION LABEL */
+    .sectie-lbl {
+      font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: .25rem;
+      opacity: 0;
+      animation: hero-enter .6s var(--ease) .12s forwards;
+    }
+
+    /* NAVIGATION CARDS GRID */
+    .nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; margin-top: 1rem; }
+
+    /* --- NAV CARD: Base --- */
+    .nav-card {
+      position: relative;
+      background: rgba(26,26,26,.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(201,168,76,.1);
+      border-radius: 16px;
+      padding: 1.75rem;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      will-change: transform;
+      transition: transform .45s var(--spring), box-shadow .35s ease, border-color .3s;
+      transform-style: preserve-3d;
+      /* Staggered entrance: backwards fill applies 'from' during delay,
+         then after animation the element returns to its own styles (opacity:1, no transform)
+         so JS can freely override transform for the tilt effect */
+      animation: card-enter .8s var(--ease) backwards;
+    }
+    .nav-card:nth-child(1) { animation-delay: .1s; }
+    .nav-card:nth-child(2) { animation-delay: .2s; }
+    .nav-card:nth-child(3) { animation-delay: .3s; }
+    .nav-card:nth-child(4) { animation-delay: .4s; }
+    .nav-card:nth-child(5) { animation-delay: .5s; }
+    .nav-card:nth-child(6) { animation-delay: .6s; }
+
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(40px) scale(.95); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* --- Hover glow shadow --- */
+    .nav-card:hover {
+      box-shadow:
+        0 8px 40px rgba(201,168,76,.08),
+        0 0 60px rgba(201,168,76,.04);
+      border-color: rgba(201,168,76,.3);
+    }
+
+    /* --- Animated border glow (conic-gradient spin) --- */
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 17px;
+      padding: 1px;
+      background: conic-gradient(from var(--angle, 0deg),
+        transparent 0%,
+        transparent 35%,
+        rgba(201,168,76,.4) 48%,
+        rgba(232,201,106,.5) 50%,
+        rgba(201,168,76,.4) 52%,
+        transparent 65%,
+        transparent 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity .4s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .nav-card:hover::before {
+      opacity: 1;
+      animation: border-spin 3.5s linear infinite;
+    }
+    @keyframes border-spin {
+      to { --angle: 360deg; }
+    }
+
+    /* --- Spotlight overlay (cursor-following glow) --- */
+    .card-spotlight {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity .3s ease;
+      opacity: 0;
+    }
+    .nav-card:hover .card-spotlight {
+      opacity: 1;
+    }
+
+    /* --- Card content sits above spotlight --- */
+    .nav-card-icon,
+    .nav-card h3,
+    .nav-card p,
+    .nav-card-status {
+      position: relative;
+      z-index: 3;
+    }
+
+    .nav-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: background .3s, border-color .3s, box-shadow .3s;
+    }
+    .nav-card:hover .nav-card-icon {
+      background: rgba(201,168,76,.2);
+      border-color: rgba(201,168,76,.35);
+      box-shadow: 0 0 16px rgba(201,168,76,.12);
+    }
+
+    .nav-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .nav-card p {
+      color: var(--text-dim);
+      font-size: .85rem;
+      line-height: 1.5;
+    }
+    .nav-card-status {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-top: auto;
+      padding-top: .5rem;
+    }
+
+    /* --- Status dots + pulse --- */
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.green {
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(102,187,106,.5);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    .status-dot.orange { background: var(--orange); box-shadow: 0 0 6px rgba(255,167,38,.4); }
+    .status-dot.red { background: var(--red); }
+    .status-dot.blue {
+      background: var(--blue);
+      box-shadow: 0 0 6px rgba(100,149,237,.5);
+      animation: pulse-dot-blue 2s ease-in-out infinite;
+    }
+    .status-dot.dim { background: var(--text-dim); }
+
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 6px rgba(102,187,106,.5); }
+      50% { box-shadow: 0 0 6px rgba(102,187,106,.5), 0 0 0 6px rgba(102,187,106,.25); }
+    }
+    @keyframes pulse-dot-blue {
+      0%, 100% { box-shadow: 0 0 6px rgba(100,149,237,.5); }
+      50% { box-shadow: 0 0 6px rgba(100,149,237,.5), 0 0 0 6px rgba(100,149,237,.25); }
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+
+    /* ============================================================
+       LIGHT THEME OVERRIDES
+       ============================================================ */
+    html[data-theme="light"] .nav-card {
+      background: rgba(235,230,222,.88);
+      border-color: rgba(159,122,28,.12);
+    }
+    html[data-theme="light"] .nav-card:hover {
+      border-color: rgba(159,122,28,.3);
+      box-shadow:
+        0 8px 40px rgba(159,122,28,.06),
+        0 0 60px rgba(159,122,28,.03);
+    }
+    html[data-theme="light"] .nav-card::before {
+      background: conic-gradient(from var(--angle, 0deg),
+        transparent 0%,
+        transparent 35%,
+        rgba(159,122,28,.35) 48%,
+        rgba(201,168,76,.45) 50%,
+        rgba(159,122,28,.35) 52%,
+        transparent 65%,
+        transparent 100%
+      );
+    }
+    html[data-theme="light"] .nav-card-icon {
+      background: rgba(159,122,28,.08);
+      border-color: rgba(159,122,28,.15);
+    }
+    html[data-theme="light"] .nav-card:hover .nav-card-icon {
+      background: rgba(159,122,28,.15);
+      border-color: rgba(159,122,28,.3);
+      box-shadow: 0 0 16px rgba(159,122,28,.08);
+    }
+    html[data-theme="light"] .main::before {
+      background: radial-gradient(ellipse, rgba(159,122,28,.04) 0%, transparent 70%);
+    }
+    html[data-theme="light"] body::after {
+      opacity: .04;
+    }
+    html[data-theme="light"] .org-logo {
+      box-shadow: 0 1px 6px rgba(0,0,0,.08), 0 0 20px rgba(159,122,28,.06);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-grid { grid-template-columns: 1fr; }
+      .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
+    {% if is_admin %}
+    <a href="{{ url_for('admin_panel') }}" class="nav-link">Admin</a>
+    {% endif %}
+    <span class="nav-user"><strong>{{ current_user.naam }}</strong></span>
+    <a href="{{ url_for('auth.logout') }}" class="btn-logout">Uitloggen</a>
+  </div>
+</nav>
+
+<div class="main">
+  <!-- HERO -->
+  <div class="hero">
+    {% if org.logo_pad %}
+    <img src="{{ url_for('serve_logo', pad=org.logo_pad.split('/')[-1]) }}" alt="Logo" class="org-logo">
+    {% else %}
+    <div class="org-logo-placeholder">&#127860;</div>
+    {% endif %}
+    <div class="hero-text">
+      <h1>Welkom bij <em>{{ org.naam }}</em></h1>
+      <p>{{ org.adres or 'Geen adres ingesteld' }}</p>
+    </div>
+  </div>
+
+  <!-- PAGINA NAVIGATIE -->
+  <p class="sectie-lbl">Modules</p>
+  <div class="nav-grid">
+
+    <!-- CARD 1: Menu Upload -->
+    <a href="{{ url_for('menu.menu_overzicht') }}" class="nav-card">
+      <div class="card-spotlight"></div>
+      <div class="nav-card-icon">&#128196;</div>
+      <h3>Menu Uploaden</h3>
+      <p>Upload je menukaart als PDF of plak de tekst. AI parst het naar een gestructureerd overzicht.</p>
+      <div class="nav-card-status">
+        {% if menu_count > 0 %}
+        <span class="status-dot green"></span>
+        <span style="color: var(--green)">{{ menu_count }} menu{{ 's' if menu_count != 1 }} opgeslagen</span>
+        {% else %}
+        <span class="status-dot dim"></span>
+        <span style="color: var(--text-dim)">Nog geen menu</span>
+        {% endif %}
+      </div>
+    </a>
+
+    <!-- CARD 2: Menusegment -->
+    <a href="{{ url_for('segment.segment_overzicht') }}" class="nav-card">
+      <div class="card-spotlight"></div>
+      <div class="nav-card-icon">&#128270;</div>
+      <h3>Menusegment</h3>
+      <p>AI-analyse van je keten: waardepropositie, doelgroep, culinaire positionering en concurrentie.</p>
+      <div class="nav-card-status">
+        {% if segment %}
+        <span class="status-dot green"></span>
+        <span style="color: var(--green)">Profiel actief</span>
+        {% else %}
+        <span class="status-dot dim"></span>
+        <span style="color: var(--text-dim)">Nog niet ingesteld</span>
+        {% endif %}
+      </div>
+    </a>
+
+    <!-- CARD 3: Trendanalyse -->
+    <a href="{{ url_for('trend.trends_overzicht') }}" class="nav-card">
+      <div class="card-spotlight"></div>
+      <div class="nav-card-icon">&#128200;</div>
+      <h3>Trendanalyse</h3>
+      <p>Voer een webresearch uit naar actuele food- en horecatrends, afgestemd op jouw segment.</p>
+      <div class="nav-card-status">
+        {% if geheugen %}
+        <span class="status-dot green"></span>
+        <span style="color: var(--green)">{{ trend_count }} analyse{{ 's' if trend_count != 1 }} &middot; v{{ geheugen.versie }}</span>
+        {% else %}
+        <span class="status-dot dim"></span>
+        <span style="color: var(--text-dim)">Nog geen analyse</span>
+        {% endif %}
+      </div>
+    </a>
+
+    <!-- CARD 4: Geannoteerd Menu -->
+    <a href="{% if actief_menu %}{{ url_for('menu.menu_annotaties', menu_id=actief_menu.id) }}{% else %}#{% endif %}" class="nav-card">
+      <div class="card-spotlight"></div>
+      <div class="nav-card-icon">&#9997;</div>
+      <h3>Menu Annotaties</h3>
+      <p>Bekijk je menu met AI-opmerkingen: welke gerechten passen bij trends, welke kunnen beter.</p>
+      <div class="nav-card-status">
+        {% if actief_menu and geheugen %}
+        <span class="status-dot blue"></span>
+        <span style="color: var(--blue)">Beschikbaar</span>
+        {% else %}
+        <span class="status-dot dim"></span>
+        <span style="color: var(--text-dim)">Menu + trends nodig</span>
+        {% endif %}
+      </div>
+    </a>
+
+    <!-- CARD 5: Kassaboek -->
+    <a href="#" class="nav-card">
+      <div class="card-spotlight"></div>
+      <div class="nav-card-icon">&#128176;</div>
+      <h3>Kassaboek</h3>
+      <p>Koppel je kassasysteem via API om te zien welke gerechten populair zijn.</p>
+      <div class="nav-card-status">
+        {% if org.kassaboek_actief %}
+        <span class="status-dot green"></span>
+        <span style="color: var(--green)">Actief</span>
+        {% else %}
+        <span class="status-dot orange"></span>
+        <span style="color: var(--orange)">Binnenkort beschikbaar</span>
+        {% endif %}
+      </div>
+    </a>
+
+    <!-- CARD 6: Ingrediënten -->
+    <a href="{{ url_for('ingredient.ingredienten_overzicht') }}" class="nav-card">
+      <div class="card-spotlight"></div>
+      <div class="nav-card-icon">&#129367;</div>
+      <h3>Ingredi&euml;nten</h3>
+      <p>Analyseer ingredi&euml;nten-overlap, dervingsrisico en krijg slimme voorstellen voor je menu.</p>
+      <div class="nav-card-status">
+        {% if actief_menu %}
+        <span class="status-dot green"></span>
+        <span style="color: var(--green)">Analyse beschikbaar</span>
+        {% else %}
+        <span class="status-dot dim"></span>
+        <span style="color: var(--text-dim)">Menu nodig</span>
+        {% endif %}
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<footer><p>Menu Maker &middot; Aangedreven door Gemini AI &middot; {{ org.naam }}</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+
+<script>
+/* ============================================================
+   WobbleCard 3D Tilt + Cursor Spotlight
+   ============================================================ */
+(function() {
+  var cards = document.querySelectorAll('.nav-card');
+  var isTouch = 'ontouchstart' in window;
+
+  // Skip tilt on touch devices
+  if (isTouch) return;
+
+  // Detect light/dark for spotlight color
+  function spotlightColor() {
+    return document.documentElement.getAttribute('data-theme') === 'light'
+      ? 'rgba(159,122,28,.1)'
+      : 'rgba(201,168,76,.12)';
+  }
+
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+  cards.forEach(function(card) {
+    var spotlight = card.querySelector('.card-spotlight');
+    var rafId = null;
+    var targetRX = 0, targetRY = 0;
+    var currentRX = 0, currentRY = 0;
+    var hovering = false;
+
+    function tick() {
+      if (!hovering && Math.abs(currentRX) < 0.05 && Math.abs(currentRY) < 0.05) {
+        card.style.transform = '';
+        rafId = null;
+        return;
+      }
+      var ease = hovering ? 0.08 : 0.06;
+      currentRX = lerp(currentRX, hovering ? targetRX : 0, ease);
+      currentRY = lerp(currentRY, hovering ? targetRY : 0, ease);
+      var s = hovering ? 1.02 : 1;
+      card.style.transform = 'perspective(800px) rotateX(' + currentRX + 'deg) rotateY(' + currentRY + 'deg) scale(' + s + ')';
+      rafId = requestAnimationFrame(tick);
+    }
+
+    card.addEventListener('mousemove', function(e) {
+      var rect = card.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width;
+      var y = (e.clientY - rect.top) / rect.height;
+      targetRX = (y - 0.5) * -10;
+      targetRY = (x - 0.5) * 10;
+      if (spotlight) {
+        spotlight.style.background = 'radial-gradient(400px circle at ' + (x*100) + '% ' + (y*100) + '%, ' + spotlightColor() + ', transparent 55%)';
+      }
+      if (!hovering) {
+        hovering = true;
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      }
+    });
+
+    card.addEventListener('mouseleave', function() {
+      hovering = false;
+      if (spotlight) spotlight.style.background = '';
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — {{ org.naam }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:    #EDE8DE;
+      --cream-2:  #F5F1E8;
+      --white:    #FFFFFF;
+      --sidebar:  #F8F5EF;
+      --border:   #DDD8CE;
+      --gold:     #7A6A35;
+      --gold-btn: #6B5A25;
+      --gold-btn-hover: #5A4B1E;
+      --text:     #2A2720;
+      --text-mid: #6B6558;
+      --text-dim: #9A9285;
+      --green:    #2E7D32;
+      --green-bg: #E8F5E9;
+      --orange:   #C25A00;
+      --orange-bg:#FFF3E0;
+      --red:      #C62828;
+      --red-bg:   #FFEBEE;
+      --sidebar-w: 200px;
+      --radius:   12px;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+    }
+
+    .sidebar-brand {
+      padding: 1.5rem 1.25rem 1rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: .02em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: .75rem 0;
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .55rem 1.25rem;
+      color: var(--text-mid);
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 500;
+      border-radius: 0;
+      transition: background .15s, color .15s;
+      position: relative;
+    }
+    .sidebar-nav a:hover {
+      background: var(--cream);
+      color: var(--text);
+    }
+    .sidebar-nav a.active {
+      background: var(--cream);
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .sidebar-nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--gold);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-icon {
+      font-size: .9rem;
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: .7;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-footer .org-name {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: .3rem;
+    }
+    .sidebar-footer a {
+      font-size: .75rem;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .sidebar-footer a:hover { text-decoration: underline; }
+    .sidebar-footer .version {
+      font-size: .68rem;
+      color: var(--text-dim);
+      margin-top: .4rem;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem 2rem 3rem;
+      max-width: 960px;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+    }
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1.2;
+    }
+    .page-header .sub {
+      font-size: .85rem;
+      color: var(--text-mid);
+      margin-top: .2rem;
+    }
+    .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── ACTION CARDS ROW ── */
+    .action-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .action-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: .6rem;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .action-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.07);
+      border-color: #C8C0B0;
+    }
+
+    .action-card-icon {
+      font-size: 1.6rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: .2rem;
+    }
+
+    .action-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .action-card p {
+      font-size: .78rem;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    .btn-action {
+      display: inline-block;
+      margin-top: .4rem;
+      padding: .55rem 1.4rem;
+      background: var(--gold-btn);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background .15s;
+    }
+    .btn-action:hover { background: var(--gold-btn-hover); }
+
+    /* ── MIDDLE ROW ── */
+    .middle-row {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── INFO CARD (Laatste Menu, Profiel) ── */
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+    }
+    .info-card h2 {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: .75rem;
+    }
+
+    .menu-naam {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .2rem;
+    }
+    .menu-meta {
+      font-size: .78rem;
+      color: var(--text-mid);
+      margin-bottom: .85rem;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-bottom: .85rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: .3rem .75rem;
+      border-radius: 20px;
+      letter-spacing: .04em;
+    }
+    .badge-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+    .badge-green  { background: var(--green-bg);  color: var(--green); }
+    .badge-green  .badge-dot { background: var(--green); }
+    .badge-orange { background: var(--orange-bg); color: var(--orange); }
+    .badge-orange .badge-dot { background: var(--orange); }
+    .badge-red    { background: var(--red-bg);    color: var(--red); }
+    .badge-red    .badge-dot { background: var(--red); }
+
+    .card-link {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── TREND GEHEUGEN CARD ── */
+    .trend-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: .85rem;
+    }
+    .trend-stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+    .trend-stat-lbl {
+      font-size: .72rem;
+      color: var(--text-mid);
+      margin-top: .15rem;
+    }
+    .trend-scan-date {
+      font-size: .78rem;
+      color: var(--text-mid);
+      margin-bottom: .85rem;
+    }
+    .trend-scan-date strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── PROFIEL CARD ── */
+    .profiel-row {
+      margin-bottom: 1.25rem;
+    }
+    .profiel-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .profiel-tag {
+      display: inline-block;
+      padding: .3rem .8rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      color: var(--text-mid);
+      background: var(--cream-2);
+    }
+
+    /* ── EMPTY STATES ── */
+    .empty-state {
+      font-size: .82rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* ── THEME TOGGLE ── */
+    .theme-btn {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      transition: box-shadow .2s;
+      z-index: 100;
+    }
+    .theme-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .action-row { grid-template-columns: 1fr; }
+      .middle-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">Menu Maker</div>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('dashboard') }}" class="active">
+      <span class="nav-icon">&#9632;</span> Dashboard
+    </a>
+    <a href="{{ url_for('menu.menu_upload') }}">
+      <span class="nav-icon">&#8679;</span> Menu uploaden
+    </a>
+    <a href="{{ url_for('menu.menu_overzicht') }}">
+      <span class="nav-icon">&#9776;</span> Menu overzicht
+    </a>
+    <a href="{{ url_for('trend.trends_config') }}">
+      <span class="nav-icon">&#9881;</span> Trend configuratie
+    </a>
+    <a href="{{ url_for('trend.trends_overzicht') }}">
+      <span class="nav-icon">&#8599;</span> Trend resultaten
+    </a>
+    {% if actief_menu %}
+    <a href="{{ url_for('menu.menu_annotaties', menu_id=actief_menu.id) }}">
+      <span class="nav-icon">&#10003;</span> Annotaties
+    </a>
+    {% else %}
+    <a href="#">
+      <span class="nav-icon">&#10003;</span> Annotaties
+    </a>
+    {% endif %}
+    <a href="{{ url_for('ingredient.ingredienten_overzicht') }}">
+      <span class="nav-icon">&#127807;</span> Ingrediënten
+    </a>
+    {% if is_admin %}
+    <a href="{{ url_for('admin_panel') }}">
+      <span class="nav-icon">&#9679;</span> Admin
+    </a>
+    {% endif %}
+  </nav>
+  <div class="sidebar-footer">
+    <div class="org-name">{{ org.naam }}</div>
+    <a href="{{ url_for('auth.logout') }}">Uitloggen</a>
+    <div class="version">Menu Maker v1.0 &mdash; 2026</div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <h1>Welkom terug</h1>
+      <div class="sub">{{ org.naam }}</div>
+    </div>
+    <div class="avatar">{{ current_user.naam[0].upper() if current_user.naam else '?' }}</div>
+  </div>
+
+  <!-- ACTION CARDS -->
+  <div class="action-row">
+
+    <div class="action-card">
+      <div class="action-card-icon">&#8679;</div>
+      <h3>Menu Uploaden</h3>
+      <p>Upload je menukaart als PDF of afbeelding voor analyse.</p>
+      <a href="{{ url_for('menu.menu_upload') }}" class="btn-action">Uploaden</a>
+    </div>
+
+    <div class="action-card">
+      <div class="action-card-icon">&#8599;</div>
+      <h3>Trends Scannen</h3>
+      <p>Ontdek welke food trends relevant zijn voor jouw restaurant.</p>
+      <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-action">Scannen</a>
+    </div>
+
+    <div class="action-card">
+      <div class="action-card-icon">&#10003;</div>
+      <h3>Annotaties Bekijken</h3>
+      <p>Bekijk de AI-analyse en aanbevelingen per gerecht.</p>
+      {% if actief_menu %}
+      <a href="{{ url_for('menu.menu_annotaties', menu_id=actief_menu.id) }}" class="btn-action">Bekijken</a>
+      {% else %}
+      <a href="{{ url_for('menu.menu_upload') }}" class="btn-action">Bekijken</a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- MIDDLE ROW: Laatste Menu + Trend Geheugen -->
+  <div class="middle-row">
+
+    <!-- Laatste Menu -->
+    <div class="info-card">
+      <h2>Laatste Menu</h2>
+      {% if actief_menu %}
+        <div class="menu-naam">{{ actief_menu.naam }}</div>
+        <div class="menu-meta">
+          Geüpload: {{ actief_menu.aangemaakt_op.strftime('%-d %B %Y') if actief_menu.aangemaakt_op else '—' }}
+          {% set gerecht_count = actief_menu.gerechten | length %}
+          {% if gerecht_count > 0 %}
+           &mdash; {{ gerecht_count }} gerecht{{ 'en' if gerecht_count != 1 }} in
+            {% set cat_set = actief_menu.gerechten | map(attribute='categorie') | select | unique | list %}
+            {{ cat_set | length }} categorie&euml;n
+          {% endif %}
+        </div>
+        {% set h = annotatie_counts.HOUDEN %}
+        {% set a = annotatie_counts.AANPASSEN %}
+        {% set v = annotatie_counts.VERVANGEN %}
+        {% if h + a + v > 0 %}
+        <div class="badge-row">
+          {% if h > 0 %}<span class="badge badge-green"><span class="badge-dot"></span>{{ h }}x HOUDEN</span>{% endif %}
+          {% if a > 0 %}<span class="badge badge-orange"><span class="badge-dot"></span>{{ a }}x AANPASSEN</span>{% endif %}
+          {% if v > 0 %}<span class="badge badge-red"><span class="badge-dot"></span>{{ v }}x VERVANGEN</span>{% endif %}
+        </div>
+        {% else %}
+        <div class="badge-row">
+          <span class="empty-state">Nog geen annotaties gegenereerd.</span>
+        </div>
+        {% endif %}
+        <a href="{{ url_for('menu.menu_detail', menu_id=actief_menu.id) }}" class="card-link">Bekijk details &rarr;</a>
+      {% else %}
+        <div class="empty-state">Nog geen menu geüpload.</div>
+        <br>
+        <a href="{{ url_for('menu.menu_upload') }}" class="card-link">Upload je eerste menu &rarr;</a>
+      {% endif %}
+    </div>
+
+    <!-- Trend Geheugen -->
+    <div class="info-card">
+      <h2>Trend Geheugen</h2>
+      {% if geheugen %}
+        <div class="trend-stats">
+          <div>
+            <div class="trend-stat-val">{{ trend_actief }}</div>
+            <div class="trend-stat-lbl">Actief</div>
+          </div>
+          <div>
+            <div class="trend-stat-val">{{ trend_afgeschreven }}</div>
+            <div class="trend-stat-lbl">Afgeschreven</div>
+          </div>
+        </div>
+        <div class="trend-scan-date">
+          Laatst gescand: <strong>
+          {% if geheugen.laatst_bijgewerkt %}
+            {{ geheugen.laatst_bijgewerkt.strftime('%-d %B %Y') }}
+          {% else %}
+            &mdash;
+          {% endif %}
+          </strong>
+        </div>
+        <a href="{{ url_for('trend.trends_overzicht') }}" class="card-link">Bekijk trends &rarr;</a>
+      {% else %}
+        <div class="empty-state">Nog geen trendanalyse uitgevoerd.</div>
+        <br>
+        <a href="{{ url_for('trend.trends_analyseer') }}" class="card-link">Start eerste analyse &rarr;</a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- RESTAURANT PROFIEL -->
+  <div class="info-card profiel-row">
+    <h2>Restaurant Profiel</h2>
+    {% if klant_segmenten %}
+    <div class="profiel-tags">
+      {% for tag in klant_segmenten %}
+      <span class="profiel-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% elif segment %}
+    <div class="empty-state">Profiel beschikbaar — geen klant­segmenten ingesteld.</div>
+    {% else %}
+    <div class="empty-state">Nog geen restaurant­profiel ingesteld.</div>
+    {% endif %}
+  </div>
+
+</main>
+
+<!-- THEME TOGGLE (minimal, just a sun icon for now) -->
+<button class="theme-btn" title="Thema" onclick="window.location.href='{{ url_for('segment.segment_overzicht') }}'">&#9776;</button>
+
+</body>
+</html>

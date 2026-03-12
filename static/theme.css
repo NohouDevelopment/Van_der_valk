@@ -1,0 +1,160 @@
+/* ============================================================
+   LIGHT / DARK THEME SYSTEEM
+   Standaard = donker (dark), data-theme="light" = licht
+
+   Gebruik html[data-theme="light"] voor specificiteit (0,1,1)
+   die :root (0,1,0) in template <style> blokken overtreft.
+   ============================================================ */
+
+/* ---------- Licht thema CSS variabelen ---------- */
+html[data-theme="light"] {
+  --gold:       #9F7A1C;
+  --gold-light: #C9A84C;
+  --gold-dim:   rgba(159,122,28,.12);
+  --dark:       #F5F1EA;
+  --dark-2:     #EBE6DE;
+  --dark-3:     #E0DAD1;
+  --mid:        #C6BFB4;
+  --text:       #1E1B16;
+  --text-dim:   #6A6158;
+  --border:     rgba(159,122,28,.25);
+  --green:      #2E7D32;
+  --orange:     #E65100;
+  --red:        #C62828;
+}
+
+/* ---------- Body achtergrond ---------- */
+html[data-theme="light"] body {
+  background: var(--dark);
+  color: var(--text);
+}
+
+/* ---------- Nav ---------- */
+html[data-theme="light"] nav {
+  background: rgba(245,241,234,.97) !important;
+  border-bottom-color: rgba(159,122,28,.2) !important;
+}
+
+/* ---------- Alle input / textarea / select ---------- */
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] input[type="email"],
+html[data-theme="light"] input[type="password"],
+html[data-theme="light"] input[type="number"],
+html[data-theme="light"] input[type="search"],
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  background: #fff;
+  color: #1E1B16;
+  border-color: rgba(159,122,28,.3);
+}
+html[data-theme="light"] input[type="text"]:focus,
+html[data-theme="light"] input[type="email"]:focus,
+html[data-theme="light"] input[type="password"]:focus,
+html[data-theme="light"] input[type="number"]:focus,
+html[data-theme="light"] textarea:focus,
+html[data-theme="light"] select:focus {
+  border-color: #9F7A1C;
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: #8A8078;
+  opacity: 1;
+}
+
+/* ---------- Kaart / card achtergronden ---------- */
+html[data-theme="light"] .card,
+html[data-theme="light"] .form-card,
+html[data-theme="light"] .nav-card {
+  background: var(--dark-2);
+}
+
+/* ---------- Fijne lijnen ---------- */
+html[data-theme="light"] .divider {
+  border-top-color: rgba(0,0,0,.1);
+}
+
+/* ---------- Org logo: altijd witte achtergrond ---------- */
+.org-logo {
+  background: #ffffff !important;
+}
+html[data-theme="light"] .org-logo {
+  border-color: rgba(159,122,28,.2);
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+}
+
+/* ---------- Badges ---------- */
+html[data-theme="light"] .badge-houden {
+  background: rgba(46,125,50,.12);
+  color: var(--green);
+}
+html[data-theme="light"] .badge-aanpassen {
+  background: rgba(230,81,0,.12);
+  color: var(--orange);
+}
+html[data-theme="light"] .badge-vervangen {
+  background: rgba(198,40,40,.12);
+  color: var(--red);
+}
+
+/* ---------- Upload area ---------- */
+html[data-theme="light"] .upload-area {
+  border-color: rgba(159,122,28,.3);
+}
+html[data-theme="light"] .upload-area:hover {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+
+/* ---------- Loading overlay ---------- */
+html[data-theme="light"] .loading-overlay {
+  background: rgba(245,241,234,.92) !important;
+}
+
+/* ---------- Error box ---------- */
+html[data-theme="light"] .error-box {
+  background: rgba(198,40,40,.08);
+  border-color: rgba(198,40,40,.25);
+  color: #7f1c1c;
+}
+
+/* ---------- Scrollbar ---------- */
+html[data-theme="light"] * {
+  scrollbar-color: var(--mid) var(--dark-2);
+}
+
+/* ============================================================
+   THEMA TOGGLE KNOP (zwevend, rechtonder)
+   ============================================================ */
+.theme-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--dark-2);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, border-color .2s, transform .15s;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  line-height: 1;
+}
+.theme-toggle:hover {
+  border-color: var(--gold);
+  transform: scale(1.08);
+}
+.theme-toggle:active {
+  transform: scale(.95);
+}
+
+/* Icoon wisselen */
+.theme-icon-sun  { display: none; }
+.theme-icon-moon { display: inline; }
+html[data-theme="light"] .theme-icon-sun  { display: inline; }
+html[data-theme="light"] .theme-icon-moon { display: none; }

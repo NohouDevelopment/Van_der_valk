@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingrediënten Analyse — {{ org.naam }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+      --green: #66BB6A; --yellow: #FFA726; --red: #EF5350; --blue: #6495ED;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
+    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+
+    .main { flex: 1; max-width: 1200px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .page-sub { color: var(--text-dim); font-size: .85rem; margin-bottom: 1.5rem; }
+
+    /* Geen menu */
+    .geen-data { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem 2rem; text-align: center; }
+    .geen-data p { color: var(--text-dim); font-size: .9rem; margin-bottom: 1rem; }
+    .btn-primary { background: var(--gold); color: #0F0F0F; font-size: .85rem; font-weight: 600; border: none; border-radius: 8px; padding: .6rem 1.2rem; cursor: pointer; text-decoration: none; display: inline-block; transition: background .2s; }
+    .btn-primary:hover { background: var(--gold-light); }
+
+    /* Stat pills */
+    .stats-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .stat-pill { background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px; padding: .65rem 1rem; display: flex; flex-direction: column; gap: .15rem; min-width: 130px; }
+    .stat-pill .val { font-size: 1.3rem; font-weight: 700; font-family: 'Playfair Display', serif; }
+    .stat-pill .lbl { font-size: .72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .05em; }
+    .stat-pill.risk .val { color: var(--red); }
+    .stat-pill.syn .val { color: var(--green); }
+
+    /* Filter bar */
+    .filter-bar { display: flex; gap: .75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-pills { display: flex; gap: .35rem; }
+    .filter-pill { font-size: .75rem; padding: .35rem .7rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; white-space: nowrap; }
+    .filter-pill:hover { border-color: var(--gold); color: var(--gold); }
+    .filter-pill.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+    .filter-select { background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .78rem; padding: .35rem .6rem; outline: none; }
+    .filter-select:focus { border-color: var(--gold); }
+    .filter-search { background: var(--dark-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .78rem; padding: .35rem .6rem; outline: none; min-width: 160px; }
+    .filter-search:focus { border-color: var(--gold); }
+    .filter-count { font-size: .72rem; color: var(--text-dim); margin-left: auto; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; font-size: .72rem; font-weight: 600; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: .06em; padding: .6rem .75rem;
+      border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap;
+      user-select: none; transition: color .15s;
+    }
+    thead th:hover { color: var(--gold); }
+    thead th .sort-arrow { font-size: .6rem; margin-left: .25rem; opacity: .4; }
+    thead th.sorted .sort-arrow { opacity: 1; color: var(--gold); }
+    tbody tr {
+      border-bottom: 1px solid rgba(201,168,76,.08); transition: background .12s; cursor: pointer;
+    }
+    tbody tr:hover { background: var(--dark-2); }
+    tbody td { padding: .6rem .75rem; font-size: .82rem; vertical-align: middle; }
+
+    .ing-naam { font-weight: 600; text-transform: capitalize; }
+    .ing-cat { font-size: .7rem; padding: .15rem .45rem; border-radius: 4px; background: var(--dark-3); color: var(--text-dim); border: 1px solid var(--border); }
+    .ing-count { font-weight: 700; font-size: .9rem; }
+    .status-badge { font-size: .7rem; font-weight: 700; padding: .2rem .5rem; border-radius: 5px; white-space: nowrap; }
+    .status-badge.green { background: rgba(102,187,106,.12); color: var(--green); }
+    .status-badge.yellow { background: rgba(255,167,38,.12); color: var(--yellow); }
+    .status-badge.red { background: rgba(239,83,80,.12); color: var(--red); }
+    .status-badge.gray { background: var(--dark-3); color: var(--text-dim); }
+
+    .strategie-kort { font-size: .75rem; color: var(--text-dim); max-width: 250px; }
+
+    /* Geschatte omloop */
+    .omloop-val { font-size: .78rem; font-weight: 600; color: var(--blue); }
+    .omloop-nb { font-size: .75rem; color: var(--text-dim); font-style: italic; cursor: help; }
+
+    /* Expandable row */
+    .expand-row { display: none; }
+    .expand-row.open { display: table-row; }
+    .expand-row td { padding: .5rem .75rem .75rem 2rem; border-bottom: 1px solid var(--border); }
+    .expand-label { font-size: .72rem; color: var(--text-dim); margin-bottom: .25rem; }
+    .expand-gerechten { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .expand-gerecht { font-size: .72rem; padding: .15rem .45rem; border-radius: 4px; background: var(--gold-dim); color: var(--gold); font-weight: 500; display: inline-flex; align-items: center; gap: .3rem; }
+    .expand-qty { font-size: .65rem; color: var(--text-dim); padding: .1rem .3rem; background: var(--dark-3); border-radius: 3px; }
+
+    /* Voorstel knop */
+    .voorstel-bar { margin-top: 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 2rem; color: var(--text-dim); font-size: .85rem; }
+
+    /* Populariteit bar */
+    .pop-bar-wrap { display: flex; align-items: center; gap: .4rem; min-width: 90px; }
+    .pop-bar { height: 6px; border-radius: 3px; background: var(--dark-3); flex: 1; overflow: hidden; }
+    .pop-bar-fill { height: 100%; border-radius: 3px; background: var(--gold); transition: width .3s; }
+    .pop-label { font-size: .68rem; color: var(--text-dim); white-space: nowrap; min-width: 28px; text-align: right; }
+
+    /* Overlap badge */
+    .overlap-badge { font-size: .68rem; font-weight: 700; padding: .12rem .4rem; border-radius: 4px; white-space: nowrap; }
+    .overlap-badge.hoog { background: rgba(102,187,106,.12); color: var(--green); }
+    .overlap-badge.medium { background: rgba(255,167,38,.12); color: var(--yellow); }
+    .overlap-badge.laag { background: rgba(239,83,80,.12); color: var(--red); }
+
+    /* Verkoop kolom */
+    .verkoop-val { font-size: .78rem; font-weight: 600; color: var(--blue); }
+    .verkoop-nb { font-size: .75rem; color: var(--text-dim); font-style: italic; }
+
+    /* Overlap sectie */
+    .overlap-sectie { margin-top: 2rem; margin-bottom: 2rem; }
+    .overlap-titel { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--gold); margin-bottom: .75rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border); }
+    .overlap-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .overlap-item { background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px; padding: .45rem .75rem; font-size: .78rem; display: flex; align-items: center; gap: .5rem; }
+    .overlap-item .oi-naam { font-weight: 600; text-transform: capitalize; }
+    .overlap-item .oi-count { font-size: .68rem; padding: .1rem .35rem; border-radius: 3px; background: var(--gold-dim); color: var(--gold); font-weight: 700; }
+
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+
+    @media (max-width: 768px) {
+      .stats-row { gap: .5rem; }
+      .stat-pill { min-width: 100px; padding: .5rem .75rem; }
+      .stat-pill .val { font-size: 1rem; }
+      .strategie-kort { display: none; }
+      .col-omloop-est { display: none; }
+      .col-overlap { display: none; }
+      .col-verkoop { display: none; }
+      .overlap-sectie { display: none; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('menu.menu_overzicht') }}" class="nav-link">Menu's</a>
+    {% if kassaboek_actief %}<a href="{{ url_for('kassaboek.kassaboek_overzicht') }}" class="nav-link">Verkoop</a>{% endif %}
+  </div>
+</nav>
+
+<div class="main">
+  {% if not heeft_menu %}
+  <div class="geen-data">
+    <p>Upload eerst een menu voordat je ingrediënten kunt analyseren.</p>
+    <a href="{{ url_for('menu.menu_overzicht') }}" class="btn-primary">Menu uploaden</a>
+  </div>
+
+  {% else %}
+  <div class="page-header">
+    <h1 class="page-title">Ingrediënten <em>Analyse</em></h1>
+  </div>
+  <p class="page-sub">{{ menu.naam }} — Overzicht van alle ingrediënten, hun omloopsnelheid en dervingsrisico.</p>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-pill">
+      <span class="val">{{ analyse.statistieken.totaal_uniek }}</span>
+      <span class="lbl">Unieke ingrediënten</span>
+    </div>
+    <div class="stat-pill">
+      <span class="val">{{ analyse.statistieken.vers_ingredienten }}</span>
+      <span class="lbl">Vers / bederfelijk</span>
+    </div>
+    <div class="stat-pill risk">
+      <span class="val">{{ analyse.statistieken.single_use_vers }}</span>
+      <span class="lbl">Kritiek (1 gerecht)</span>
+    </div>
+    <div class="stat-pill syn">
+      <span class="val">{{ analyse.synergie_score }}%</span>
+      <span class="lbl">Synergie-score</span>
+    </div>
+  </div>
+
+  <!-- Ingredient overlap (top gedeelde ingrediënten) -->
+  {% set top_overlap = analyse.ingredienten | selectattr('gebruik_count', 'ge', 2) | list | sort(attribute='gebruik_count', reverse=True) %}
+  {% if top_overlap %}
+  <div class="overlap-sectie">
+    <div class="overlap-titel">Ingrediënt Overlap — gedeeld over meerdere gerechten</div>
+    <div class="overlap-grid">
+      {% for ing in top_overlap[:12] %}
+      <div class="overlap-item">
+        <span class="oi-naam">{{ ing.naam }}</span>
+        <span class="oi-count">{{ ing.gebruik_count }}&times;</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-pills">
+      <button class="filter-pill active" data-filter="alle" onclick="filterStatus(this)">Alle</button>
+      <button class="filter-pill" data-filter="kritiek" onclick="filterStatus(this)">Kritiek</button>
+      <button class="filter-pill" data-filter="medium" onclick="filterStatus(this)">Medium</button>
+      <button class="filter-pill" data-filter="hoog" onclick="filterStatus(this)">Hoog</button>
+      <button class="filter-pill" data-filter="laag" onclick="filterStatus(this)">Laag</button>
+    </div>
+    <select class="filter-select" id="catFilter" onchange="applyFilters()">
+      <option value="alle">Alle categorieën</option>
+      <option value="vers">Vers</option>
+      <option value="zuivel">Zuivel</option>
+      <option value="droog">Droog</option>
+      <option value="saus">Saus</option>
+      <option value="diepvries">Diepvries</option>
+    </select>
+    <input type="text" class="filter-search" id="searchInput" placeholder="Zoek ingrediënt..." oninput="applyFilters()">
+    <span class="filter-count" id="filterCount"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table id="ingTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0)" data-col="0">Ingrediënt <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(1)" data-col="1">Cat. <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(2)" data-col="2">Gebruik <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(3)" data-col="3" class="col-overlap">Overlap <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(4)" data-col="4">Omloop <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(5)" data-col="5" class="col-omloop-est">Gest. Omloop <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(6)" data-col="6" class="col-verkoop">Verkoop/week <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(7)" data-col="7" class="col-pop">Populariteit <span class="sort-arrow">&#9660;</span></th>
+          <th onclick="sortTable(8)" data-col="8">Risico <span class="sort-arrow">&#9660;</span></th>
+          <th>Strategie</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set max_gebruik = analyse.ingredienten | map(attribute='gebruik_count') | max if analyse.ingredienten else 1 %}
+        {% for ing in analyse.ingredienten %}
+        {% set pop_pct = ((ing.gebruik_count / max_gebruik) * 100) | round | int %}
+        {% set overlap_kleur = 'hoog' if ing.gebruik_count >= 4 else ('medium' if ing.gebruik_count >= 2 else 'laag') %}
+        <tr class="data-row"
+            data-status="{{ ing.omloop_status }}"
+            data-cat="{{ ing.categorie }}"
+            data-naam="{{ ing.naam }}"
+            data-omloop-val="{{ ing.geschatte_omloop.waarde if ing.geschatte_omloop.waarde is not none else -1 }}"
+            data-pop-val="{{ pop_pct }}"
+            onclick="toggleExpand(this)">
+          <td><span class="ing-naam">{{ ing.naam }}</span></td>
+          <td><span class="ing-cat">{{ ing.categorie }}</span></td>
+          <td><span class="ing-count">{{ ing.gebruik_count }}&times;</span></td>
+          <td class="col-overlap">
+            <span class="overlap-badge {{ overlap_kleur }}">
+              {% if ing.gebruik_count >= 4 %}Hoog
+              {% elif ing.gebruik_count >= 2 %}Medium
+              {% else %}Laag{% endif %}
+            </span>
+          </td>
+          <td><span class="status-badge {{ ing.kleur }}">{{ ing.omloop_status|capitalize }}</span></td>
+          <td class="col-omloop-est">
+            {% if ing.geschatte_omloop.beschikbaar %}
+            <span class="omloop-val">{{ ing.geschatte_omloop.label }}</span>
+            {% else %}
+            <span class="omloop-nb" title="Koppel kassaboek voor geschatte wekelijkse omloop">N/B</span>
+            {% endif %}
+          </td>
+          <td class="col-verkoop">
+            {% if ing.geschatte_omloop.beschikbaar and ing.geschatte_omloop.waarde and ing.geschatte_omloop.waarde > 0 %}
+            <span class="verkoop-val">{{ ing.geschatte_omloop.label }}</span>
+            {% else %}
+            <span class="verkoop-nb">—</span>
+            {% endif %}
+          </td>
+          <td class="col-pop">
+            <div class="pop-bar-wrap">
+              <div class="pop-bar"><div class="pop-bar-fill" style="width:{{ pop_pct }}%"></div></div>
+              <span class="pop-label">{{ pop_pct }}%</span>
+            </div>
+          </td>
+          <td>{{ ing.versheids_risico|capitalize }}</td>
+          <td><span class="strategie-kort">{{ ing.strategie }}</span></td>
+        </tr>
+        <tr class="expand-row" data-parent="{{ ing.naam }}">
+          <td colspan="10">
+            <div class="expand-label">Gebruikt in {{ ing.gebruik_count }} gerecht{{ 'en' if ing.gebruik_count != 1 }}:</div>
+            <div class="expand-gerechten">
+              {% for g in ing.gerechten_detail %}
+              <span class="expand-gerecht">
+                {{ g.gerecht }}
+                {% if g.hoeveelheid %}
+                <span class="expand-qty">{{ g.hoeveelheid }}{{ g.eenheid }}</span>
+                {% endif %}
+              </span>
+              {% endfor %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state hidden" id="emptyState">Geen ingrediënten gevonden met deze filters.</div>
+
+  <!-- Voorstel knop -->
+  <div class="voorstel-bar">
+    <form method="POST" action="{{ url_for('ingredient.ingredienten_voorstel') }}">
+      <button type="submit" class="btn-primary">Slim voorstel genereren</button>
+    </form>
+    <span style="font-size:.78rem;color:var(--text-dim)">AI genereert een gerecht dat single-use ingrediënten hergebruikt</span>
+  </div>
+
+  {% endif %}
+</div>
+
+<footer><p>Menu Maker &middot; Aangedreven door Gemini AI &middot; {{ org.naam }}</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+<script>
+let currentStatus = 'alle';
+let sortCol = -1;
+let sortAsc = true;
+
+function filterStatus(btn) {
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  currentStatus = btn.dataset.filter;
+  applyFilters();
+}
+
+function applyFilters() {
+  const cat = document.getElementById('catFilter').value;
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const rows = document.querySelectorAll('.data-row');
+  let visible = 0;
+
+  rows.forEach(row => {
+    const status = row.dataset.status;
+    const rowCat = row.dataset.cat;
+    const naam = row.dataset.naam;
+    const expandRow = row.nextElementSibling;
+
+    let show = true;
+    if (currentStatus !== 'alle' && status !== currentStatus) show = false;
+    if (cat !== 'alle' && rowCat !== cat) show = false;
+    if (search && !naam.includes(search)) show = false;
+
+    row.style.display = show ? '' : 'none';
+    if (expandRow && expandRow.classList.contains('expand-row')) {
+      if (!show) expandRow.classList.remove('open');
+      expandRow.style.display = show && expandRow.classList.contains('open') ? '' : 'none';
+    }
+    if (show) visible++;
+  });
+
+  document.getElementById('filterCount').textContent = visible + ' ingredi\u00ebnten';
+  document.getElementById('emptyState').classList.toggle('hidden', visible > 0);
+}
+
+function toggleExpand(row) {
+  const expandRow = row.nextElementSibling;
+  if (!expandRow || !expandRow.classList.contains('expand-row')) return;
+  expandRow.classList.toggle('open');
+  expandRow.style.display = expandRow.classList.contains('open') ? '' : 'none';
+}
+
+function sortTable(col) {
+  const table = document.getElementById('ingTable');
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('.data-row'));
+
+  if (sortCol === col) {
+    sortAsc = !sortAsc;
+  } else {
+    sortCol = col;
+    sortAsc = true;
+  }
+
+  table.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  table.querySelectorAll('thead th')[col].classList.add('sorted');
+
+  const statusOrder = {kritiek: 0, medium: 1, hoog: 2, laag: 3};
+
+  rows.sort((a, b) => {
+    const aRow = a.querySelectorAll('td');
+    const bRow = b.querySelectorAll('td');
+    let aVal, bVal;
+
+    if (col === 2) {
+      // Gebruik (numeriek)
+      aVal = parseInt(aRow[col].textContent);
+      bVal = parseInt(bRow[col].textContent);
+    } else if (col === 4) {
+      // Omloop status (col 4 na toevoeging overlap col)
+      aVal = statusOrder[a.dataset.status] || 9;
+      bVal = statusOrder[b.dataset.status] || 9;
+    } else if (col === 5) {
+      // Geschatte omloop (numeriek, -1 = N/B onderaan)
+      aVal = parseFloat(a.dataset.omloopVal);
+      bVal = parseFloat(b.dataset.omloopVal);
+    } else if (col === 7) {
+      // Populariteit (numeriek)
+      aVal = parseInt(a.dataset.popVal);
+      bVal = parseInt(b.dataset.popVal);
+    } else {
+      aVal = aRow[col].textContent.trim().toLowerCase();
+      bVal = bRow[col].textContent.trim().toLowerCase();
+    }
+
+    if (aVal < bVal) return sortAsc ? -1 : 1;
+    if (aVal > bVal) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  rows.forEach(row => {
+    const expandRow = row.nextElementSibling;
+    tbody.appendChild(row);
+    if (expandRow && expandRow.classList.contains('expand-row')) {
+      tbody.appendChild(expandRow);
+    }
+  });
+}
+
+// Init
+applyFilters();
+</script>
+</body>
+</html>

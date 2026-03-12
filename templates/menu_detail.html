@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ menu.naam }} — {{ org.naam }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+      --green: #66BB6A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
+    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+
+    .main { flex: 1; max-width: 800px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+
+    /* Header */
+    .menu-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .header-actions { display: flex; gap: .5rem; align-items: center; }
+    .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; }
+    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm.danger:hover { border-color: #EF5350; color: #EF5350; }
+    .btn-sm.gold { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    .meta-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+    .meta-tag { font-size: .75rem; color: var(--text-dim); display: flex; align-items: center; gap: .3rem; }
+    .meta-tag .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .meta-tag .dot.green { background: var(--green); }
+    .meta-tag .dot.dim { background: var(--text-dim); }
+
+    /* Categorie */
+    .categorie { margin-bottom: 2rem; }
+    .categorie-titel { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--gold); padding-bottom: .5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+    .categorie-count { font-family: 'Inter', sans-serif; font-size: .75rem; font-weight: 400; color: var(--text-dim); margin-left: .5rem; }
+
+    /* Gerecht */
+    .gerecht { display: flex; justify-content: space-between; align-items: flex-start; padding: .75rem 0; border-bottom: 1px solid rgba(201,168,76,.08); gap: 1rem; }
+    .gerecht:last-child { border-bottom: none; }
+    .gerecht-info { flex: 1; }
+    .gerecht-naam { font-size: .95rem; font-weight: 500; margin-bottom: .2rem; }
+    .gerecht-beschrijving { font-size: .82rem; color: var(--text-dim); line-height: 1.5; }
+    .gerecht-tags { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .35rem; }
+    .gerecht-tag { font-size: .68rem; padding: .15rem .45rem; border-radius: 4px; background: var(--dark-3); color: var(--text-dim); border: 1px solid var(--border); }
+    .gerecht-tag.dieet { background: rgba(102,187,106,.1); color: var(--green); border-color: rgba(102,187,106,.2); }
+    .gerecht-prijs { font-size: .95rem; font-weight: 600; color: var(--gold); white-space: nowrap; }
+
+    /* Ruwe tekst toggle */
+    .raw-toggle { margin-top: 2rem; }
+    .raw-toggle summary { font-size: .82rem; color: var(--text-dim); cursor: pointer; padding: .5rem 0; }
+    .raw-toggle summary:hover { color: var(--text); }
+    .raw-text { background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-top: .75rem; font-family: monospace; font-size: .8rem; color: var(--text-dim); white-space: pre-wrap; max-height: 400px; overflow-y: auto; line-height: 1.5; }
+
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('menu.menu_overzicht') }}" class="nav-link">Menu's</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="menu-header">
+    <h1 class="page-title"><em>{{ menu.naam }}</em></h1>
+    <div class="header-actions">
+      {% if not menu.actief %}
+      <form method="POST" action="{{ url_for('menu.menu_actief', menu_id=menu.id) }}" style="display:inline">
+        <button type="submit" class="btn-sm">Actief maken</button>
+      </form>
+      {% endif %}
+      <a href="{{ url_for('menu.menu_annotaties', menu_id=menu.id) }}" class="btn-sm gold">Annotaties</a>
+      <a href="{{ url_for('menu.menu_upload') }}" class="btn-sm">+ Nieuw menu</a>
+      <form method="POST" action="{{ url_for('menu.menu_verwijder', menu_id=menu.id) }}" style="display:inline" onsubmit="return confirm('Weet je zeker dat je dit menu wilt verwijderen?')">
+        <button type="submit" class="btn-sm danger">Verwijderen</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <span class="meta-tag">
+      <span class="dot {% if menu.actief %}green{% else %}dim{% endif %}"></span>
+      {% if menu.actief %}Actief menu{% else %}Niet actief{% endif %}
+    </span>
+    <span class="meta-tag">{{ menu.bron_type }}</span>
+    <span class="meta-tag">{{ menu.aangemaakt_op.strftime('%d-%m-%Y %H:%M') if menu.aangemaakt_op else '' }}</span>
+    {% set total_gerechten = menu.data.get('categorieën', []) | sum(attribute='gerechten') if menu.data else 0 %}
+  </div>
+
+  {% if menu.data and menu.data.get('categorieën') %}
+    {% for categorie in menu.data['categorieën'] %}
+    <div class="categorie">
+      <div class="categorie-titel">
+        {{ categorie.naam }}
+        <span class="categorie-count">{{ categorie.gerechten | length }} gerecht{{ 'en' if categorie.gerechten | length != 1 }}</span>
+      </div>
+      {% for gerecht in categorie.gerechten %}
+      <div class="gerecht">
+        <div class="gerecht-info">
+          <div class="gerecht-naam">{{ gerecht.naam }}</div>
+          {% if gerecht.beschrijving %}
+          <div class="gerecht-beschrijving">{{ gerecht.beschrijving }}</div>
+          {% endif %}
+          {% if gerecht.tags or gerecht.dieet %}
+          <div class="gerecht-tags">
+            {% for tag in (gerecht.dieet or []) %}
+            <span class="gerecht-tag dieet">{{ tag }}</span>
+            {% endfor %}
+            {% for tag in (gerecht.tags or []) %}
+            <span class="gerecht-tag">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% if gerecht.prijs %}
+        <div class="gerecht-prijs">&euro; {{ '%.2f' | format(gerecht.prijs) }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <p style="color:var(--text-dim);font-size:.9rem">Geen geparsede data beschikbaar.</p>
+  {% endif %}
+
+  {% if menu.ruwe_tekst %}
+  <details class="raw-toggle">
+    <summary>Ruwe menutekst bekijken</summary>
+    <div class="raw-text">{{ menu.ruwe_tekst }}</div>
+  </details>
+  {% endif %}
+</div>
+
+<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+</body>
+</html>

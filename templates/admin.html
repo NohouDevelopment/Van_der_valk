@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Menu Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+      --green: #66BB6A; --red: #EF5350;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
+    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
+    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+
+    .main { flex: 1; max-width: 900px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; margin-bottom: .5rem; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .page-sub { color: var(--text-dim); font-size: .85rem; margin-bottom: 2rem; }
+
+    .org-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .org-table th { text-align: left; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); padding: .6rem 1rem; border-bottom: 1px solid var(--border); }
+    .org-table td { padding: .85rem 1rem; border-bottom: 1px solid rgba(201,168,76,.08); font-size: .88rem; vertical-align: middle; }
+    .org-table tr:hover td { background: var(--dark-2); }
+
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .4rem; vertical-align: middle; }
+    .status-dot.green { background: var(--green); }
+    .status-dot.red { background: var(--red); }
+
+    .btn-toggle { font-family: 'Inter', sans-serif; font-size: .78rem; padding: .35rem .75rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; transition: all .2s; }
+    .btn-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-toggle.actief { border-color: var(--green); color: var(--green); }
+
+    .org-adres { color: var(--text-dim); font-size: .78rem; }
+    .api-key { font-family: monospace; font-size: .72rem; color: var(--text-dim); background: var(--dark-3); padding: .15rem .4rem; border-radius: 4px; word-break: break-all; }
+
+    .geen-data { text-align: center; padding: 3rem; color: var(--text-dim); font-size: .9rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER</div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-link">Uitloggen</a>
+  </div>
+</nav>
+
+<div class="main">
+  <h1 class="page-title">Admin <em>Panel</em></h1>
+  <p class="page-sub">Beheer alle organisaties en kassaboek-toegang.</p>
+
+  {% if orgs %}
+  <table class="org-table">
+    <thead>
+      <tr>
+        <th>Organisatie</th>
+        <th>Status</th>
+        <th>Kassaboek</th>
+        <th>API Key</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for org in orgs %}
+      <tr>
+        <td>
+          <strong>{{ org.naam }}</strong>
+          {% if org.adres %}<br><span class="org-adres">{{ org.adres }}</span>{% endif %}
+        </td>
+        <td>
+          <span class="status-dot {{ 'green' if org.status == 'actief' else 'red' }}"></span>
+          {{ org.status or 'onbekend' }}
+        </td>
+        <td>
+          {% if org.kassaboek_actief %}
+          <span class="status-dot green"></span> Actief
+          {% else %}
+          <span class="status-dot red"></span> Uit
+          {% endif %}
+        </td>
+        <td>
+          {% if org.webhook_api_key %}
+          <span class="api-key">{{ org.webhook_api_key[:12] }}...</span>
+          {% else %}
+          <span style="color:var(--text-dim);font-size:.78rem">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_kassaboek_toggle', org_id=org.id) }}" style="display:inline">
+            <button type="submit" class="btn-toggle {{ 'actief' if org.kassaboek_actief }}">
+              {% if org.kassaboek_actief %}Deactiveren{% else %}Activeren{% endif %}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="geen-data">
+    <p>Nog geen organisaties geregistreerd.</p>
+  </div>
+  {% endif %}
+</div>
+
+<footer><p>Menu Maker &middot; Admin Panel</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+</body>
+</html>

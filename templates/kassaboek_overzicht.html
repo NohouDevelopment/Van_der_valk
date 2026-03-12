@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verkoop Dashboard — {{ org.naam }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+      --green: #66BB6A; --yellow: #FFA726; --red: #EF5350; --blue: #6495ED;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
+    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+    .nav-link.active { color: var(--gold); }
+    .main { flex: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; margin-bottom: .5rem; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .page-sub { color: var(--text-dim); font-size: .85rem; margin-bottom: 2rem; }
+
+    /* Paywall */
+    .paywall { background: var(--dark-2); border: 1px solid var(--border); border-radius: 14px; padding: 3rem 2rem; text-align: center; max-width: 520px; margin: 3rem auto; }
+    .paywall-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .paywall h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: .5rem; }
+    .paywall p { font-size: .88rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.5rem; }
+    .btn-primary { background: var(--gold); color: #0F0F0F; font-size: .85rem; font-weight: 600; border: none; border-radius: 8px; padding: .6rem 1.2rem; cursor: pointer; text-decoration: none; display: inline-block; transition: background .2s; }
+    .btn-primary:hover { background: var(--gold-light); }
+
+    /* Grid */
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .card { background: var(--dark-2); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--gold); margin-bottom: 1rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+    .card-full { grid-column: 1 / -1; }
+
+    /* Bar chart */
+    .bar-chart { display: flex; flex-direction: column; gap: .65rem; }
+    .bar-row { display: flex; align-items: center; gap: .75rem; }
+    .bar-label { font-size: .78rem; width: 150px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: capitalize; }
+    .bar-track { flex: 1; height: 8px; background: var(--dark-3); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; background: var(--gold); }
+    .bar-val { font-size: .72rem; color: var(--text-dim); min-width: 30px; text-align: right; }
+
+    /* Gerecht lijsten */
+    .gerecht-lijst { display: flex; flex-direction: column; gap: .4rem; }
+    .gerecht-item { display: flex; align-items: center; gap: .4rem; padding: .5rem .75rem; background: var(--dark-3); border-radius: 8px; font-size: .82rem; }
+    .gerecht-naam { font-weight: 600; text-transform: capitalize; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rank { font-size: .68rem; color: var(--text-dim); min-width: 18px; flex-shrink: 0; }
+    .trend-badge { font-size: .68rem; font-weight: 700; padding: .1rem .38rem; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+    .trend-badge.up { background: rgba(102,187,106,.12); color: var(--green); }
+    .trend-badge.down { background: rgba(239,83,80,.12); color: var(--red); }
+    .trend-badge.flat { background: var(--dark-2); color: var(--text-dim); }
+    .verkoop-val { font-size: .72rem; color: var(--text-dim); flex-shrink: 0; }
+
+    /* API */
+    .api-sectie { background: var(--dark-2); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-top: 2rem; }
+    .api-titel { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--gold); margin-bottom: 1rem; }
+    .api-key-wrap { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .api-key { font-family: monospace; font-size: .78rem; background: var(--dark-3); border: 1px solid var(--border); border-radius: 6px; padding: .4rem .75rem; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-copy { font-size: .72rem; padding: .35rem .65rem; border-radius: 5px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; transition: all .15s; font-family: 'Inter', sans-serif; flex-shrink: 0; }
+    .btn-copy:hover { border-color: var(--gold); color: var(--gold); }
+    .curl-sub { font-size: .75rem; color: var(--text-dim); margin-bottom: .4rem; }
+    .curl-block { background: var(--dark-3); border-radius: 8px; padding: .75rem 1rem; font-family: monospace; font-size: .72rem; color: var(--text-dim); overflow-x: auto; line-height: 1.6; white-space: pre; }
+    .empty-card { text-align: center; padding: 2rem; color: var(--text-dim); font-size: .85rem; line-height: 1.6; }
+
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('ingredient.ingredienten_overzicht') }}" class="nav-link">Ingredi&euml;nten</a>
+    <a href="{{ url_for('kassaboek.kassaboek_overzicht') }}" class="nav-link active">Verkoop</a>
+  </div>
+</nav>
+
+<div class="main">
+  <h1 class="page-title">Verkoop <em>Dashboard</em></h1>
+  <p class="page-sub">Inzicht in verkoopprestaties per gerecht &mdash; laatste 4 weken.</p>
+
+  {% if not kassaboek_actief %}
+  <div class="paywall">
+    <div class="paywall-icon">&#128274;</div>
+    <h2>Kassaboek niet actief</h2>
+    <p>Activeer het kassaboek-module om verkoopcijfers per gerecht bij te houden en te analyseren.</p>
+    <a href="mailto:info@nohou.nl" class="btn-primary">Contact opnemen</a>
+  </div>
+
+  {% else %}
+
+  {% if verkoop_lijst %}
+  {% set max_verkoop = verkoop_lijst | map(attribute='totaal') | max %}
+  <div class="dashboard-grid">
+
+    <!-- Bar chart: verkoop per gerecht -->
+    <div class="card card-full">
+      <div class="card-title">Verkoop per gerecht &mdash; laatste 4 weken</div>
+      <div class="bar-chart">
+        {% for g in verkoop_lijst %}
+        {% set pct = ((g.totaal / [max_verkoop, 1] | max) * 100) | round | int %}
+        <div class="bar-row">
+          <span class="bar-label" title="{{ g.naam }}">{{ g.naam }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:{{ pct }}%"></div></div>
+          <span class="bar-val">{{ g.totaal }}&times;</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Top gerechten -->
+    <div class="card">
+      <div class="card-title">Top gerechten</div>
+      <div class="gerecht-lijst">
+        {% for g in verkoop_lijst[:5] %}
+        {% set trend_item = trending_lijst | selectattr('naam', 'equalto', g.naam) | first | default(none) %}
+        <div class="gerecht-item">
+          <span class="rank">#{{ loop.index }}</span>
+          <span class="gerecht-naam">{{ g.naam }}</span>
+          <span class="verkoop-val">{{ g.totaal }}&times;</span>
+          {% if trend_item is not none %}
+            {% if trend_item.stijging_pct >= 10 %}
+            <span class="trend-badge up">&#9650; +{{ trend_item.stijging_pct }}%</span>
+            {% elif trend_item.stijging_pct <= -10 %}
+            <span class="trend-badge down">&#9660; {{ trend_item.stijging_pct }}%</span>
+            {% else %}
+            <span class="trend-badge flat">stabiel</span>
+            {% endif %}
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Trending stijgers -->
+    <div class="card">
+      <div class="card-title">Trending &mdash; sterkste stijgers</div>
+      {% set stijgers = trending_lijst | selectattr('stijging_pct', 'gt', 0) | list %}
+      {% if stijgers %}
+      <div class="gerecht-lijst">
+        {% for t in stijgers[:5] %}
+        <div class="gerecht-item">
+          <span class="gerecht-naam">{{ t.naam }}</span>
+          {% if t.stijging_pct >= 10 %}
+          <span class="trend-badge up">&#9650; +{{ t.stijging_pct }}%</span>
+          {% else %}
+          <span class="trend-badge flat">+{{ t.stijging_pct }}%</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-card">Nog geen vergelijkingsdata.<br>Minimaal 4 weken data nodig.</div>
+      {% endif %}
+    </div>
+
+    <!-- Laagst verkopend -->
+    <div class="card">
+      <div class="card-title">Laagst verkopend</div>
+      <div class="gerecht-lijst">
+        {% set flops = verkoop_lijst | reverse | list %}
+        {% for g in flops[:5] %}
+        {% set trend_item = trending_lijst | selectattr('naam', 'equalto', g.naam) | first | default(none) %}
+        <div class="gerecht-item">
+          <span class="gerecht-naam">{{ g.naam }}</span>
+          <span class="verkoop-val">{{ g.totaal }}&times;</span>
+          {% if trend_item is not none and trend_item.stijging_pct <= -10 %}
+          <span class="trend-badge down">&#9660; {{ trend_item.stijging_pct }}%</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-card">
+      Nog geen verkoopcijfers beschikbaar.<br>
+      Stuur data via de webhook of bulk upload om te beginnen.
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- API Integratie -->
+  <div class="api-sectie">
+    <div class="api-titel">API Integratie</div>
+    <div class="api-key-wrap">
+      <span class="api-key" id="apiKeySpan">{{ org.webhook_api_key }}</span>
+      <button class="btn-copy" onclick="kopieerKey()">Kopieer</button>
+    </div>
+    <p class="curl-sub">Stuur dagelijkse verkoop via webhook:</p>
+    <pre class="curl-block">curl -X POST https://jouwdomein.nl/kassaboek/webhook \
+  -H "X-API-Key: &lt;jouw-api-key&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"datum":"2026-03-12","omzet":1250.50,"gerechten":[{"naam":"Caesar Salade","aantal":12}]}'</pre>
+  </div>
+
+  {% endif %}
+</div>
+
+<footer><p>Menu Maker &middot; Aangedreven door Gemini AI &middot; {{ org.naam }}</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+<script>
+function kopieerKey() {
+  var key = document.getElementById('apiKeySpan').textContent.trim();
+  navigator.clipboard.writeText(key).then(function() {
+    var btn = document.querySelector('.btn-copy');
+    btn.textContent = 'Gekopieerd!';
+    setTimeout(function() { btn.textContent = 'Kopieer'; }, 1500);
+  });
+}
+</script>
+</body>
+</html>

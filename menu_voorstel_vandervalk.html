@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menuvoorstel Lente 2026 — Van der Valk Hotel Ridderkerk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F;
+      --dark-2: #1A1A1A;
+      --dark-3: #242424;
+      --mid: #3A3A3A;
+      --text: #E8E4DC;
+      --text-dim: #9A9590;
+      --border: rgba(201,168,76,.2);
+      --ease: cubic-bezier(.16,1,.32,1);
+      --green: rgba(76,175,80,.15);
+      --green-border: rgba(76,175,80,.4);
+      --orange: rgba(255,152,0,.15);
+      --orange-border: rgba(255,152,0,.4);
+      --red: rgba(229,57,53,.15);
+      --red-border: rgba(229,57,53,.4);
+      --blue: rgba(100,149,237,.15);
+      --blue-border: rgba(100,149,237,.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px;
+      background: rgba(15,15,15,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 2rem; gap: 2rem;
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 600;
+      color: var(--gold); letter-spacing: .08em; white-space: nowrap;
+    }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; margin-left: auto; }
+    .nav-links a {
+      color: var(--text-dim); text-decoration: none;
+      font-size: .8rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    section { padding: 5rem 0; border-bottom: 1px solid var(--border); }
+    section:last-of-type { border-bottom: none; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 6rem 0 5rem; text-align: center;
+      background: radial-gradient(ellipse at center top, rgba(201,168,76,.08) 0%, transparent 60%);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--gold-dim); border: 1px solid var(--border);
+      color: var(--gold); font-size: .7rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .35rem .9rem; border-radius: 100px; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 700;
+      line-height: 1.1; color: var(--text); margin-bottom: .75rem;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub { color: var(--text-dim); font-size: 1rem; font-weight: 300; margin-bottom: 2.5rem; }
+    .hero-meta { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .hero-meta-item {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: .75rem 1.5rem; text-align: center;
+    }
+    .hero-meta-item .val {
+      display: block; font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 600; color: var(--gold);
+    }
+    .hero-meta-item .lbl {
+      display: block; font-size: .72rem; font-weight: 600;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: var(--text-dim); margin-top: .15rem;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-label {
+      display: inline-block;
+      background: var(--gold-dim); border: 1px solid var(--border);
+      color: var(--gold); font-size: .68rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .3rem .8rem; border-radius: 100px; margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 700; margin-bottom: .5rem;
+    }
+    .section-desc { color: var(--text-dim); font-weight: 300; max-width: 640px; margin-bottom: 2.5rem; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+    .card-header {
+      background: var(--dark-3); border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem; display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem;
+    }
+    .card-header h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; }
+    .card-body { padding: 1.5rem; }
+
+    /* ── PROFILE GRID ── */
+    .profile-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem; margin-bottom: 2rem;
+    }
+    .profile-item {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem 1.5rem;
+    }
+    .profile-item-label {
+      font-size: .72rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: .4rem;
+    }
+    .profile-item-value { font-size: .95rem; line-height: 1.5; }
+
+    /* ── TREND CARDS ── */
+    .trend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+    .trend-card {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem 1.5rem;
+      display: flex; flex-direction: column; gap: .75rem;
+    }
+    .trend-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+    .trend-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold-dim); border: 1px solid var(--border);
+      color: var(--gold); font-size: .75rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .trend-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; flex: 1; }
+    .trend-fit {
+      font-size: .68rem; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase; padding: .25rem .7rem;
+      border-radius: 100px; white-space: nowrap;
+    }
+    .fit-high { background: var(--green); border: 1px solid var(--green-border); color: #4CAF50; }
+    .fit-mid { background: var(--orange); border: 1px solid var(--orange-border); color: #FF9800; }
+    .trend-desc { font-size: .87rem; color: var(--text-dim); line-height: 1.6; }
+    .trend-cats { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .cat-pill {
+      background: var(--dark-3); border: 1px solid var(--border);
+      color: var(--text-dim); font-size: .68rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .2rem .6rem; border-radius: 100px;
+    }
+    .trend-source { font-size: .75rem; color: var(--text-dim); }
+    .trend-source a { color: var(--gold); text-decoration: none; }
+    .trend-source a:hover { text-decoration: underline; }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    th {
+      background: var(--dark-3); color: var(--text-dim);
+      font-size: .7rem; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: .75rem 1rem; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: .7rem 1rem; border-bottom: 1px solid rgba(201,168,76,.08); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(201,168,76,.04); }
+
+    .status-badge {
+      display: inline-block; font-size: .68rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: .22rem .65rem; border-radius: 100px; white-space: nowrap;
+    }
+    .status-houden { background: var(--green); border: 1px solid var(--green-border); color: #4CAF50; }
+    .status-aanpassen { background: var(--orange); border: 1px solid var(--orange-border); color: #FF9800; }
+    .status-vervangen { background: var(--red); border: 1px solid var(--red-border); color: #ef5350; }
+    .status-nieuw { background: var(--blue); border: 1px solid var(--blue-border); color: #6495ED; }
+    .status-verwijderd { background: var(--red); border: 1px solid var(--red-border); color: #ef5350; }
+
+    /* ── DISH CARDS ── */
+    .category-section { margin-bottom: 3rem; }
+    .category-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: var(--gold);
+      padding-bottom: .75rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .sub-label {
+      font-size: .7rem; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--text-dim); margin: 1.5rem 0 .75rem;
+    }
+    .dish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; }
+    .dish-card {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .dish-card-header {
+      background: var(--dark-3); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.25rem; display: flex; align-items: center;
+      justify-content: space-between; gap: .75rem;
+    }
+    .dish-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; }
+    .dish-price {
+      background: var(--gold-dim); border: 1px solid var(--border);
+      color: var(--gold); font-size: .8rem; font-weight: 700;
+      padding: .25rem .7rem; border-radius: 100px; white-space: nowrap;
+    }
+    .dish-card-body { padding: 1rem 1.25rem; flex: 1; display: flex; flex-direction: column; gap: .75rem; }
+    .dish-ingredients { font-size: .84rem; color: var(--text-dim); line-height: 1.5; }
+    .dish-ingredients strong { color: var(--text); font-weight: 500; }
+    .dish-rationale {
+      font-size: .84rem; line-height: 1.6;
+      border-left: 2px solid var(--gold); padding-left: .75rem; color: var(--text);
+    }
+    .dish-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: auto; padding-top: .5rem; }
+    .dish-tag {
+      background: var(--dark-3); border: 1px solid var(--border);
+      color: var(--text-dim); font-size: .65rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .18rem .55rem; border-radius: 100px;
+    }
+    .dish-tag.gold { background: var(--gold-dim); border-color: var(--border); color: var(--gold); }
+    .dish-overlap { font-size: .78rem; color: var(--text-dim); }
+    .dish-overlap span { color: var(--gold); font-weight: 500; }
+
+    .keep-list { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+    .keep-pill {
+      background: var(--dark-2); border: 1px solid var(--border);
+      color: var(--text-dim); font-size: .8rem; padding: .3rem .8rem; border-radius: 100px;
+    }
+    .remove-list {
+      background: rgba(229,57,53,.08); border: 1px solid rgba(229,57,53,.25);
+      border-radius: 10px; padding: 1rem 1.25rem; font-size: .87rem;
+    }
+    .remove-list h4 {
+      color: #ef5350; font-size: .75rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: .6rem;
+    }
+    .remove-item { color: var(--text-dim); margin-bottom: .35rem; }
+    .remove-item strong { color: var(--text); }
+
+    /* ── OVERLAP MATRIX ── */
+    .overlap-badge {
+      display: inline-block; background: var(--gold-dim);
+      border: 1px solid var(--border); color: var(--gold);
+      font-size: .75rem; font-weight: 700;
+      padding: .15rem .5rem; border-radius: 100px; margin-right: .4rem;
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem; text-align: center;
+    }
+    .stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 600; color: var(--gold); display: block;
+    }
+    .stat-lbl {
+      font-size: .72rem; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--text-dim); margin-top: .2rem;
+    }
+
+    /* ── PLACEHOLDER ── */
+    .placeholder-box {
+      border: 2px dashed var(--mid); border-radius: 16px;
+      padding: 3rem 2rem; text-align: center; background: rgba(58,58,58,.15);
+    }
+    .placeholder-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: .4; }
+    .placeholder-box h3 {
+      font-family: 'Playfair Display', serif; font-size: 1.3rem;
+      margin-bottom: .5rem; color: var(--text-dim);
+    }
+    .placeholder-box p { color: var(--text-dim); font-size: .9rem; max-width: 500px; margin: 0 auto .75rem; }
+    .placeholder-items { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: 1.25rem; }
+    .placeholder-item {
+      background: var(--dark-2); border: 1px solid var(--mid);
+      color: var(--text-dim); font-size: .78rem; padding: .3rem .8rem; border-radius: 100px;
+    }
+
+    /* ── SOURCES ── */
+    .source-list { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .source-list li {
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: .7rem 1rem; font-size: .84rem;
+      display: flex; gap: .75rem; align-items: baseline;
+    }
+    .source-num { color: var(--gold); font-weight: 700; font-size: .75rem; min-width: 1.4rem; }
+    .source-list a { color: var(--gold-light); text-decoration: none; }
+    .source-list a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2.5rem 2rem; text-align: center;
+      color: var(--text-dim); font-size: .8rem; border-top: 1px solid var(--border);
+    }
+    footer .footer-brand {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold); letter-spacing: .08em; display: block; margin-bottom: .4rem;
+    }
+
+    /* ── DIVIDER ── */
+    .divider { width: 60px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); margin: 1.5rem 0; }
+
+    /* ── CALLOUT ── */
+    .callout {
+      background: var(--gold-dim); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.5rem; font-size: .9rem; margin-bottom: 2rem;
+    }
+    .callout strong { color: var(--gold); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero { padding: 4rem 0 3rem; }
+      section { padding: 3rem 0; }
+      .container { padding: 0 1.25rem; }
+      .dish-grid, .trend-grid, .profile-grid { grid-template-columns: 1fr; }
+      .hero-meta { gap: 1rem; }
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      nav { position: static; }
+      body { background: white; color: black; }
+      .card, .dish-card, .trend-card, .profile-item, .stat-card {
+        background: white; border-color: #ccc; box-shadow: none;
+      }
+      .section-label, .status-badge, .dish-tag, .cat-pill { border-color: #ccc; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <div class="nav-brand">Van der Valk Ridderkerk</div>
+  <ul class="nav-links">
+    <li><a href="#profiel">Profiel</a></li>
+    <li><a href="#trends">Trends</a></li>
+    <li><a href="#analyse">Analyse</a></li>
+    <li><a href="#voorstel">Voorstel</a></li>
+    <li><a href="#overlap">Overlap</a></li>
+    <li><a href="#bronnen">Bronnen</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-badge">Menuvoorstel Lente 2026</div>
+    <h1>Dinerkaart <span>Herontworpen</span></h1>
+    <p class="hero-sub">AI-gedreven menuanalyse en voorstel voor Van der Valk Hotel Ridderkerk, gebaseerd op trendresearch, ingredi&euml;ntoverlap en het restaurantprofiel.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="val">51</span>
+        <span class="lbl">Huidige gerechten</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="val">8</span>
+        <span class="lbl">Nieuwe gerechten</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="val">7</span>
+        <span class="lbl">Aanpassingen</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="val">4</span>
+        <span class="lbl">Verwijderd</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="val">25+</span>
+        <span class="lbl">Bronnen</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ 1. RESTAURANTPROFIEL ═══════════════ -->
+<section id="profiel">
+  <div class="container">
+    <div class="section-label">Sectie 1</div>
+    <h2 class="section-title">Restaurantprofiel</h2>
+    <p class="section-desc">Wie zijn de gasten, wat verwachten ze, en hoe positioneert het restaurant zich? Dit profiel stuurt alle menuvoorstellen.</p>
+
+    <div class="profile-grid">
+      <div class="profile-item">
+        <div class="profile-item-label">Restauranttype</div>
+        <div class="profile-item-value">4-sterren hotelrestaurant met captive audience karakter. 140 kamers, 16 vergaderzalen (tot 300 personen), 4 luxe boardrooms. A la carte concept.</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Gast-mix</div>
+        <div class="profile-item-value">Zakelijk 40-50% (vergaderingen, overnachtingen) &bull; Leisure/weekend 20-25% &bull; Feesten &amp; partijen 15-20% &bull; Lokale gasten 10-15%</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Locatie</div>
+        <div class="profile-item-value">Krommeweg 1, Ridderkerk. Direct aan A15, knooppunt A15/A16. 15 min bus naar Rotterdam Zuidplein. Haven van Rotterdam via A15.</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Inkomenssegment</div>
+        <div class="profile-item-value">Midden tot bovengemiddeld midden. Ridderkerk: &euro;40.000 gemiddeld inkomen, 58% koopwoningen. Zakelijke gasten tillen effectieve besteding omhoog.</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Culinaire verwachting</div>
+        <div class="profile-item-value">Toegankelijk, herkenbaar en goed bereid. Geen gastronomie, wel degelijke gerechten met goede prijs-kwaliteitverhouding. Seizoensverrassingen gewaardeerd.</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-item-label">Prijspositionering</div>
+        <div class="profile-item-value">Middensegment met sterke prijs-kwaliteitverhouding. Niet budget, niet luxury. &ldquo;Vanzelfsprekende kwaliteit op hoog niveau.&rdquo;</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Implicatie voor het menu:</strong> Het restaurant bedient een breed publiek dat herkenbare gerechten verwacht met een premium uitvoering. De hoge zakelijke bezetting (40-50%) vraagt om gerechten die geschikt zijn voor zakelijke diners: niet te experimenteel, wel onderscheidend. De captive audience biedt ruimte voor seizoensvernieuwing zonder risico op klantenverlies.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 2. TRENDANALYSE ═══════════════ -->
+<section id="trends">
+  <div class="container">
+    <div class="section-label">Sectie 2</div>
+    <h2 class="section-title">Trendanalyse 2025/2026</h2>
+    <p class="section-desc">Acht geselecteerde trends uit 25+ bronnen, gefilterd op relevantie voor het profiel van Van der Valk Ridderkerk.</p>
+
+    <div class="trend-grid">
+
+      <!-- Trend 1 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">1</div>
+          <div class="trend-title">Nostalgie 2.0 &mdash; Klassiekers Herontdekt</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">In onzekere tijden zoeken gasten houvast in herkenbare smaken. Garnalencocktail, ossenstaart, rijstpudding en gestoofd vlees maken een comeback &mdash; maar dan met premium ingredi&euml;nten en vakkundige bereiding. &ldquo;High-low dining&rdquo;: vertrouwde smaken in een luxe context.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Voorgerechten</span>
+          <span class="cat-pill">Vlees</span>
+          <span class="cat-pill">Nagerechten</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://vinissima.nl/internationale-en-nederlandse-foodtrends-2026-voor-thuis-en-horeca/">Vinissima</a>, <a href="https://www.dailycappuccino.nl/2026/02/microtrends-in-snacks-en-comfort-food-dit-eten-we-nu/">Daily Cappuccino</a>, <a href="https://www.lightspeedhq.nl/blog/horecatrends/">Lightspeed</a></div>
+      </div>
+
+      <!-- Trend 2 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">2</div>
+          <div class="trend-title">Groenten als Hoofdrol</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">13% van Nederlanders identificeert zich als vegetari&euml;r (was 9% in 2023), 8% als veganist. Bijna 40% eet bewust minder dierlijk. Groenten worden niet meer als bijgerecht behandeld maar als het hoofdingredi&euml;nt: geroosterde bloemkool, gebraiseerde aubergine, &ldquo;dry-aged&rdquo; biet. Echte plantaardige ingredi&euml;nten (tofu, tempeh, peulvruchten) i.p.v. ultrabewerkte vleesvervangers.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Voorgerechten</span>
+          <span class="cat-pill">Vegan/Veg</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://www.horecamagazine.nl/nieuws/nieuws/21202/dit-zijn-de-vijf-vegatrends-voor-2026">Horeca Magazine</a>, <a href="https://www.vegetariers.nl/nieuws/vegatrends/">Vegetari&euml;rsbond</a>, <a href="https://proveg.com/nl/blog/de-groei-van-veganisme-wat-zeggen-de-cijfers/">ProVeg</a></div>
+      </div>
+
+      <!-- Trend 3 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">3</div>
+          <div class="trend-title">Compacter Menu, Hogere Kwaliteit</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">Minder gangen, meer balans. Menu&rsquo;s opgebouwd met &ldquo;hero&rsquo;s&rdquo; (signature gerechten), &ldquo;hardlopers&rdquo; (bestsellers) en &ldquo;margin makers&rdquo; (winstoptimaal). Hogere marges door lagere foodcost en minder verspilling. Past bij het personeelstekort: minder complexe keukenorganisatie.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Alle categorie&euml;n</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://www.derestaurantkrant.nl/trends-2026-niet-groter-wel-slimmer-en-dat-voelt-je-gast-aan-tafel">De RestaurantKrant</a>, <a href="https://think.ing.com/articles/dutch-hospitality-sector-in-2026-modest-portions-on-menu">ING Think</a></div>
+      </div>
+
+      <!-- Trend 4 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">4</div>
+          <div class="trend-title">Lokaal &amp; Seizoensgebonden</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">Bijna de helft van restaurantbezoekers wil meer betalen voor duurzaam bereide gerechten. Seizoensmenu&rsquo;s, herkomstverhalen en lokale leveranciers cre&euml;ren vertrouwen en waardering. Transparantie over herkomst verhoogt de beleefde waarde en rechtvaardigt premiumpricing.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Alle categorie&euml;n</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://www.chefsculinar.nl/trends-2026-8444.htm">Chefs Culinar</a>, <a href="https://restoranto.com/nl/duurzaamheid-trends-restaurants/">Restoranto</a></div>
+      </div>
+
+      <!-- Trend 5 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">5</div>
+          <div class="trend-title">Klassieke Technieken &amp; Slow Cooking</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">Terugkeer van klassiek vakmanschap: sauzen monteren (beurre blanc, hollandaise), langzaam garen (ossenstaart, kalfswangen), huisgemaakte bouillon, beurre noisette als smaakmaker. &ldquo;Minder franje, meer finesse.&rdquo; Past perfect bij de verwachting van een mid-upscale hotelgast.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Vis</span>
+          <span class="cat-pill">Vlees</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://www.latasca.nl/foodtrends-2026-culinaire-trends-van-dit-jaar/">La Tasca</a>, <a href="https://vinissima.nl/internationale-en-nederlandse-foodtrends-2026-voor-thuis-en-horeca/">Vinissima</a></div>
+      </div>
+
+      <!-- Trend 6 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">6</div>
+          <div class="trend-title">Pistache &amp; Moderne Desserts</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">Pistache is h&eacute;t luxe-ingredi&euml;nt van 2025/2026, aangejaagd door de Dubai-chocolade hype. Daarnaast: minder suiker en meer balans in desserts. Gasten verwachten indulgent maar niet overdreven zoet. Zoet-hartige combinaties (miso-karamel, fleur de sel) winnen terrein.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Nagerechten</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://tastewise.io/blog/pastry-trends">Tastewise</a>, <a href="https://www.kerry.com/insights/kerrydigest/2025/dubai-chocolate-innovation">Kerry</a></div>
+      </div>
+
+      <!-- Trend 7 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">7</div>
+          <div class="trend-title">Aziatische Accenten &amp; Umami</div>
+          <span class="trend-fit fit-mid">Middel-hoog</span>
+        </div>
+        <div class="trend-desc">Miso-botersaus bij vis, yuzu in dressings, gochujang in marinades. Japanse en Koreaanse smaakmaken zijn verfijnd en mainstream geworden. Niet als hoofdconcept maar als verrassend accent: 1-2 fusiongerechten die opvallen maar niet afschrikken. Fermentatie (kimchi, miso) voegt smaakdiepte toe.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Vis</span>
+          <span class="cat-pill">Voorgerechten</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://www.chefsculinar.nl/trends-2026-8444.htm">Chefs Culinar</a>, <a href="https://keizerculinair.nl/culinaire-trends-2026/">Keizer Culinair</a>, <a href="https://mariellebordewijk.nl/blog/2025/10/02/food-trends-2026/">Marielle Bordewijk</a></div>
+      </div>
+
+      <!-- Trend 8 -->
+      <div class="trend-card">
+        <div class="trend-card-top">
+          <div class="trend-num">8</div>
+          <div class="trend-title">Rehabilitatie van Vet &amp; Smaak</div>
+          <span class="trend-fit fit-high">Hoog</span>
+        </div>
+        <div class="trend-desc">Boter, room en olijfolie keren bewust terug als smaakdragers. Beurre noisette bij vis en groenten, romige sauzen zonder schuldgevoel, premium olijfolie als prominent ingredi&euml;nt. &ldquo;Minder bewerkt, meer puur.&rdquo; Gasten waarderen eerlijke, smaakvolle bereiding boven calorie-arm maar smaakloos.</div>
+        <div class="trend-cats">
+          <span class="cat-pill">Alle categorie&euml;n</span>
+        </div>
+        <div class="trend-source">Bronnen: <a href="https://vinissima.nl/internationale-en-nederlandse-foodtrends-2026-voor-thuis-en-horeca/">Vinissima</a></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 3. ANALYSE HUIDIG MENU ═══════════════ -->
+<section id="analyse">
+  <div class="container">
+    <div class="section-label">Sectie 3</div>
+    <h2 class="section-title">Analyse Huidig Menu</h2>
+    <p class="section-desc">Elk gerecht beoordeeld op trendaansluiting, ingredi&euml;ntoverlap, prijslogica, onderscheidend vermogen en herkenbaarheid voor het brede publiek.</p>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-val">51</span>
+        <span class="stat-lbl">Totaal gerechten</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val">15</span>
+        <span class="stat-lbl">Voorgerechten</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val">6</span>
+        <span class="stat-lbl">Vis</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val">5</span>
+        <span class="stat-lbl">Vegan / Veg</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val">11</span>
+        <span class="stat-lbl">Vlees</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val">15</span>
+        <span class="stat-lbl">Nagerechten</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Kritieke bevinding:</strong> Drie &ldquo;Speciaal&rdquo;-varianten (Tournedos, Varkenshaas, Varkensschnitzel) delen een identiek bijgerecht: ui, spek, champignon. Vijf vleesgerechten hebben &ldquo;groenten | aardappelgarnituur&rdquo; zonder verdere specificatie. De chocolade-categorie is oververtegenwoordigd bij nagerechten (4 van 10). De vegan/vegetarische sectie (5 items) is relatief klein ten opzichte van vlees (11 items).
+    </div>
+
+    <!-- Voorgerechten analyse -->
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin: 2rem 0 1rem; color: var(--gold);">Voorgerechten</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Gerecht</th><th>Prijs</th><th>Status</th><th>Reden</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pok&eacute; Bowl</td><td>&euro;12,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Trendy, goede ingredi&euml;ntoverlap, populair bij breed publiek</td></tr>
+          <tr><td>Seizoenssalade</td><td>&euro;12,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Pompoen/winterpeen past bij herfst, niet bij lente &mdash; seizoensupdate nodig</td></tr>
+          <tr><td>Burrata</td><td>&euro;14,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Trending ingredi&euml;nt, goed gedifferentieerd met perzik/Serrano</td></tr>
+          <tr><td>Gerookte Zalm</td><td>&euro;15,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Uniek Japans profiel (sesam-sojadressing, Japanse mayo)</td></tr>
+          <tr><td>Carpaccio</td><td>&euro;14,50</td><td><span class="status-badge status-houden">Houden</span></td><td>VdV-klassieker, verwacht door doelgroep</td></tr>
+          <tr><td>Vitello Tonnato</td><td>&euro;15,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Italiaanse klassieker, past bij zakelijke doelgroep</td></tr>
+          <tr><td>Caesarsalade</td><td>&euro;12,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Te basic, overal verkrijgbaar &mdash; upgrade met krokante kip voor onderscheidend vermogen</td></tr>
+          <tr><td>Salade Geitenkaas</td><td>&euro;14,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Goed gedifferentieerd met bosbessen, peer, walnoten</td></tr>
+          <tr><td>Ham &amp; Meloen</td><td>&euro;14,50</td><td><span class="status-badge status-vervangen">Vervangen</span></td><td>Gedateerd concept, te simpel voor de prijs, geen trendaansluiting</td></tr>
+          <tr><td>Iberico</td><td>&euro;19,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Premium positionering, unieke combinatie met gamba en aioli</td></tr>
+          <tr><td>Vispalet</td><td>&euro;19,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Uniek aanbod, deelt ingredi&euml;nten met vis-sectie</td></tr>
+          <tr><td>Cobb Salade</td><td>&euro;14,50</td><td><span class="status-badge status-verwijderd">Verwijderd</span></td><td>Te Amerikaans, overlapt met Caesar (sla, ei, dressing), past minder bij VdV-identiteit</td></tr>
+          <tr><td>Tonijn</td><td>&euro;17,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Aziatische twist, goede prijspositionering, wasabi-element is onderscheidend</td></tr>
+          <tr><td>Tomatensoep</td><td>&euro;6,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Comfort classic, laagdrempelig instappunt</td></tr>
+          <tr><td>Bisque</td><td>&euro;8,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Premium soep, past bij het hotel-karakter</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vis analyse -->
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin: 2rem 0 1rem; color: var(--gold);">Vis</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Gerecht</th><th>Prijs</th><th>Status</th><th>Reden</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Zalm</td><td>&euro;26,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Te generiek: &ldquo;groenten | aardappelgarnituur&rdquo; is niet onderscheidend &mdash; specifieke garnituur nodig</td></tr>
+          <tr><td>Pad Thai met Gamba</td><td>&euro;24,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Populair fusion, goede ingredi&euml;ntoverlap, Aziatische trend</td></tr>
+          <tr><td>Tongschar</td><td>&euro;27,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Premium vis, uniek met rivierkreeftjes en beurre blanc</td></tr>
+          <tr><td>Heilbot</td><td>&euro;28,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Hoogst geprijsde vis, polenta is onderscheidend</td></tr>
+          <tr><td>Schelvis</td><td>&euro;24,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Combinatie voelt vlak &mdash; verfijndere omschrijving en bereidingswijze</td></tr>
+          <tr><td>Sliptongen</td><td>&euro;26,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Klassieker, past bij hotelrestaurant-verwachting</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vegan/Veg analyse -->
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin: 2rem 0 1rem; color: var(--gold);">Vegan / Vegetarisch</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Gerecht</th><th>Prijs</th><th>Status</th><th>Reden</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Spaghetti Bolognese <em>(vegan)</em></td><td>&euro;18,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Te basic voor &euro;18,50, &ldquo;imitatievlees&rdquo; concept is achterhaald &mdash; eigenstandig gerecht nodig</td></tr>
+          <tr><td>Rigatoni Cacio e Pepe</td><td>&euro;18,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Klassiek, goed uitgevoerd</td></tr>
+          <tr><td>Groente Tajine <em>(vegan)</em></td><td>&euro;19,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Goed gedifferentieerd, Midden-Oosterse inspiratie, trending</td></tr>
+          <tr><td>Risotto</td><td>&euro;18,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Seizoensgebonden (peer/gorgonzola = herfst/winter), solide</td></tr>
+          <tr><td>&lsquo;Geen Kip&rsquo; Sat&eacute; <em>(vegan)</em></td><td>&euro;21,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Goede overlap met Kipsat&eacute;, maar naamgeving is afgeleid &mdash; eigenstandiger positioneren</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vlees analyse -->
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin: 2rem 0 1rem; color: var(--gold);">Vlees</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Gerecht</th><th>Prijs</th><th>Status</th><th>Reden</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Tournedos</td><td>&euro;31,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Premium klassieker, verwacht door doelgroep</td></tr>
+          <tr><td>Tournedos Speciaal</td><td>&euro;34,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Premium upgrade, ui/spek/champignon is hier acceptabel als unieke variant</td></tr>
+          <tr><td>Oosterse Kipsat&eacute;</td><td>&euro;22,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Populair, goede ingredi&euml;ntoverlap met Plantaardige Sat&eacute;</td></tr>
+          <tr><td>Varkenshaas</td><td>&euro;23,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Solide basis, herkenbaar</td></tr>
+          <tr><td>Varkenshaas Speciaal</td><td>&euro;26,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Identiek bijgerecht als andere &ldquo;Specials&rdquo; &mdash; uniek bijgerecht nodig</td></tr>
+          <tr><td>Cordon Bleu van Kipfilet</td><td>&euro;23,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Comfort classic, verwacht bij VdV</td></tr>
+          <tr><td>Varkensschnitzel</td><td>&euro;22,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Herkenbaar, laagste prijspunt vlees</td></tr>
+          <tr><td>Varkensschnitzel Speciaal</td><td>&euro;25,50</td><td><span class="status-badge status-verwijderd">Verwijderd</span></td><td>Derde identiek &ldquo;Speciaal&rdquo;-bijgerecht, nul differentiatie</td></tr>
+          <tr><td>Runder Ribeye 350g</td><td>&euro;34,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Premium, goed gedifferentieerd met cowboy butter</td></tr>
+          <tr><td>Pluma Iberico</td><td>&euro;24,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Trendy, uniek met mango-habanero salsa</td></tr>
+          <tr><td>Angus Shortrib</td><td>&euro;32,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Slow-cooked trend, premium &mdash; beschrijving aanscherpen</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Nagerechten analyse -->
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin: 2rem 0 1rem; color: var(--gold);">Nagerechten</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Gerecht</th><th>Prijs</th><th>Status</th><th>Reden</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Heisse Liebe</td><td>&euro;8,50</td><td><span class="status-badge status-vervangen">Vervangen</span></td><td>Gedateerd concept, weinig onderscheidend vermogen</td></tr>
+          <tr><td>Dame Blanche</td><td>&euro;8,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Absolute klassieker, verwacht door doelgroep</td></tr>
+          <tr><td>Bananensplit</td><td>&euro;8,50</td><td><span class="status-badge status-vervangen">Vervangen</span></td><td>Gedateerd, niet onderscheidend, geen trendaansluiting</td></tr>
+          <tr><td>Fudge Brownie</td><td>&euro;9,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Populair, chocolade-categorie blijft belangrijk</td></tr>
+          <tr><td>Stoofpeer Sorbet</td><td>&euro;8,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Seizoensgebonden, uniek</td></tr>
+          <tr><td>Proeverij van Sue Rotterdam</td><td>&euro;11,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Lokale partner, uniek aanbod, past bij lokaal-trend</td></tr>
+          <tr><td>Klassieke Tiramisu</td><td>&euro;9,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Klassieker, goed uitgevoerd</td></tr>
+          <tr><td>Kaasplateau</td><td>&euro;11,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Goed niet-zoet alternatief</td></tr>
+          <tr><td>Dubai Chocolade Dessert</td><td>&euro;8,50</td><td><span class="status-badge status-aanpassen">Aanpassen</span></td><td>Viral-trend kan snel dateren &mdash; herpositioneren als duurzaam pistache-dessert</td></tr>
+          <tr><td>Espresso Martini</td><td>&euro;12,50</td><td><span class="status-badge status-houden">Houden</span></td><td>Behouden als dessert-cocktail, populair bij zakelijk publiek</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ 4. NIEUW MENUVOORSTEL ═══════════════ -->
+<section id="voorstel">
+  <div class="container">
+    <div class="section-label">Sectie 4</div>
+    <h2 class="section-title">Nieuw Menuvoorstel</h2>
+    <p class="section-desc">Per categorie: behouden gerechten, aanpassingen met onderbouwing, en nieuwe gerechten met trendtags en ingredi&euml;ntoverlap.</p>
+
+    <!-- ── VOORGERECHTEN ── -->
+    <div class="category-section">
+      <h3 class="category-title">Voorgerechten</h3>
+
+      <!-- Behouden -->
+      <div class="sub-label">Behouden (10 gerechten)</div>
+      <div class="keep-list">
+        <span class="keep-pill">Pok&eacute; Bowl &euro;12,50</span>
+        <span class="keep-pill">Burrata &euro;14,50</span>
+        <span class="keep-pill">Gerookte Zalm &euro;15,50</span>
+        <span class="keep-pill">Carpaccio &euro;14,50</span>
+        <span class="keep-pill">Vitello Tonnato &euro;15,50</span>
+        <span class="keep-pill">Salade Geitenkaas &euro;14,50</span>
+        <span class="keep-pill">Iberico &euro;19,50</span>
+        <span class="keep-pill">Vispalet &euro;19,50</span>
+        <span class="keep-pill">Tonijn &euro;17,50</span>
+        <span class="keep-pill">Bisque &euro;8,50</span>
+      </div>
+
+      <!-- Soep behouden -->
+      <div class="sub-label">Soep &mdash; behouden</div>
+      <div class="keep-list">
+        <span class="keep-pill">Tomatensoep &euro;6,50</span>
+        <span class="keep-pill">Bisque &euro;8,50</span>
+      </div>
+
+      <!-- Verwijderd -->
+      <div class="remove-list" style="margin-bottom: 1.5rem;">
+        <h4>Verwijderd</h4>
+        <div class="remove-item"><strong>Ham &amp; Meloen</strong> &mdash; &euro;14,50 &rarr; vervangen door Garnalencocktail (zie hieronder)</div>
+        <div class="remove-item"><strong>Cobb Salade</strong> &mdash; &euro;14,50 &rarr; overlapt met Caesar, te Amerikaans voor VdV-identiteit</div>
+      </div>
+
+      <!-- Aanpassingen -->
+      <div class="sub-label">Aanpassingen &amp; nieuwe gerechten</div>
+      <div class="dish-grid">
+
+        <!-- Lentesalade -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Lentesalade</span>
+            <span class="dish-price">&euro;12,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Seizoenssalade</span>
+            <div class="dish-ingredients">Groene asperges | doperwten | radijs | babyleaf | feta | munt | citrus-kruidendressing</div>
+            <div class="dish-rationale">Seizoensupdate: pompoen en winterpeen vervangen door lente-ingredi&euml;nten. Sluit aan bij de trend van seizoensgebonden menu&rsquo;s en lokale inkoop. Feta en munt geven een frisse, Mediterrane draai.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Seizoensgebonden</span>
+              <span class="dish-tag">Lokaal</span>
+              <span class="dish-tag">Vegetarisch</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>babyleaf</span> (Salade Geitenkaas), <span>kruidendressing</span> (Seizoenssalade)</div>
+          </div>
+        </div>
+
+        <!-- Caesar met Krokante Kip -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Caesar met Krokante Kip</span>
+            <span class="dish-price">&euro;14,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Caesarsalade</span>
+            <div class="dish-ingredients">Romaine hearts | Caesardressing | Parmezaanse kaas | <strong>krokante kipstukjes</strong> | croutons | kappertjes | ei</div>
+            <div class="dish-rationale">Upgrade van de basic Caesar door krokante kip standaard toe te voegen en kappertjes voor zuurte. Maakt het gerecht meer onderscheidend en rechtvaardigt de prijs beter. Krokante kip sluit aan bij de elevated comfort food-trend.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Elevated Comfort</span>
+              <span class="dish-tag">Nostalgie 2.0</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>Parmezaanse kaas</span> (Carpaccio, Iberico, Cacio e Pepe), <span>ei</span> (voormalig Cobb)</div>
+          </div>
+        </div>
+
+        <!-- Garnalencocktail -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Garnalencocktail</span>
+            <span class="dish-price">&euro;14,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw &mdash; vervangt Ham &amp; Meloen</span>
+            <div class="dish-ingredients">Noordzeegarnalen | avocado | cocktailsaus | bieslook | <strong>toast</strong> | citroen</div>
+            <div class="dish-rationale">De garnalencocktail is terug als icoon van de nostalgie-trend. Met verse Noordzeegarnalen en huisgemaakte cocktailsaus wordt het een premium versie van een geliefd gerecht. Ideaal als opening van een zakelijk diner: herkenbaar, elegant, ongecompliceerd.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Nostalgie 2.0</span>
+              <span class="dish-tag">Lokaal product</span>
+              <span class="dish-tag">Zakelijk geschikt</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>avocado</span> (Pok&eacute; Bowl), <span>bieslook</span> (Carpaccio, Vispalet)</div>
+          </div>
+        </div>
+
+        <!-- Geroosterde Bloemkool -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Geroosterde Bloemkool</span>
+            <span class="dish-price">&euro;13,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw</span>
+            <div class="dish-ingredients">Hele geroosterde bloemkool | tahini | granaatappel | za&rsquo;atar | koriander | olijfolie</div>
+            <div class="dish-rationale">Vegan voorgerecht dat groente als hoofdrol neerzet. Geroosterde bloemkool is een trending gerecht dat de &ldquo;groente-forward&rdquo; beweging perfect belichaamt. De Midden-Oosterse smaakmakers (tahini, za&rsquo;atar) geven diepte zonder te experimenteel te worden. Visueel indrukwekkend op het bord.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Groente als Hoofdrol</span>
+              <span class="dish-tag">Vegan</span>
+              <span class="dish-tag">Textuurcontrast</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>granaatappel</span> (Geroosterde Aubergine), <span>olijfolie</span> (diverse)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── VIS ── -->
+    <div class="category-section">
+      <h3 class="category-title">Vis</h3>
+
+      <div class="sub-label">Behouden (4 gerechten)</div>
+      <div class="keep-list">
+        <span class="keep-pill">Pad Thai met Gamba &euro;24,50</span>
+        <span class="keep-pill">Tongschar &euro;27,50</span>
+        <span class="keep-pill">Heilbot &euro;28,50</span>
+        <span class="keep-pill">Sliptongen &euro;26,50</span>
+      </div>
+
+      <div class="sub-label">Aanpassingen &amp; nieuwe gerechten</div>
+      <div class="dish-grid">
+
+        <!-- Zalm met Miso-Botersaus -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Zalm met Miso-Botersaus</span>
+            <span class="dish-price">&euro;26,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Zalm</span>
+            <div class="dish-ingredients">Zalm | <strong>miso-botersaus</strong> | sesam | geroosterde broccoli | rijst</div>
+            <div class="dish-rationale">Het generieke &ldquo;groenten | aardappelgarnituur&rdquo; vervangen door een specifiek smaakprofiel. Miso-botersaus combineert de umami/fermentatie-trend met de terugkeer van boter als smaakdrager. Sluit aan bij het bestaande Japanse accent in de voorgerechten (Gerookte Zalm, Tonijn).</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Aziatisch Accent</span>
+              <span class="dish-tag">Umami &amp; Fermentatie</span>
+              <span class="dish-tag">Vet als Smaakdrager</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>zalm</span> (Gerookte Zalm, Vispalet), <span>sesam</span> (Pok&eacute; Bowl, Tonijn)</div>
+          </div>
+        </div>
+
+        <!-- Schelvis Proven&ccedil;aals -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Schelvis Proven&ccedil;aals</span>
+            <span class="dish-price">&euro;24,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Schelvis</span>
+            <div class="dish-ingredients">Schelvis | ratatouille | <strong>olijventapenade</strong> | Roseval-aardappeltjes | <strong>basilicumolie</strong></div>
+            <div class="dish-rationale">Behoud van de basis (schelvis + ratatouille + Roseval) maar verfijnd met olijventapenade en basilicumolie. Geeft het gerecht een sterker Proven&ccedil;aals karakter. Past bij de trend van premium olijfolie als prominent ingredi&euml;nt.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Mediterraan</span>
+              <span class="dish-tag">Vet als Smaakdrager</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>Roseval-aardappeltjes</span> (Pluma Iberico), <span>ratatouille</span> (bestaand)</div>
+          </div>
+        </div>
+
+        <!-- Kabeljauw met Beurre Blanc -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Kabeljauw met Beurre Blanc</span>
+            <span class="dish-price">&euro;26,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw</span>
+            <div class="dish-ingredients">Kabeljauw | beurre blanc | gestoofde prei | aardappelpuree | kappertjes | <strong>beurre noisette</strong></div>
+            <div class="dish-rationale">Uitbreiding van de vis-sectie (van 6 naar 7 gerechten) met een gerecht dat klassiek vakmanschap toont. Beurre blanc en beurre noisette zijn de belichaming van de &ldquo;klassieke technieken&rdquo;-trend. Kabeljauw is breed geaccepteerd en duurzaam verkrijgbaar (MSC).</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Klassieke Techniek</span>
+              <span class="dish-tag">Slow Cooking</span>
+              <span class="dish-tag">Duurzaam</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>beurre blanc</span> (Tongschar), <span>aardappelpuree</span> (Tongschar, Angus Shortrib), <span>prei</span> (Tongschar)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── VEGAN / VEGETARISCH ── -->
+    <div class="category-section">
+      <h3 class="category-title">Vegan / Vegetarische Gerechten</h3>
+
+      <div class="callout" style="margin-bottom: 1.5rem;">
+        <strong>Uitbreiding van 5 naar 7 gerechten.</strong> 13% van Nederlanders is vegetari&euml;r, 8% veganist, en bijna 40% eet bewust minder vlees. De huidige sectie is ondervertegenwoordigd ten opzichte van de marktvraag. Twee nieuwe gerechten sluiten dit gat.
+      </div>
+
+      <div class="sub-label">Behouden (3 gerechten)</div>
+      <div class="keep-list">
+        <span class="keep-pill">Rigatoni Cacio e Pepe &euro;18,50</span>
+        <span class="keep-pill">Groente Tajine &euro;19,50</span>
+        <span class="keep-pill">Risotto &euro;18,50</span>
+      </div>
+
+      <div class="sub-label">Aanpassingen &amp; nieuwe gerechten</div>
+      <div class="dish-grid">
+
+        <!-- Pasta Pomodoro -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Pasta Pomodoro met Geroosterde Groenten</span>
+            <span class="dish-price">&euro;18,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Spaghetti Bolognese (vegan)</span>
+            <div class="dish-ingredients">Rigatoni | san-marzanotomaten | geroosterde courgette | aubergine | basilicum | olijfolie | <strong>pecorino</strong></div>
+            <div class="dish-rationale">Weg van het &ldquo;imitatievlees&rdquo;-concept (vegan gehakt) naar een eigenstandig gerecht dat groenten centreert. San-marzanotomaten zijn premium, geroosterde groenten geven textuur en diepte. Optie: vegetarisch met pecorino, of vegan zonder. Past bij de trend van pure plantaardige ingredi&euml;nten.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Groente als Hoofdrol</span>
+              <span class="dish-tag">Puur Plantaardig</span>
+              <span class="dish-tag">Vegetarisch/Vegan</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>rigatoni</span> (Cacio e Pepe), <span>olijfolie</span> (diverse), <span>aubergine</span> (Geroosterde Aubergine)</div>
+          </div>
+        </div>
+
+        <!-- Plantaardige Sat&eacute; -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Plantaardige Sat&eacute;</span>
+            <span class="dish-price">&euro;21,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van &lsquo;Geen Kip&rsquo; Sat&eacute;</span>
+            <div class="dish-ingredients">Plantaardige kip | sat&eacute;saus | nasi | zoetzure komkommer | cassavekroepoek | krokante uitjes</div>
+            <div class="dish-rationale">Zelfde gerecht, maar hernoemd van &ldquo;Geen Kip&rdquo; naar &ldquo;Plantaardig&rdquo; voor een eigenstandigere positionering. Onderzoek toont dat gasten positiever reageren op een affirmatieve naam dan op een naam die definieert wat het n&iacute;et is.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Puur Plantaardig</span>
+              <span class="dish-tag">Vegan</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>sat&eacute;saus, nasi, komkommer, kroepoek, uitjes</span> (Oosterse Kipsat&eacute;) &mdash; maximale overlap</div>
+          </div>
+        </div>
+
+        <!-- Geroosterde Aubergine -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Geroosterde Aubergine</span>
+            <span class="dish-price">&euro;19,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw</span>
+            <div class="dish-ingredients">Hele geroosterde aubergine | chermoula | couscous | granaatappel | munt | <strong>yoghurt</strong></div>
+            <div class="dish-rationale">Vegan/vegetarisch gerecht dat groente als hoofdrol neerzet. Midden-Oosterse smaakmakers sluiten aan bij de bestaande Groente Tajine en benutten dezelfde ingredi&euml;ntlijn (couscous, granaatappel). Yoghurt erbij maakt het vegetarisch; zonder yoghurt is het vegan.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Groente als Hoofdrol</span>
+              <span class="dish-tag">Midden-Oosters</span>
+              <span class="dish-tag">Vegan optie</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>couscous</span> (Groente Tajine), <span>granaatappel</span> (Geroosterde Bloemkool), <span>munt</span> (Lentesalade)</div>
+          </div>
+        </div>
+
+        <!-- Paddenstoelen Stroganoff -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Paddenstoelen Stroganoff</span>
+            <span class="dish-price">&euro;19,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw</span>
+            <div class="dish-ingredients">Gemengde paddenstoelen | <strong>stroganoffsaus</strong> | rijst | zure room | peterselie | paprikapoeder</div>
+            <div class="dish-rationale">Nostalgie-trend ontmoet groente-forward: de klassieke stroganoff heruitgevonden met paddenstoelen als ster. Paddenstoelen zijn umami-rijk en bieden de vleestextuur die veel gasten missen in vega-gerechten. De stroganoffsaus staat al op de sauzenkaart &mdash; effici&euml;nte inkoop.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Nostalgie 2.0</span>
+              <span class="dish-tag">Umami</span>
+              <span class="dish-tag">Vegetarisch</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>paddenstoelen</span> (Heilbot, Varkenshaas), <span>stroganoffsaus</span> (sauzenkaart), <span>peterselie</span> (diverse)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── VLEES ── -->
+    <div class="category-section">
+      <h3 class="category-title">Vlees</h3>
+
+      <div class="sub-label">Behouden (8 gerechten)</div>
+      <div class="keep-list">
+        <span class="keep-pill">Tournedos &euro;31,50</span>
+        <span class="keep-pill">Tournedos Speciaal &euro;34,50</span>
+        <span class="keep-pill">Oosterse Kipsat&eacute; &euro;22,50</span>
+        <span class="keep-pill">Varkenshaas &euro;23,50</span>
+        <span class="keep-pill">Cordon Bleu &euro;23,50</span>
+        <span class="keep-pill">Varkensschnitzel &euro;22,50</span>
+        <span class="keep-pill">Runder Ribeye &euro;34,50</span>
+        <span class="keep-pill">Pluma Iberico &euro;24,50</span>
+      </div>
+
+      <div class="remove-list" style="margin-bottom: 1.5rem;">
+        <h4>Verwijderd</h4>
+        <div class="remove-item"><strong>Varkensschnitzel Speciaal</strong> &mdash; &euro;25,50 &rarr; derde identiek &ldquo;ui, spek, champignon&rdquo;-bijgerecht. Nul differentiatie ten opzichte van Tournedos Speciaal en Varkenshaas Speciaal.</div>
+      </div>
+
+      <div class="sub-label">Aanpassingen &amp; nieuwe gerechten</div>
+      <div class="dish-grid">
+
+        <!-- Varkenshaas met Paddestoelenjus -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Varkenshaas met Paddestoelenjus</span>
+            <span class="dish-price">&euro;26,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Varkenshaas Speciaal</span>
+            <div class="dish-ingredients">Varkenshaas | <strong>paddestoelenjus</strong> | zoete-aardappelpuree | geroosterde seizoensgroenten</div>
+            <div class="dish-rationale">Breekt het &ldquo;identiek Speciaal-bijgerecht&rdquo; patroon. Paddestoelenjus is een klassieke techniek die vakmanschap toont. Zoete-aardappelpuree differentieert van de reguliere aardappelpuree. Seizoensgroenten sluiten aan bij de lokaal/seizoen-trend.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Klassieke Techniek</span>
+              <span class="dish-tag">Seizoensgebonden</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>paddenstoelen</span> (Heilbot, Paddenstoelen Stroganoff), <span>aardappelpuree</span> (Tongschar, Angus Shortrib)</div>
+          </div>
+        </div>
+
+        <!-- Angus Shortrib (aangescherpt) -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Angus Shortrib &mdash; 8 uur Gegaard</span>
+            <span class="dish-price">&euro;32,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aangescherpte beschrijving</span>
+            <div class="dish-ingredients">8 uur gegaarde rundershortrib | aardappelpuree | geroosterde wortel | rodewijnjus | <strong>gremolata</strong></div>
+            <div class="dish-rationale">Zelfde gerecht, maar de beschrijving benadrukt nu het slow-cooking proces (8 uur) en voegt gremolata toe als fris contrapunt. Past bij de trend van klassieke technieken en &ldquo;minder franje, meer finesse.&rdquo;</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Slow Cooking</span>
+              <span class="dish-tag">Klassieke Techniek</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>aardappelpuree</span> (Tongschar, Kabeljauw), <span>rodewijnjus</span> (Heilbot)</div>
+          </div>
+        </div>
+
+        <!-- Ossenstaart -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Ossenstaart</span>
+            <span class="dish-price">&euro;26,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw</span>
+            <div class="dish-ingredients">Langzaam gegaarde ossenstaart | aardappelpuree | geglaceerde wortel | tijm | <strong>rode wijn</strong></div>
+            <div class="dish-rationale">Belichaming van twee toptrends: nostalgie 2.0 en slow cooking. Ossenstaart was ooit een alledaags gerecht en keert nu terug als premium comfort food. De lange gaartijd cre&euml;ert een malse, diepe smaak die geen enkele snelle bereidingsmethode kan evenaren. Ideaal voor een herfstig/winters seizoensmenu.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Nostalgie 2.0</span>
+              <span class="dish-tag gold">Slow Cooking</span>
+              <span class="dish-tag">Seizoensgebonden</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>aardappelpuree</span> (Tongschar, Angus Shortrib, Kabeljauw), <span>wortel</span> (Angus Shortrib), <span>rode wijn</span> (rodewijnjus bij Heilbot/Angus)</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout" style="margin-top: 1.5rem;">
+        <strong>Sauzen (ongewijzigd):</strong> Champignonroomsaus | pepersaus | b&eacute;arnaisesaus | stroganoffsaus | sat&eacute;saus &mdash; &euro;3,00 extra. N.B.: de stroganoffsaus wordt nu ook benut voor Paddenstoelen Stroganoff (ingredi&euml;ntoverlap).
+      </div>
+    </div>
+
+    <!-- ── NAGERECHTEN ── -->
+    <div class="category-section">
+      <h3 class="category-title">Nagerechten</h3>
+
+      <div class="sub-label">Behouden (6 gerechten)</div>
+      <div class="keep-list">
+        <span class="keep-pill">Dame Blanche &euro;8,50</span>
+        <span class="keep-pill">Fudge Brownie &euro;9,50</span>
+        <span class="keep-pill">Stoofpeer Sorbet &euro;8,50</span>
+        <span class="keep-pill">Proeverij van Sue &euro;11,50</span>
+        <span class="keep-pill">Klassieke Tiramisu &euro;9,50</span>
+        <span class="keep-pill">Kaasplateau &euro;11,50</span>
+      </div>
+
+      <div class="sub-label">Behouden (dessert-cocktail)</div>
+      <div class="keep-list">
+        <span class="keep-pill">Espresso Martini &euro;12,50</span>
+      </div>
+
+      <div class="remove-list" style="margin-bottom: 1.5rem;">
+        <h4>Vervangen</h4>
+        <div class="remove-item"><strong>Heisse Liebe</strong> &mdash; &euro;8,50 &rarr; vervangen door Yoghurt Panna Cotta (lichter, minder suiker-trend)</div>
+        <div class="remove-item"><strong>Bananensplit</strong> &mdash; &euro;8,50 &rarr; vervangen door Rijstpudding (nostalgie-trend)</div>
+      </div>
+
+      <div class="sub-label">Aanpassingen &amp; nieuwe gerechten</div>
+      <div class="dish-grid">
+
+        <!-- Yoghurt Panna Cotta -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Yoghurt Panna Cotta</span>
+            <span class="dish-price">&euro;8,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw &mdash; vervangt Heisse Liebe</span>
+            <div class="dish-ingredients">Yoghurt panna cotta | seizoensfruit | <strong>granola</strong> | honing</div>
+            <div class="dish-rationale">Lichter alternatief dat past bij de trend van minder suiker en meer balans. Yoghurt als basis biedt een frisse, minder zoete ervaring. Seizoensfruit maakt het gerecht flexibel per seizoen. Past bij gasten die na een hoofdgerecht iets lichts willen.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Minder Suiker</span>
+              <span class="dish-tag">Seizoensgebonden</span>
+              <span class="dish-tag">Licht</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>seizoensfruit</span> (Rijstpudding), <span>honing</span> (Salade Geitenkaas)</div>
+          </div>
+        </div>
+
+        <!-- Rijstpudding -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Rijstpudding</span>
+            <span class="dish-price">&euro;8,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-nieuw" style="align-self:flex-start">Nieuw &mdash; vervangt Bananensplit</span>
+            <div class="dish-ingredients">Romige rijstpudding | kaneel | <strong>karamelsaus</strong> | seizoensfruit</div>
+            <div class="dish-rationale">Rijstpudding is de belichaming van de nostalgie-trend: warm, troostend en herkenbaar. Met premium bereiding (romig, niet te zoet) en karamelsaus wordt het een volwassen dessert. Seizoensfruit maakt het flexibel: rabarber in het voorjaar, bessen in de zomer, stoofpeer in het najaar.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Nostalgie 2.0</span>
+              <span class="dish-tag">Comfort</span>
+              <span class="dish-tag">Seizoensgebonden</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>karamelsaus</span> (Fudge Brownie), <span>kaneel</span> (Stoofpeer Sorbet), <span>seizoensfruit</span> (Yoghurt Panna Cotta)</div>
+          </div>
+        </div>
+
+        <!-- Chocolade-Pistache Dessert -->
+        <div class="dish-card">
+          <div class="dish-card-header">
+            <span class="dish-name">Chocolade-Pistache Dessert</span>
+            <span class="dish-price">&euro;9,50</span>
+          </div>
+          <div class="dish-card-body">
+            <span class="status-badge status-aanpassen" style="align-self:flex-start">Aanpassing van Dubai Chocolade Dessert</span>
+            <div class="dish-ingredients">Chocolade mousse | <strong>pistachecrème</strong> | kataifi | witte-chocoladeganache | <strong>fleur de sel</strong></div>
+            <div class="dish-rationale">Herpositionering van het Dubai-chocolade concept naar een duurzaam pistache-dessert. De virale hype dateert, maar pistache als luxe-ingredi&euml;nt blijft. Toevoeging van chocolade mousse (i.p.v. chocolade-ijs) en fleur de sel (zoet-hartige trend). Prijsverhoging van &euro;8,50 naar &euro;9,50 gerechtvaardigd door premium ingredi&euml;nten.</div>
+            <div class="dish-tags">
+              <span class="dish-tag gold">Pistache Trend</span>
+              <span class="dish-tag">Zoet-Hartig</span>
+              <span class="dish-tag">Premium</span>
+            </div>
+            <div class="dish-overlap">Gedeelde ingredi&euml;nten: <span>pistache</span> (Proeverij van Sue), <span>chocolade</span> (Dame Blanche, Fudge Brownie), <span>kataifi</span> (bestaand)</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sub-label">Kleine Nagerechten &mdash; ongewijzigd</div>
+      <div class="keep-list">
+        <span class="keep-pill">Sundae naar keuze &euro;6,50</span>
+        <span class="keep-pill">Milkshake &euro;6,00</span>
+        <span class="keep-pill">Cr&egrave;me Br&ucirc;l&eacute;e &euro;6,00</span>
+        <span class="keep-pill">Karamel-Chocolade Crunch &euro;6,50</span>
+        <span class="keep-pill">Advocaat met vanille-ijs &euro;6,50</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ 5. INGREDI&Euml;NTENOVERLAPSTRATEGIE ═══════════════ -->
+<section id="overlap">
+  <div class="container">
+    <div class="section-label">Sectie 5</div>
+    <h2 class="section-title">Ingredi&euml;ntenoverlapstrategie</h2>
+    <p class="section-desc">Effici&euml;nte inkoop en beperkte verspilling door strategisch gedeelde ingredi&euml;nten. Elke rij toont een ingredi&euml;nt en de gerechten die het delen.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Ingredi&euml;nt</th><th style="text-align:center">Aantal</th><th>Gedeeld door</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="overlap-badge">5&times;</span> Aardappelpuree</td>
+            <td style="text-align:center">5</td>
+            <td>Tongschar &bull; Angus Shortrib &bull; Ossenstaart &bull; Kabeljauw &bull; Varkenshaas met Paddestoelenjus (zoete-aardappelvariant)</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">5&times;</span> Slagroom</td>
+            <td style="text-align:center">5</td>
+            <td>Dame Blanche &bull; Stoofpeer Sorbet &bull; Advocaat &bull; Sundae &bull; Milkshake</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">5&times;</span> Sat&eacute;saus / nasi / kroepoek</td>
+            <td style="text-align:center">5</td>
+            <td>Oosterse Kipsat&eacute; &bull; Plantaardige Sat&eacute; &bull; sauzenkaart (3&times;)</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">4&times;</span> Parmezaanse kaas</td>
+            <td style="text-align:center">4</td>
+            <td>Carpaccio &bull; Caesar met Krokante Kip &bull; Iberico &bull; Rigatoni Cacio e Pepe</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">4&times;</span> Paddenstoelen</td>
+            <td style="text-align:center">4</td>
+            <td>Heilbot &bull; Paddenstoelen Stroganoff &bull; Varkenshaas met Paddestoelenjus &bull; Tournedos Speciaal (champignon)</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">4&times;</span> Chocolade</td>
+            <td style="text-align:center">4</td>
+            <td>Dame Blanche &bull; Fudge Brownie &bull; Chocolade-Pistache Dessert &bull; Karamel-Chocolade Crunch</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">3&times;</span> Zalm</td>
+            <td style="text-align:center">3</td>
+            <td>Gerookte Zalm &bull; Zalm met Miso-Botersaus &bull; Vispalet</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">3&times;</span> Rodewijnjus / rode wijn</td>
+            <td style="text-align:center">3</td>
+            <td>Heilbot &bull; Angus Shortrib &bull; Ossenstaart</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">3&times;</span> Sesam / soja</td>
+            <td style="text-align:center">3</td>
+            <td>Pok&eacute; Bowl &bull; Gerookte Zalm &bull; Zalm met Miso-Botersaus &bull; Tonijn</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">3&times;</span> Seizoensfruit</td>
+            <td style="text-align:center">3</td>
+            <td>Yoghurt Panna Cotta &bull; Rijstpudding &bull; Stoofpeer Sorbet</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">2&times;</span> Couscous</td>
+            <td style="text-align:center">2</td>
+            <td>Groente Tajine &bull; Geroosterde Aubergine</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">2&times;</span> Granaatappel</td>
+            <td style="text-align:center">2</td>
+            <td>Geroosterde Bloemkool &bull; Geroosterde Aubergine</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">2&times;</span> Roseval-aardappeltjes</td>
+            <td style="text-align:center">2</td>
+            <td>Schelvis Proven&ccedil;aals &bull; Pluma Iberico</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">2&times;</span> Pistache</td>
+            <td style="text-align:center">2</td>
+            <td>Proeverij van Sue &bull; Chocolade-Pistache Dessert</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">2&times;</span> Beurre blanc / beurre noisette</td>
+            <td style="text-align:center">2</td>
+            <td>Tongschar &bull; Kabeljauw</td>
+          </tr>
+          <tr>
+            <td><span class="overlap-badge">2&times;</span> Stroganoffsaus</td>
+            <td style="text-align:center">2</td>
+            <td>Paddenstoelen Stroganoff &bull; Sauzenkaart</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Inkoopeffici&euml;ntie-score:</strong> Het nieuwe menu deelt 16 kerningredtentgroepen over 2-5 gerechten. Dit betekent minder unieke inkopen, lagere voorraadkosten en minder verspilling. Bijzonder effici&euml;nt: de Midden-Oosterse lijn (couscous, granaatappel) bedient zowel Groente Tajine als Geroosterde Aubergine en Geroosterde Bloemkool.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 6. KASSABOEK PLACEHOLDER ═══════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Sectie 6</div>
+    <h2 class="section-title">Kassaboek-integratie</h2>
+    <p class="section-desc">Wanneer kassaboekdata beschikbaar is, worden verkoopdata per gerecht gekoppeld aan dit voorstel.</p>
+
+    <div class="placeholder-box">
+      <div class="placeholder-icon">&#128202;</div>
+      <h3>Kassaboekdata nog niet beschikbaar</h3>
+      <p>Zodra kassaboekdata is ge&uuml;pload, wordt elk gerecht gekoppeld aan omzet, marge en bestelfrequentie. Dit maakt een ABC-classificatie mogelijk:</p>
+      <div class="placeholder-items">
+        <span class="placeholder-item">A = top 20% omzet &rarr; altijd houden</span>
+        <span class="placeholder-item">B = midden 30% &rarr; beoordelen op trend-fit</span>
+        <span class="placeholder-item">C = onderste 50% + lage trend-fit &rarr; vervangen</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 7. BRONVERMELDING ═══════════════ -->
+<section id="bronnen">
+  <div class="container">
+    <div class="section-label">Sectie 7</div>
+    <h2 class="section-title">Bronvermelding</h2>
+    <p class="section-desc">Alle bronnen die zijn geraadpleegd voor het restaurantprofiel en de trendanalyse. Opgehaald op 2 maart 2026.</p>
+
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.05rem; margin: 0 0 1rem; color: var(--gold);">Restaurantprofiel</h3>
+    <ol class="source-list" style="margin-bottom: 2rem;">
+      <li><span class="source-num">1</span> <a href="https://www.hotelridderkerk.nl/en" target="_blank">Van der Valk Hotel Ridderkerk &mdash; Offici&euml;le website</a></li>
+      <li><span class="source-num">2</span> <a href="https://www.hotelridderkerk.nl/en/facilities" target="_blank">Faciliteiten Hotel Ridderkerk</a></li>
+      <li><span class="source-num">3</span> <a href="https://www.hotelridderkerk.nl/en/restaurant" target="_blank">Restaurant Hotel Ridderkerk</a></li>
+      <li><span class="source-num">4</span> <a href="https://www.valkbusiness.com/nl/alle-hotels/locatie/hotel-ridderkerk" target="_blank">Valk Business &mdash; Hotel Ridderkerk</a></li>
+      <li><span class="source-num">5</span> <a href="https://www.marketingtribune.nl/food-en-retail/nieuws/2022/01/interview-van-der-valk-als-het-merk-je-eigen-naam-draagt/index.xml" target="_blank">MarketingTribune &mdash; Van der Valk interview (merkidentiteit)</a></li>
+      <li><span class="source-num">6</span> <a href="https://www.hospitality-management.nl/van-der-valk-horecafamilie-beweegt-moeiteloos-mee-met-de-tijdgeest" target="_blank">Hospitality Management &mdash; Van der Valk profiel</a></li>
+      <li><span class="source-num">7</span> <a href="https://allecijfers.nl/gemeente/ridderkerk/" target="_blank">AlleCijfers.nl &mdash; Gemeente Ridderkerk (demografie)</a></li>
+      <li><span class="source-num">8</span> <a href="https://www.ondernemen010.nl/actueel/groei-van-zakelijk-toerisme-en-internationale-handel-dankzij-rotterdam-partners/" target="_blank">Ondernemen010 &mdash; Zakelijk toerisme Rotterdam</a></li>
+    </ol>
+
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.05rem; margin: 0 0 1rem; color: var(--gold);">Trendanalyse</h3>
+    <ol class="source-list">
+      <li><span class="source-num">9</span> <a href="https://www.lightspeedhq.nl/blog/horecatrends/" target="_blank">Lightspeed &mdash; Horecatrends 2026</a></li>
+      <li><span class="source-num">10</span> <a href="https://vinissima.nl/internationale-en-nederlandse-foodtrends-2026-voor-thuis-en-horeca/" target="_blank">Vinissima &mdash; Foodtrends 2026</a></li>
+      <li><span class="source-num">11</span> <a href="https://www.derestaurantkrant.nl/de-10-onmisbare-horecatrends-voor-2025" target="_blank">De RestaurantKrant &mdash; 10 Horecatrends 2025</a></li>
+      <li><span class="source-num">12</span> <a href="https://www.derestaurantkrant.nl/trends-2026-niet-groter-wel-slimmer-en-dat-voelt-je-gast-aan-tafel" target="_blank">De RestaurantKrant &mdash; Trends 2026</a></li>
+      <li><span class="source-num">13</span> <a href="https://www.chefsculinar.nl/trends-2026-8444.htm" target="_blank">Chefs Culinar &mdash; Trends 2026</a></li>
+      <li><span class="source-num">14</span> <a href="https://www.horecamagazine.nl/nieuws/nieuws/21202/dit-zijn-de-vijf-vegatrends-voor-2026" target="_blank">Horeca Magazine &mdash; 5 Vegatrends 2026</a></li>
+      <li><span class="source-num">15</span> <a href="https://www.vegetariers.nl/nieuws/vegatrends/" target="_blank">Vegetari&euml;rsbond &mdash; Vegatrends</a></li>
+      <li><span class="source-num">16</span> <a href="https://horecatweepuntnul.nl/horecatrends-2026/" target="_blank">Horeca 2.0 &mdash; Horecatrends 2026</a></li>
+      <li><span class="source-num">17</span> <a href="https://www.latasca.nl/foodtrends-2026-culinaire-trends-van-dit-jaar/" target="_blank">La Tasca &mdash; Foodtrends 2026</a></li>
+      <li><span class="source-num">18</span> <a href="https://keizerculinair.nl/culinaire-trends-2026/" target="_blank">Keizer Culinair &mdash; Culinaire Trends 2026</a></li>
+      <li><span class="source-num">19</span> <a href="https://mariellebordewijk.nl/blog/2025/10/02/food-trends-2026/" target="_blank">Marielle Bordewijk &mdash; Food Trends 2026</a></li>
+      <li><span class="source-num">20</span> <a href="https://uitpaulineskeuken.nl/2026/01/foodtrends-voor-2026.html" target="_blank">Uit Paulines Keuken &mdash; Foodtrends 2026</a></li>
+      <li><span class="source-num">21</span> <a href="https://www.dailycappuccino.nl/2026/02/microtrends-in-snacks-en-comfort-food-dit-eten-we-nu/" target="_blank">Daily Cappuccino &mdash; Microtrends comfort food 2026</a></li>
+      <li><span class="source-num">22</span> <a href="https://think.ing.com/articles/dutch-hospitality-sector-in-2026-modest-portions-on-menu" target="_blank">ING Think &mdash; Dutch Hospitality 2026</a></li>
+      <li><span class="source-num">23</span> <a href="https://tastewise.io/blog/pastry-trends" target="_blank">Tastewise &mdash; Pastry Trends 2026</a></li>
+      <li><span class="source-num">24</span> <a href="https://www.kerry.com/insights/kerrydigest/2025/dubai-chocolate-innovation" target="_blank">Kerry &mdash; Dubai Chocolate Innovation</a></li>
+      <li><span class="source-num">25</span> <a href="https://proveg.com/nl/blog/de-groei-van-veganisme-wat-zeggen-de-cijfers/" target="_blank">ProVeg &mdash; Groei veganisme cijfers</a></li>
+      <li><span class="source-num">26</span> <a href="https://restoranto.com/nl/duurzaamheid-trends-restaurants/" target="_blank">Restoranto &mdash; Duurzaamheid restaurants</a></li>
+      <li><span class="source-num">27</span> <a href="https://conceptional.nl/en/2026-food-beverage-trend-report-hotels/" target="_blank">Conceptional &mdash; F&amp;B Trend Report Hotels 2026</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="container">
+    <span class="footer-brand">Van der Valk Hotel Ridderkerk</span>
+    Menuvoorstel gegenereerd op 2 maart 2026 &bull; AI-gedreven analyse door Nohou &bull; Gebaseerd op 27 bronnen
+  </div>
+</footer>
+
+</body>
+</html>

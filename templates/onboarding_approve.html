@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if bewerk_modus|default(false) %}Segment bewerken{% else %}Menusegment goedkeuren{% endif %} — Menu Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424; --mid: #3A3A3A;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.5rem; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .nav-back { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .3rem .65rem; border: 1px solid var(--border); border-radius: 6px; white-space: nowrap; margin-left: auto; }
+    .nav-back:hover { color: var(--text); border-color: var(--gold); }
+    .main { flex: 1; max-width: 700px; margin: 0 auto; padding: 3rem 2rem 4rem; width: 100%; }
+    .stap-indicator { display: flex; gap: .5rem; align-items: center; margin-bottom: 2rem; }
+    .stap-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+    .stap-dot.actief { background: var(--gold); color: #0F0F0F; }
+    .stap-dot.done { background: #388E3C; color: #fff; }
+    .stap-dot.inactief { background: var(--dark-3); border: 1px solid var(--border); color: var(--text-dim); }
+    .stap-lijn { flex: 1; height: 1px; background: var(--border); }
+    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; margin-bottom: .5rem; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .page-sub { color: var(--text-dim); font-size: .9rem; line-height: 1.7; margin-bottom: 2.5rem; }
+    .ai-badge { display: inline-flex; align-items: center; gap: .4rem; background: var(--gold-dim); border: 1px solid var(--border); border-radius: 20px; padding: .3rem .8rem; font-size: .75rem; color: var(--gold); font-weight: 500; margin-bottom: 1.5rem; }
+    .sectie { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .sectie-titel { font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1rem; }
+    .field-hint { font-size: .73rem; color: var(--text-dim); margin-top: .25rem; }
+
+    /* Checkbox grid */
+    .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .5rem; margin-bottom: 1.2rem; }
+    .checkbox-item { display: flex; align-items: center; gap: .55rem; padding: .6rem .85rem; background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .18s, background .18s; font-size: .85rem; color: var(--text); user-select: none; }
+    .checkbox-item:hover { border-color: var(--gold); }
+    .checkbox-item input[type="checkbox"] { accent-color: var(--gold); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+    .checkbox-item:has(input:checked) { border-color: var(--gold); background: var(--gold-dim); }
+    .anders-row { margin-top: .25rem; }
+    .anders-label { font-size: .72rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text-dim); display: block; margin-bottom: .4rem; }
+
+    /* Radio grid */
+    .radio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem; margin-bottom: 1.2rem; }
+    .radio-item { display: flex; align-items: center; gap: .55rem; padding: .6rem .85rem; background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .18s, background .18s; font-size: .85rem; color: var(--text); user-select: none; }
+    .radio-item:hover { border-color: var(--gold); }
+    .radio-item input[type="radio"] { accent-color: var(--gold); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+    .radio-item:has(input:checked) { border-color: var(--gold); background: var(--gold-dim); }
+
+    /* Text inputs */
+    input[type="text"], textarea { background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .9rem; padding: .75rem .9rem; outline: none; width: 100%; transition: border-color .2s; }
+    input:focus, textarea:focus { border-color: var(--gold); }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .btn-submit { background: var(--gold); color: #0F0F0F; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600; border: none; border-radius: 10px; padding: .95rem 2rem; cursor: pointer; width: 100%; transition: background .2s; }
+    .btn-submit:hover { background: var(--gold-light); }
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+    @media (max-width: 600px) { .checkbox-grid, .radio-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>voor restaurants</span></div>
+    {% if bewerk_modus|default(false) %}
+    <a href="{{ url_for('segment.segment_overzicht') }}" class="nav-back">← Terug</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="main">
+  {% if not bewerk_modus|default(false) %}
+  <div class="stap-indicator">
+    <div class="stap-dot done">&#10003;</div>
+    <div class="stap-lijn"></div>
+    <div class="stap-dot done">&#10003;</div>
+    <div class="stap-lijn"></div>
+    <div class="stap-dot actief">3</div>
+    <div class="stap-lijn"></div>
+    <div class="stap-dot inactief">4</div>
+  </div>
+  {% endif %}
+
+  {% if not bewerk_modus|default(false) %}
+  <div class="ai-badge">&#10024; AI voorstel — pas aan waar nodig</div>
+  {% endif %}
+  <h1 class="page-title">{% if bewerk_modus|default(false) %}Menusegment <em>bewerken</em>{% else %}Klopt dit <em>menusegment?</em>{% endif %}</h1>
+  <p class="page-sub">{% if bewerk_modus|default(false) %}Pas het menusegment-profiel aan voor {{ naam }}.{% else %}AI heeft een voorstel gemaakt op basis van je restaurant. Controleer elk onderdeel en pas aan waar nodig — deze instellingen bepalen hoe trends en annotaties worden gefilterd.{% endif %}</p>
+
+  {# Vaste opties per categorie #}
+  {% set type_opties = [
+    ("hotel restaurant", "Hotel restaurant"),
+    ("bistro", "Bistro"),
+    ("fine dining", "Fine dining"),
+    ("casual dining", "Casual dining"),
+    ("brasserie", "Brasserie"),
+    ("strandtent", "Strandtent"),
+    ("eetcafe", "Eetcaf&eacute;"),
+    ("fastfood", "Fastfood / snackbar"),
+    ("foodtruck", "Foodtruck"),
+    ("grand cafe", "Grand caf&eacute;"),
+    ("pannenkoekhuis", "Pannenkoekhuis"),
+    ("pizzeria", "Pizzeria"),
+    ("steakhouse", "Steakhouse"),
+    ("sushi restaurant", "Sushi restaurant"),
+    ("wok restaurant", "Wok restaurant"),
+    ("tapas bar", "Tapas bar")
+  ] %}
+
+  {% set stijl_opties = [
+    ("Frans", "Frans"),
+    ("Italiaans", "Italiaans"),
+    ("Aziatisch", "Aziatisch"),
+    ("Nederlands", "Nederlands"),
+    ("Internationaal", "Internationaal"),
+    ("Fusion", "Fusion"),
+    ("Mediterraan", "Mediterraan"),
+    ("Amerikaans", "Amerikaans"),
+    ("Japans", "Japans"),
+    ("Mexicaans", "Mexicaans"),
+    ("Thais", "Thais"),
+    ("Indonesisch", "Indonesisch"),
+    ("Grieks", "Grieks"),
+    ("Midden-Oosters", "Midden-Oosters"),
+    ("Scandinavisch", "Scandinavisch"),
+    ("Klassiek Europees", "Klassiek Europees")
+  ] %}
+
+  {% set doelgroep_opties = [
+    ("zakenreizigers", "Zakenreizigers"),
+    ("gezinnen", "Gezinnen"),
+    ("koppels", "Koppels"),
+    ("lokale bewoners", "Lokale bewoners"),
+    ("toeristen", "Toeristen"),
+    ("studenten", "Studenten"),
+    ("senioren", "Senioren"),
+    ("groepen", "Groepen"),
+    ("hotelgasten", "Hotelgasten"),
+    ("sporters", "Sporters / sportfans"),
+    ("dagjesmensen", "Dagjesmensen"),
+    ("fijnproevers", "Fijnproevers"),
+    ("young professionals", "Young professionals")
+  ] %}
+
+  {% set prijs_opties = [
+    ("budget", "Budget"),
+    ("middensegment", "Middensegment"),
+    ("premium", "Premium"),
+    ("fine dining", "Fine dining")
+  ] %}
+
+  {% set kenmerken_opties = [
+    ("seizoensgebonden", "Seizoensgebonden"),
+    ("lokale ingredienten", "Lokale ingredi&euml;nten"),
+    ("duurzaam", "Duurzaam"),
+    ("biologisch", "Biologisch"),
+    ("plantaardig", "Plantaardig / vegan"),
+    ("glutenvrij opties", "Glutenvrij opties"),
+    ("halal", "Halal"),
+    ("kosher", "Kosher"),
+    ("huisgemaakt", "Huisgemaakt"),
+    ("a la carte", "&Agrave; la carte"),
+    ("buffet", "Buffet"),
+    ("dagmenu", "Dagmenu / daghap"),
+    ("proeverijmenu", "Proeverijmenu"),
+    ("kindermenu", "Kindermenu"),
+    ("ontbijt", "Ontbijt"),
+    ("lunch", "Lunch"),
+    ("diner", "Diner"),
+    ("high tea", "High tea"),
+    ("bar snacks", "Bar snacks")
+  ] %}
+
+  {# Bereken welke waarden "anders" zijn (niet in vaste lijst) #}
+  {% set bekende_types = type_opties | map(attribute=0) | list %}
+  {% set bekende_stijlen = stijl_opties | map(attribute=0) | list %}
+  {% set bekende_doelgroepen = doelgroep_opties | map(attribute=0) | list %}
+  {% set bekende_kenmerken = kenmerken_opties | map(attribute=0) | list %}
+
+  {% set ns = namespace(anders_type=[], anders_stijl=[], anders_doelgroep=[], anders_kenmerken=[]) %}
+  {% for s in (profiel.restaurant_type or []) %}
+    {% if s not in bekende_types %}{% set ns.anders_type = ns.anders_type + [s] %}{% endif %}
+  {% endfor %}
+  {% for s in (profiel.culinaire_stijl or []) %}
+    {% if s not in bekende_stijlen %}{% set ns.anders_stijl = ns.anders_stijl + [s] %}{% endif %}
+  {% endfor %}
+  {% for s in (profiel.doelgroep or []) %}
+    {% if s not in bekende_doelgroepen %}{% set ns.anders_doelgroep = ns.anders_doelgroep + [s] %}{% endif %}
+  {% endfor %}
+  {% for s in (profiel.menu_kenmerken or []) %}
+    {% if s not in bekende_kenmerken %}{% set ns.anders_kenmerken = ns.anders_kenmerken + [s] %}{% endif %}
+  {% endfor %}
+
+  <form method="POST" action="{{ url_for('segment.segment_bewerken') if bewerk_modus|default(false) else url_for('onboarding.approve') }}">
+
+    <!-- Restaurant type: checkboxes -->
+    <div class="sectie">
+      <div class="sectie-titel">Restaurant type</div>
+      <p class="field-hint" style="margin-bottom:1rem">Wat voor type restaurant is dit? (meerdere mogelijk)</p>
+      <div class="checkbox-grid">
+        {% set ai_types = profiel.restaurant_type or [] %}
+        {% for val, lbl in type_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="restaurant_type_check" value="{{ val }}"
+                 {% if val in ai_types %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" name="restaurant_type_anders"
+               value="{{ ns.anders_type | join(', ') }}"
+               placeholder="Ander type, komma-gescheiden">
+      </div>
+    </div>
+
+    <!-- Culinaire stijl: checkboxes -->
+    <div class="sectie">
+      <div class="sectie-titel">Culinaire stijl</div>
+      <p class="field-hint" style="margin-bottom:1rem">Welke keukenstijl(en) past bij dit restaurant?</p>
+      <div class="checkbox-grid">
+        {% set ai_stijl = profiel.culinaire_stijl or [] %}
+        {% for val, lbl in stijl_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="culinaire_stijl_check" value="{{ val }}"
+                 {% if val in ai_stijl %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" name="culinaire_stijl_anders"
+               value="{{ ns.anders_stijl | join(', ') }}"
+               placeholder="Andere stijl, komma-gescheiden">
+      </div>
+    </div>
+
+    <!-- Doelgroep: checkboxes -->
+    <div class="sectie">
+      <div class="sectie-titel">Doelgroep — wie zijn jouw klanten?</div>
+      <p class="field-hint" style="margin-bottom:1rem">Vink aan welke klanttypen bij jouw restaurant passen.</p>
+      <div class="checkbox-grid">
+        {% set ai_doelgroep = profiel.doelgroep or [] %}
+        {% for val, lbl in doelgroep_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="doelgroep_check" value="{{ val }}"
+                 {% if val in ai_doelgroep %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" name="doelgroep_anders"
+               value="{{ ns.anders_doelgroep | join(', ') }}"
+               placeholder="Ander klanttype, komma-gescheiden">
+      </div>
+    </div>
+
+    <!-- Prijssegment: radio buttons -->
+    <div class="sectie">
+      <div class="sectie-titel">Prijssegment</div>
+      <p class="field-hint" style="margin-bottom:1rem">In welk prijssegment valt het restaurant?</p>
+      <div class="radio-grid">
+        {% set ai_prijs = profiel.prijssegment or 'middensegment' %}
+        {% for val, lbl in prijs_opties %}
+        <label class="radio-item">
+          <input type="radio" name="prijssegment" value="{{ val }}"
+                 {% if val == ai_prijs %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Waardepropositie: textarea -->
+    <div class="sectie">
+      <div class="sectie-titel">Waardepropositie</div>
+      <p class="field-hint" style="margin-bottom:1rem">Wat maakt het menu-aanbod van dit restaurant uniek? Pas de tekst aan indien nodig.</p>
+      <textarea name="waardepropositie" rows="4">{{ profiel.waardepropositie or '' }}</textarea>
+    </div>
+
+    <!-- Menu kenmerken: checkboxes -->
+    <div class="sectie">
+      <div class="sectie-titel">Menu kenmerken</div>
+      <p class="field-hint" style="margin-bottom:1rem">Welke kenmerken passen bij het menu-aanbod?</p>
+      <div class="checkbox-grid">
+        {% set ai_kenmerken = profiel.menu_kenmerken or [] %}
+        {% for val, lbl in kenmerken_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="menu_kenmerken_check" value="{{ val }}"
+                 {% if val in ai_kenmerken %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" name="menu_kenmerken_anders"
+               value="{{ ns.anders_kenmerken | join(', ') }}"
+               placeholder="Ander kenmerk, komma-gescheiden">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    {% if bewerk_modus|default(false) %}
+    <div style="display:flex;gap:1rem;align-items:center">
+      <button type="submit" class="btn-submit" style="flex:1">Profiel opslaan</button>
+      <a href="{{ url_for('segment.segment_overzicht') }}" style="color:var(--text-dim);font-size:.85rem;text-decoration:none;white-space:nowrap">Annuleren</a>
+    </div>
+    {% else %}
+    <button type="submit" class="btn-submit">Goedkeuren en doorgaan →</button>
+    {% endif %}
+  </form>
+</div>
+
+<footer><p>Menu Maker · Aangedreven door Gemini AI</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+</body>
+</html>

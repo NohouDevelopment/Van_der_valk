@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registreren — Menu Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
+      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
+      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; }
+    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
+    .main { flex: 1; max-width: 480px; margin: 0 auto; padding: 3rem 2rem 5rem; width: 100%; }
+    .stap-indicator { display: flex; gap: .5rem; align-items: center; margin-bottom: 2rem; }
+    .stap-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+    .stap-dot.actief { background: var(--gold); color: #0F0F0F; }
+    .stap-dot.inactief { background: var(--dark-3); border: 1px solid var(--border); color: var(--text-dim); }
+    .stap-lijn { flex: 1; height: 1px; background: var(--border); }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; margin-bottom: .5rem; }
+    .page-title em { font-style: normal; color: var(--gold); }
+    .page-sub { color: var(--text-dim); font-size: .9rem; margin-bottom: 2rem; line-height: 1.6; }
+    .error-box { background: rgba(229,57,53,.12); border: 1px solid rgba(229,57,53,.35); border-radius: 10px; padding: .9rem 1.1rem; color: #EF9A9A; font-size: .85rem; margin-bottom: 1.5rem; display: flex; gap: .5rem; }
+    .error-box::before { content: "\26A0"; flex-shrink: 0; }
+    form { display: flex; flex-direction: column; gap: 1.25rem; }
+    .field { display: flex; flex-direction: column; gap: .4rem; }
+    label { font-size: .75rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text-dim); }
+    input[type="text"] {
+      background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Inter', sans-serif; font-size: .95rem;
+      padding: .85rem 1rem; transition: border-color .2s; outline: none; width: 100%;
+    }
+    input:focus { border-color: var(--gold); }
+    input::placeholder { color: var(--text-dim); opacity: .6; }
+    .field-hint { font-size: .73rem; color: var(--text-dim); margin-top: .15rem; }
+    .btn { background: var(--gold); color: #0F0F0F; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600; border: none; border-radius: 10px; padding: .95rem 2rem; cursor: pointer; width: 100%; transition: background .2s, transform .1s; letter-spacing: .03em; }
+    .btn:hover { background: var(--gold-light); }
+    .btn:active { transform: scale(.98); }
+    .link-row { text-align: center; margin-top: .75rem; font-size: .85rem; color: var(--text-dim); }
+    .link-row a { color: var(--gold); text-decoration: none; }
+    .link-row a:hover { text-decoration: underline; }
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+    footer p { color: var(--text-dim); font-size: .78rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">MENU MAKER <span>voor restaurants</span></div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="stap-indicator">
+    <div class="stap-dot actief">1</div>
+    <div class="stap-lijn"></div>
+    <div class="stap-dot inactief">2</div>
+    <div class="stap-lijn"></div>
+    <div class="stap-dot inactief">3</div>
+    <div class="stap-lijn"></div>
+    <div class="stap-dot inactief">4</div>
+  </div>
+
+  <h1 class="page-title">Restaurant <em>registreren</em></h1>
+  <p class="page-sub">Vul je bedrijfsnaam en locatie in. In de volgende stap analyseert AI je restaurant en stelt een menusegment-profiel voor.</p>
+
+  {% if error %}
+  <div class="error-box">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <div class="field">
+      <label for="bedrijfsnaam">Bedrijfsnaam / keten</label>
+      <input type="text" id="bedrijfsnaam" name="bedrijfsnaam" placeholder="Van der Valk Hotel Ridderkerk" required value="{{ naam or request.form.get('bedrijfsnaam', '') }}">
+    </div>
+    <div class="field">
+      <label for="adres">Adres / locatie</label>
+      <input type="text" id="adres" name="adres" placeholder="Ridderkerk, Zuid-Holland" value="{{ adres or request.form.get('adres', '') }}">
+      <p class="field-hint">Optioneel, maar helpt AI bij het vinden van je restaurant.</p>
+    </div>
+
+    <button type="submit" class="btn">Doorgaan naar AI scan →</button>
+  </form>
+
+  <div class="link-row">
+    Al een account? <a href="{{ url_for('auth.login') }}">Log in</a>
+  </div>
+</div>
+
+<footer><p>Menu Maker · Aangedreven door Gemini AI</p></footer>
+<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
+  <span class="theme-icon-moon">&#127769;</span>
+  <span class="theme-icon-sun">&#9728;</span>
+</button>
+<script src="/static/theme.js"></script>
+</body>
+</html>
