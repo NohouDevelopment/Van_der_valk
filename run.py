@@ -35,9 +35,9 @@ def main():
     print(f"  http://{args.host}:{args.port}")
     print("=" * 50)
 
-    if not os.getenv("GEMINI_API_KEY"):
-        print("\n  ! GEMINI_API_KEY niet gevonden in .env")
-        print("    Zet de key in .env: GEMINI_API_KEY=jouw_key")
+    if not os.getenv("OPENROUTER_API_KEY"):
+        print("\n  ! OPENROUTER_API_KEY niet gevonden in .env")
+        print("    Zet de key in .env: OPENROUTER_API_KEY=jouw_key")
 
     if not os.getenv("SECRET_KEY"):
         print("\n  ! Tip: zet SECRET_KEY in .env voor stabiele sessies")

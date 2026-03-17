@@ -1,257 +1,272 @@
-<!DOCTYPE html>
-<html lang="nl" data-theme="">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Annotaties — {{ org.naam }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/theme.css">
-  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
-  <style>
-    :root {
-      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
-      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
-      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
-      --green: #66BB6A; --orange: #FFA726; --red: #EF5350; --blue: #6495ED;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+{% extends "base.html" %}
 
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
-    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
-    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
-    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
-    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+{% block title %}Menu Advies — {{ org.naam }}{% endblock %}
 
-    .main { flex: 1; max-width: 1200px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+{% block extra_head %}
+<style>
+  :root {
+    --gold: var(--color-gold);
+    --gold-dim: var(--color-gold-bg);
+    --dark-2: var(--color-card);
+    --dark-3: var(--color-card-header);
+    --text: var(--color-text);
+    --text-dim: var(--color-text-secondary);
+    --border: var(--color-gold-border);
+    --green: var(--color-green);
+    --orange: var(--color-orange);
+    --red: var(--color-red);
+    --blue: var(--color-blue);
+  }
 
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
-    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
-    .page-title em { font-style: normal; color: var(--gold); }
-    .header-actions { display: flex; gap: .5rem; align-items: center; }
-    .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; white-space: nowrap; }
-    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-sm.gold { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+  .page-header-annot { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
+  .annot-title { font-family: var(--font-display); font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
+  .annot-title em { font-style: normal; color: var(--color-gold); }
+  .header-actions { display: flex; gap: .5rem; align-items: center; }
+  .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--color-gold-border); background: none; color: var(--color-text-secondary); cursor: pointer; text-decoration: none; transition: all .2s; font-family: var(--font-body); white-space: nowrap; }
+  .btn-sm:hover { border-color: var(--color-gold); color: var(--color-gold); }
+  .btn-sm.gold { border-color: var(--color-gold); color: var(--color-gold); background: var(--color-gold-bg); }
 
-    .meta-info { font-size: .78rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+  .meta-info { font-size: .78rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
 
-    /* Geen data */
-    .geen-data { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem 2rem; text-align: center; }
-    .geen-data p { color: var(--text-dim); font-size: .9rem; margin-bottom: 1rem; }
-    .btn-primary { background: var(--gold); color: #0F0F0F; font-size: .85rem; font-weight: 600; border: none; border-radius: 8px; padding: .6rem 1.2rem; cursor: pointer; text-decoration: none; display: inline-block; transition: background .2s; }
-    .btn-primary:hover { background: var(--gold-light); }
+  /* Stats bar */
+  .stats-bar { display: flex; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .stat-pill { display: flex; align-items: center; gap: .4rem; font-size: .78rem; font-weight: 600; padding: .35rem .75rem; border-radius: 20px; background: var(--color-card); border: 1px solid var(--color-gold-border); }
+  .stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .stat-pill .dot.green { background: var(--color-green); }
+  .stat-pill .dot.orange { background: var(--color-orange); }
+  .stat-pill .dot.red { background: var(--color-red); }
 
-    /* Stats bar */
-    .stats-bar { display: flex; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .stat-pill { display: flex; align-items: center; gap: .4rem; font-size: .78rem; font-weight: 600; padding: .35rem .75rem; border-radius: 20px; background: var(--dark-2); border: 1px solid var(--border); }
-    .stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .stat-pill .dot.green { background: var(--green); }
-    .stat-pill .dot.orange { background: var(--orange); }
-    .stat-pill .dot.red { background: var(--red); }
+  /* Filter bar */
+  .filter-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .75rem 1rem; background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: 10px; margin-bottom: 1.5rem; }
+  .filter-pills { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .filter-pill { font-size: .75rem; font-weight: 600; padding: .3rem .7rem; border-radius: 20px; border: 1px solid var(--color-gold-border); background: none; color: var(--color-text-secondary); cursor: pointer; transition: all .2s; font-family: var(--font-body); }
+  .filter-pill:hover { border-color: var(--color-gold); color: var(--color-text); }
+  .filter-pill.active { background: var(--color-gold-bg); border-color: var(--color-gold); color: var(--color-gold); }
+  .filter-pill.active-green { background: rgba(102,187,106,.12); border-color: var(--color-green); color: var(--color-green); }
+  .filter-pill.active-orange { background: rgba(255,167,38,.12); border-color: var(--color-orange); color: var(--color-orange); }
+  .filter-pill.active-red { background: rgba(239,83,80,.12); border-color: var(--color-red); color: var(--color-red); }
+  .filter-divider { width: 1px; height: 24px; background: var(--color-gold-border); flex-shrink: 0; }
+  .filter-search { font-size: .78rem; padding: .35rem .65rem; border-radius: 6px; border: 1px solid var(--color-gold-border); background: var(--color-card-header); color: var(--color-text); font-family: var(--font-body); width: 160px; transition: border-color .2s; }
+  .filter-search::placeholder { color: var(--color-text-secondary); }
+  .filter-search:focus { outline: none; border-color: var(--color-gold); }
 
-    /* ── Filter bar ── */
-    .filter-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .75rem 1rem; background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1.5rem; }
-    .filter-pills { display: flex; gap: .4rem; flex-wrap: wrap; }
-    .filter-pill { font-size: .75rem; font-weight: 600; padding: .3rem .7rem; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; transition: all .2s; font-family: 'Inter', sans-serif; }
-    .filter-pill:hover { border-color: var(--gold); color: var(--text); }
-    .filter-pill.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
-    .filter-pill.active-green { background: rgba(102,187,106,.12); border-color: var(--green); color: var(--green); }
-    .filter-pill.active-orange { background: rgba(255,167,38,.12); border-color: var(--orange); color: var(--orange); }
-    .filter-pill.active-red { background: rgba(239,83,80,.12); border-color: var(--red); color: var(--red); }
-    .filter-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-    .filter-select { font-size: .78rem; padding: .35rem .6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--dark-3); color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer; }
-    .filter-select:focus { outline: none; border-color: var(--gold); }
-    .filter-search { font-size: .78rem; padding: .35rem .65rem; border-radius: 6px; border: 1px solid var(--border); background: var(--dark-3); color: var(--text); font-family: 'Inter', sans-serif; width: 160px; transition: border-color .2s; }
-    .filter-search::placeholder { color: var(--text-dim); }
-    .filter-search:focus { outline: none; border-color: var(--gold); }
+  /* Menulijst stijl */
+  .annotatie-lijst { }
 
-    /* ── Galerie grid ── */
-    .galerie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .categorie-sectie { margin-bottom: 2rem; }
+  .categorie-sectie.hidden { display: none; }
 
-    /* ── Gerecht card (galerie) ── */
-    .gerecht-card { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.15rem; transition: border-color .2s, box-shadow .2s; display: flex; flex-direction: column; }
-    .gerecht-card:hover { border-color: var(--gold); box-shadow: 0 2px 16px rgba(201,168,76,.08); }
-    .gerecht-card.houden { border-top: 3px solid var(--green); }
-    .gerecht-card.aanpassen { border-top: 3px solid var(--orange); }
-    .gerecht-card.vervangen { border-top: 3px solid var(--red); }
-    .gerecht-card.hidden { display: none; }
+  .categorie-titel {
+    font-family: var(--font-display); font-size: 1.1rem; font-weight: 600;
+    color: var(--color-gold); padding-bottom: .5rem;
+    border-bottom: 1px solid var(--color-gold-border); margin-bottom: 0;
+  }
+  .categorie-count { font-family: var(--font-body); font-size: .72rem; font-weight: 400; color: var(--color-text-secondary); margin-left: .4rem; }
 
-    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
-    .gerecht-meta { display: flex; gap: .4rem; align-items: center; }
-    .status-badge { font-size: .65rem; font-weight: 700; padding: .15rem .45rem; border-radius: 4px; letter-spacing: .03em; text-transform: uppercase; }
-    .status-badge.houden { background: rgba(102,187,106,.12); color: var(--green); }
-    .status-badge.aanpassen { background: rgba(255,167,38,.12); color: var(--orange); }
-    .status-badge.vervangen { background: rgba(239,83,80,.12); color: var(--red); }
-    .score-badge { font-size: .68rem; font-weight: 600; color: var(--gold); background: var(--gold-dim); border: 1px solid var(--border); border-radius: 4px; padding: .1rem .4rem; }
+  /* Gerecht rij */
+  .gerecht-rij {
+    border-bottom: 1px solid rgba(201,168,76,.07);
+    transition: background .15s;
+  }
+  .gerecht-rij:last-of-type { border-bottom: none; }
+  .gerecht-rij.hidden { display: none; }
 
-    .gerecht-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; margin-bottom: .25rem; }
-    .gerecht-naam { font-weight: 600; font-size: .92rem; line-height: 1.3; }
-    .gerecht-prijs { font-size: .85rem; font-weight: 600; color: var(--gold); white-space: nowrap; }
-    .gerecht-categorie { font-size: .7rem; color: var(--text-dim); margin-bottom: .5rem; }
+  .gerecht-main {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: .75rem 0; gap: 1rem;
+  }
+  .gerecht-info { flex: 1; min-width: 0; }
+  .gerecht-naam { font-size: .93rem; font-weight: 500; margin-bottom: .15rem; }
+  .gerecht-beschrijving { font-size: .8rem; color: var(--color-text-secondary); line-height: 1.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; }
+  .gerecht-right { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
+  .gerecht-prijs { font-size: .9rem; font-weight: 600; color: var(--color-gold); white-space: nowrap; }
 
-    /* Positief tags (altijd zichtbaar) */
-    .annot-positief { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .5rem; }
-    .positief-tag { font-size: .67rem; padding: .12rem .4rem; border-radius: 4px; background: rgba(102,187,106,.08); color: var(--green); border: 1px solid rgba(102,187,106,.15); }
+  /* Status knopjes */
+  .status-btn {
+    font-size: .67rem; font-weight: 700; padding: .2rem .55rem;
+    border-radius: 5px; border: 1px solid; cursor: pointer;
+    letter-spacing: .04em; text-transform: uppercase;
+    font-family: var(--font-body); transition: opacity .2s;
+    white-space: nowrap;
+  }
+  .status-btn:hover { opacity: .8; }
+  .status-btn.houden { background: rgba(102,187,106,.12); color: var(--color-green); border-color: rgba(102,187,106,.3); }
+  .status-btn.aanpassen { background: rgba(255,167,38,.12); color: var(--color-orange); border-color: rgba(255,167,38,.3); }
+  .status-btn.vervangen { background: rgba(239,83,80,.12); color: var(--color-red); border-color: rgba(239,83,80,.3); }
+  .score-badge { font-size: .68rem; font-weight: 600; color: var(--color-gold); background: var(--color-gold-bg); border: 1px solid var(--color-gold-border); border-radius: 4px; padding: .1rem .4rem; }
 
-    /* Expand knop */
-    .card-expand { width: 100%; margin-top: auto; padding-top: .5rem; border: none; background: none; color: var(--text-dim); font-size: .75rem; font-family: 'Inter', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; transition: color .2s; }
-    .card-expand:hover { color: var(--gold); }
-    .card-expand .arrow { transition: transform .2s; display: inline-block; }
-    .gerecht-card.expanded .card-expand .arrow { transform: rotate(180deg); }
+  /* Uitklap sectie */
+  .gerecht-details {
+    display: none; padding: .6rem .75rem .85rem;
+    background: var(--color-card); border-radius: 0 0 8px 8px;
+    border: 1px solid var(--color-gold-border); border-top: none;
+    margin-bottom: .5rem; margin-top: -1px;
+  }
+  .gerecht-rij.expanded .gerecht-details { display: block; }
+  .gerecht-rij.expanded .gerecht-main { background: var(--color-card); border-radius: 8px 8px 0 0; padding: .75rem .75rem; margin: 0 -0px; border: 1px solid var(--color-gold-border); border-bottom: none; }
 
-    /* Details (collapsed by default) */
-    .card-details { display: none; padding-top: .6rem; border-top: 1px solid var(--border); margin-top: .5rem; }
-    .gerecht-card.expanded .card-details { display: block; }
+  .annot-opmerkingen { font-size: .82rem; color: var(--color-text-secondary); line-height: 1.55; margin-bottom: .45rem; }
+  .annot-suggesties { margin-bottom: .4rem; }
+  .suggestie-item { font-size: .78rem; color: var(--color-text-secondary); padding: .12rem 0; display: flex; gap: .3rem; }
+  .suggestie-item::before { content: "\2192"; color: var(--color-gold); flex-shrink: 0; }
+  .annot-trends { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .35rem; }
+  .trend-tag { font-size: .65rem; padding: .12rem .4rem; border-radius: 4px; background: rgba(100,149,237,.08); color: var(--color-blue); border: 1px solid rgba(100,149,237,.15); }
+  .annot-positief { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .4rem; }
+  .positief-tag { font-size: .67rem; padding: .12rem .4rem; border-radius: 4px; background: rgba(102,187,106,.08); color: var(--color-green); border: 1px solid rgba(102,187,106,.15); }
+  .geen-annot { font-size: .8rem; color: var(--color-text-secondary); font-style: italic; }
 
-    .annot-opmerkingen { font-size: .82rem; color: var(--text-dim); line-height: 1.55; margin-bottom: .45rem; }
-    .annot-suggesties { margin-bottom: .4rem; }
-    .suggestie { font-size: .78rem; color: var(--text-dim); padding: .15rem 0; display: flex; gap: .3rem; }
-    .suggestie::before { content: "\2192"; color: var(--gold); flex-shrink: 0; }
-    .annot-trends { display: flex; flex-wrap: wrap; gap: .25rem; }
-    .trend-link { font-size: .65rem; padding: .12rem .4rem; border-radius: 4px; background: rgba(100,149,237,.08); color: var(--blue); border: 1px solid rgba(100,149,237,.15); }
+  /* Geen resultaten */
+  .geen-resultaten { display: none; text-align: center; padding: 3rem 2rem; }
+  .geen-resultaten p { color: var(--color-text-secondary); font-size: .9rem; margin-bottom: 1rem; }
+  .geen-resultaten.visible { display: block; }
 
-    .geen-annot { font-size: .82rem; color: var(--text-dim); font-style: italic; }
+  .genereer-panel { background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: 10px; padding: .85rem 1rem; margin-bottom: 1rem; }
+  .genereer-textarea { width: 100%; background: var(--color-card-header); border: 1px solid var(--color-gold-border); border-radius: 6px; color: var(--color-text); font-family: var(--font-body); font-size: .83rem; padding: .5rem .7rem; resize: vertical; line-height: 1.5; }
+  .genereer-textarea:focus { outline: none; border-color: var(--color-gold); }
+  .genereer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: .5rem; }
+  .genereer-hint { font-size: .72rem; color: var(--color-text-secondary); }
+  .scan-focus { font-size: .82rem; color: var(--color-gold); font-style: italic; margin-top: .5rem; }
 
-    /* Leeg-state na filteren */
-    .geen-resultaten { display: none; grid-column: 1 / -1; text-align: center; padding: 3rem 2rem; }
-    .geen-resultaten p { color: var(--text-dim); font-size: .9rem; margin-bottom: 1rem; }
-    .geen-resultaten.visible { display: block; }
+  @media (max-width: 680px) {
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-divider { display: none; }
+    .filter-search { width: 100%; }
+    .gerecht-beschrijving { display: none; }
+  }
+</style>
+{% endblock %}
 
-    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
-    footer p { color: var(--text-dim); font-size: .78rem; }
+{% block content %}
+{% if not segment or not geheugen %}
+<!-- Prerequisites niet voldaan -->
+<div class="geen-data">
+  <p>Om annotaties te genereren heb je een menusegment en minstens 1 trendanalyse nodig.</p>
+  {% if not segment %}
+  <a href="{{ url_for('segment.segment_overzicht') }}" class="btn btn-primary" style="margin-right:.5rem">Menusegment instellen</a>
+  {% endif %}
+  {% if not geheugen %}
+  <a href="{{ url_for('trend.trends_overzicht') }}" class="btn btn-primary">Trendanalyse starten</a>
+  {% endif %}
+</div>
 
-    @media (max-width: 680px) {
-      .galerie-grid { grid-template-columns: 1fr; }
-      .filter-bar { flex-direction: column; align-items: stretch; }
-      .filter-divider { display: none; }
-      .filter-search { width: 100%; }
-    }
-  </style>
-</head>
-<body>
-<nav>
-  <div class="nav-inner">
-    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
-    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
-    <a href="{{ url_for('menu.menu_detail', menu_id=menu.id) }}" class="nav-link">Menu</a>
-    <a href="{{ url_for('trend.trends_overzicht') }}" class="nav-link">Trends</a>
+{% else %}
+<div class="page-header-annot">
+  <h1 class="annot-title">Menu Advies <em>{{ menu.naam }}</em></h1>
+  <div class="header-actions">
+    <a href="{{ url_for('menu.menu_detail', menu_id=menu.id) }}" class="btn-sm">&larr; Menu</a>
+    <button class="btn-sm gold" onclick="toggleGenereerPanel()">
+      {% if heeft_annotaties %}Opnieuw genereren{% else %}Voorstel genereren{% endif %}
+    </button>
   </div>
-</nav>
+</div>
 
-<div class="main">
-  {% if not segment or not geheugen %}
-  <!-- Prerequisites niet voldaan -->
-  <div class="geen-data">
-    <p>Om annotaties te genereren heb je een menusegment en minstens 1 trendanalyse nodig.</p>
-    {% if not segment %}
-    <a href="{{ url_for('segment.segment_overzicht') }}" class="btn-primary" style="margin-right:.5rem">Menusegment instellen</a>
-    {% endif %}
-    {% if not geheugen %}
-    <a href="{{ url_for('trend.trends_overzicht') }}" class="btn-primary">Trendanalyse starten</a>
-    {% endif %}
-  </div>
-
-  {% else %}
-  <div class="page-header">
-    <h1 class="page-title">Annotaties <em>{{ menu.naam }}</em></h1>
-    <div class="header-actions">
-      <a href="{{ url_for('menu.menu_detail', menu_id=menu.id) }}" class="btn-sm">&larr; Menu</a>
-      <a href="{{ url_for('menu.menu_annotaties_genereer', menu_id=menu.id) }}" class="btn-sm gold">
-        {% if heeft_annotaties %}Opnieuw genereren{% else %}Annotaties genereren{% endif %}
-      </a>
+<div class="genereer-panel" id="genereerPanel" style="display:none">
+  <form method="GET" action="{{ url_for('menu.menu_annotaties_genereer', menu_id=menu.id) }}">
+    <textarea name="custom_prompt" class="genereer-textarea"
+              placeholder="Geef een extra instructie mee (optioneel)&#10;Bijv: kijk naar de specials, focus op vegetarische gerechten..."
+              maxlength="500" rows="3"></textarea>
+    <div class="genereer-actions">
+      <span class="genereer-hint">Laat leeg voor standaard analyse</span>
+      <button type="submit" class="btn-sm gold">Genereer &rarr;</button>
     </div>
-  </div>
+  </form>
+</div>
 
-  {% if heeft_annotaties %}
-  {# Stats berekenen #}
-  {% set ns = namespace(houden=0, aanpassen=0, vervangen=0) %}
-  {% for g in gerechten %}
-    {% if g.id in annot_map %}
-      {% if annot_map[g.id].status == 'HOUDEN' %}{% set ns.houden = ns.houden + 1 %}
-      {% elif annot_map[g.id].status == 'AANPASSEN' %}{% set ns.aanpassen = ns.aanpassen + 1 %}
-      {% elif annot_map[g.id].status == 'VERVANGEN' %}{% set ns.vervangen = ns.vervangen + 1 %}
-      {% endif %}
+{% if heeft_annotaties %}
+{# Stats berekenen #}
+{% set ns = namespace(houden=0, aanpassen=0, vervangen=0) %}
+{% for g in gerechten %}
+  {% if g.id in annot_map %}
+    {% if annot_map[g.id].status == 'HOUDEN' %}{% set ns.houden = ns.houden + 1 %}
+    {% elif annot_map[g.id].status == 'AANPASSEN' %}{% set ns.aanpassen = ns.aanpassen + 1 %}
+    {% elif annot_map[g.id].status == 'VERVANGEN' %}{% set ns.vervangen = ns.vervangen + 1 %}
     {% endif %}
-  {% endfor %}
+  {% endif %}
+{% endfor %}
 
-  <p class="meta-info">
-    {{ gerechten|length }} gerechten geannoteerd · Geheugen v{{ (annot_map.values()|list)[0].trend_geheugen_versie if annot_map else '?' }}
-  </p>
+<p class="meta-info">
+  {{ gerechten|length }} gerechten geannoteerd · Geheugen v{{ (annot_map.values()|list)[0].trend_geheugen_versie if annot_map else '?' }}
+</p>
 
-  <div class="stats-bar">
+<div class="stats-bar">
+  {% if ns.houden > 0 %}
+  <div class="stat-pill"><span class="dot green"></span> {{ ns.houden }} houden</div>
+  {% endif %}
+  {% if ns.aanpassen > 0 %}
+  <div class="stat-pill"><span class="dot orange"></span> {{ ns.aanpassen }} aanpassen</div>
+  {% endif %}
+  {% if ns.vervangen > 0 %}
+  <div class="stat-pill"><span class="dot red"></span> {{ ns.vervangen }} vervangen</div>
+  {% endif %}
+</div>
+
+{# Categorieën verzamelen #}
+{% set categorien_gezien = [] %}
+{% for g in gerechten %}
+  {% if g.categorie not in categorien_gezien %}
+    {% if categorien_gezien.append(g.categorie) %}{% endif %}
+  {% endif %}
+{% endfor %}
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <div class="filter-pills">
+    <button class="filter-pill active" data-status="alle">Alle {{ gerechten|length }}</button>
     {% if ns.houden > 0 %}
-    <div class="stat-pill"><span class="dot green"></span> {{ ns.houden }} houden</div>
+    <button class="filter-pill" data-status="HOUDEN">Houden {{ ns.houden }}</button>
     {% endif %}
     {% if ns.aanpassen > 0 %}
-    <div class="stat-pill"><span class="dot orange"></span> {{ ns.aanpassen }} aanpassen</div>
+    <button class="filter-pill" data-status="AANPASSEN">Aanpassen {{ ns.aanpassen }}</button>
     {% endif %}
     {% if ns.vervangen > 0 %}
-    <div class="stat-pill"><span class="dot red"></span> {{ ns.vervangen }} vervangen</div>
+    <button class="filter-pill" data-status="VERVANGEN">Vervangen {{ ns.vervangen }}</button>
     {% endif %}
   </div>
+  <span class="filter-divider"></span>
+  <input type="text" class="filter-search" id="filterZoek" placeholder="Zoek gerecht...">
+</div>
 
-  {# Categorieën verzamelen #}
-  {% set categorien_gezien = [] %}
-  {% for g in gerechten %}
-    {% if g.categorie not in categorien_gezien %}
-      {% if categorien_gezien.append(g.categorie) %}{% endif %}
-    {% endif %}
-  {% endfor %}
-
-  <!-- Filter bar -->
-  <div class="filter-bar">
-    <div class="filter-pills">
-      <button class="filter-pill active" data-status="alle">Alle {{ gerechten|length }}</button>
-      {% if ns.houden > 0 %}
-      <button class="filter-pill" data-status="HOUDEN">Houden {{ ns.houden }}</button>
-      {% endif %}
-      {% if ns.aanpassen > 0 %}
-      <button class="filter-pill" data-status="AANPASSEN">Aanpassen {{ ns.aanpassen }}</button>
-      {% endif %}
-      {% if ns.vervangen > 0 %}
-      <button class="filter-pill" data-status="VERVANGEN">Vervangen {{ ns.vervangen }}</button>
-      {% endif %}
+<!-- Menulijst met annotaties -->
+<div class="annotatie-lijst" id="annotatieLijst">
+  {% for cat_naam in categorien_gezien %}
+  {% set cat_gerechten = gerechten | selectattr('categorie', 'equalto', cat_naam) | list %}
+  <div class="categorie-sectie" data-categorie="{{ cat_naam }}" id="cat-{{ loop.index }}">
+    <div class="categorie-titel">
+      {{ cat_naam }}
+      <span class="categorie-count">{{ cat_gerechten|length }} gerecht{{ 'en' if cat_gerechten|length != 1 }}</span>
     </div>
-    <span class="filter-divider"></span>
-    <select class="filter-select" id="filterCategorie">
-      <option value="alle">Alle categorieën</option>
-      {% for cat in categorien_gezien %}
-      <option value="{{ cat }}">{{ cat }}</option>
-      {% endfor %}
-    </select>
-    <span class="filter-divider"></span>
-    <input type="text" class="filter-search" id="filterZoek" placeholder="Zoek gerecht...">
-  </div>
 
-  <!-- Galerie grid -->
-  <div class="galerie-grid" id="galerieGrid">
-    {% for g in gerechten %}
+    {% for g in cat_gerechten %}
     {% set annot = annot_map.get(g.id) %}
-    <div class="gerecht-card {% if annot %}{{ annot.status|lower }}{% endif %}"
+    <div class="gerecht-rij"
          data-status="{{ annot.status if annot else '' }}"
-         data-categorie="{{ g.categorie }}"
-         data-naam="{{ g.naam|lower }}">
+         data-naam="{{ g.naam|lower }}"
+         id="rij-{{ g.id }}">
 
-      {% if annot %}
-      <div class="card-top">
-        <div class="gerecht-meta">
-          <span class="status-badge {{ annot.status|lower }}">{{ annot.status }}</span>
+      <div class="gerecht-main">
+        <div class="gerecht-info">
+          <div class="gerecht-naam">{{ g.naam }}</div>
+          {% if g.beschrijving %}
+          <div class="gerecht-beschrijving">{{ g.beschrijving }}</div>
+          {% endif %}
+        </div>
+        <div class="gerecht-right">
+          {% if g.prijs %}
+          <span class="gerecht-prijs">&euro; {{ '%.2f' | format(g.prijs) }}</span>
+          {% endif %}
+          {% if annot %}
           <span class="score-badge">{{ annot.score }}/10</span>
+          <button class="status-btn {{ annot.status|lower }}" onclick="toggleRij('{{ g.id }}')">
+            {{ annot.status }}
+          </button>
+          {% else %}
+          <span class="geen-annot">Geen analyse</span>
+          {% endif %}
         </div>
       </div>
-      {% endif %}
-
-      <div class="gerecht-header">
-        <span class="gerecht-naam">{{ g.naam }}</span>
-        {% if g.prijs %}
-        <span class="gerecht-prijs">&euro; {{ '%.2f' | format(g.prijs) }}</span>
-        {% endif %}
-      </div>
-      <div class="gerecht-categorie">{{ g.categorie }}</div>
 
       {% if annot %}
+      <div class="gerecht-details" id="details-{{ g.id }}">
         {% if annot.data.positief %}
         <div class="annot-positief">
           {% for p in annot.data.positief %}
@@ -259,75 +274,67 @@
           {% endfor %}
         </div>
         {% endif %}
-
-        {% if annot.data.opmerkingen or annot.data.suggesties or annot.data.relevante_trends %}
-        <button class="card-expand" onclick="toggleCard(this)">
-          Meer <span class="arrow">&#9660;</span>
-        </button>
-        <div class="card-details">
-          {% if annot.data.opmerkingen %}
-          <p class="annot-opmerkingen">{{ annot.data.opmerkingen }}</p>
-          {% endif %}
-
-          {% if annot.data.suggesties %}
-          <div class="annot-suggesties">
-            {% for s in annot.data.suggesties %}
-            <div class="suggestie">{{ s }}</div>
-            {% endfor %}
-          </div>
-          {% endif %}
-
-          {% if annot.data.relevante_trends %}
-          <div class="annot-trends">
-            {% for t in annot.data.relevante_trends %}
-            <span class="trend-link">{{ t }}</span>
-            {% endfor %}
-          </div>
-          {% endif %}
+        {% if annot.data.opmerkingen %}
+        <p class="annot-opmerkingen">{{ annot.data.opmerkingen }}</p>
+        {% endif %}
+        {% if annot.data.suggesties %}
+        <div class="annot-suggesties">
+          {% for s in annot.data.suggesties %}
+          <div class="suggestie-item">{{ s }}</div>
+          {% endfor %}
         </div>
         {% endif %}
-
-      {% else %}
-      <p class="geen-annot">Geen annotatie beschikbaar.</p>
+        {% if annot.data.relevante_trends %}
+        <div class="annot-trends">
+          {% for t in annot.data.relevante_trends %}
+          <span class="trend-tag">{{ t }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
       {% endif %}
+
     </div>
     {% endfor %}
-
-    <div class="geen-resultaten" id="geenResultaten">
-      <p>Geen gerechten gevonden voor deze filters.</p>
-      <button class="btn-sm gold" onclick="resetFilters()">Filters resetten</button>
-    </div>
   </div>
+  {% endfor %}
 
-  {% else %}
-  <!-- Nog geen annotaties -->
-  <div class="geen-data" style="margin-top:1rem">
-    <p>Er zijn nog geen annotaties voor dit menu.</p>
-    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:1rem">Klik op "Annotaties genereren" om AI elk gerecht te laten beoordelen op basis van actuele trends.</p>
-    <a href="{{ url_for('menu.menu_annotaties_genereer', menu_id=menu.id) }}" class="btn-primary">Annotaties genereren</a>
+  <div class="geen-resultaten" id="geenResultaten">
+    <p>Geen gerechten gevonden voor deze filters.</p>
+    <button class="btn-sm gold" onclick="resetFilters()">Filters resetten</button>
   </div>
-  {% endif %}
-
-  {% endif %}
 </div>
 
-<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
-<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
-  <span class="theme-icon-moon">&#127769;</span>
-  <span class="theme-icon-sun">&#9728;</span>
-</button>
-<script src="/static/theme.js"></script>
+{% else %}
+<!-- Nog geen annotaties -->
+<div class="geen-data" style="margin-top:1rem">
+  <p>Er zijn nog geen voorstellen voor dit menu.</p>
+  <p style="color:var(--color-text-secondary);font-size:.82rem;margin-bottom:1rem">Klik op "Voorstel genereren" om AI elk gerecht te laten beoordelen op basis van actuele trends.</p>
+  <button class="btn btn-primary" onclick="toggleGenereerPanel(); window.scrollTo({top:0, behavior:'smooth'})">Voorstel genereren</button>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+window.toggleGenereerPanel = function() {
+  var panel = document.getElementById('genereerPanel');
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') panel.querySelector('textarea').focus();
+};
+</script>
 <script>
 (function() {
   var pills = document.querySelectorAll('.filter-pill');
-  var catSelect = document.getElementById('filterCategorie');
   var zoekInput = document.getElementById('filterZoek');
-  var grid = document.getElementById('galerieGrid');
+  var lijst = document.getElementById('annotatieLijst');
   var geenMsg = document.getElementById('geenResultaten');
 
-  if (!grid) return;
+  if (!lijst) return;
 
-  var cards = grid.querySelectorAll('.gerecht-card');
   var activeStatus = 'alle';
 
   /* Status pill click */
@@ -346,44 +353,49 @@
       } else if (activeStatus === 'VERVANGEN') {
         this.classList.add('active-red');
       }
-      filterCards();
+      filterRijen();
     });
   });
-
-  /* Categorie select */
-  if (catSelect) {
-    catSelect.addEventListener('change', filterCards);
-  }
 
   /* Zoek input met debounce */
   var zoekTimeout;
   if (zoekInput) {
     zoekInput.addEventListener('input', function() {
       clearTimeout(zoekTimeout);
-      zoekTimeout = setTimeout(filterCards, 150);
+      zoekTimeout = setTimeout(filterRijen, 150);
     });
   }
 
-  function filterCards() {
-    var cat = catSelect ? catSelect.value : 'alle';
+  function filterRijen() {
     var zoek = zoekInput ? zoekInput.value.toLowerCase().trim() : '';
-    var visible = 0;
+    var totaalZichtbaar = 0;
 
-    cards.forEach(function(card) {
-      var matchStatus = (activeStatus === 'alle') || (card.dataset.status === activeStatus);
-      var matchCat = (cat === 'alle') || (card.dataset.categorie === cat);
-      var matchZoek = !zoek || (card.dataset.naam.indexOf(zoek) !== -1);
+    document.querySelectorAll('.categorie-sectie').forEach(function(sectie) {
+      var rijen = sectie.querySelectorAll('.gerecht-rij');
+      var zichtbaar = 0;
 
-      if (matchStatus && matchCat && matchZoek) {
-        card.classList.remove('hidden');
-        visible++;
+      rijen.forEach(function(rij) {
+        var matchStatus = (activeStatus === 'alle') || (rij.dataset.status === activeStatus);
+        var matchZoek = !zoek || (rij.dataset.naam.indexOf(zoek) !== -1);
+
+        if (matchStatus && matchZoek) {
+          rij.classList.remove('hidden');
+          zichtbaar++;
+        } else {
+          rij.classList.add('hidden');
+        }
+      });
+
+      if (zichtbaar === 0) {
+        sectie.classList.add('hidden');
       } else {
-        card.classList.add('hidden');
+        sectie.classList.remove('hidden');
       }
+      totaalZichtbaar += zichtbaar;
     });
 
     if (geenMsg) {
-      if (visible === 0) {
+      if (totaalZichtbaar === 0) {
         geenMsg.classList.add('visible');
       } else {
         geenMsg.classList.remove('visible');
@@ -398,18 +410,16 @@
       p.classList.remove('active', 'active-green', 'active-orange', 'active-red');
     });
     if (pills.length > 0) pills[0].classList.add('active');
-    if (catSelect) catSelect.value = 'alle';
     if (zoekInput) zoekInput.value = '';
-    filterCards();
+    filterRijen();
   };
 
-  /* Expand/collapse card */
-  window.toggleCard = function(btn) {
-    var card = btn.closest('.gerecht-card');
-    card.classList.toggle('expanded');
-    btn.firstChild.textContent = card.classList.contains('expanded') ? 'Minder ' : 'Meer ';
+  /* Toggle rij uitklappen */
+  window.toggleRij = function(gerecht_id) {
+    var rij = document.getElementById('rij-' + gerecht_id);
+    if (!rij) return;
+    rij.classList.toggle('expanded');
   };
 })();
 </script>
-</body>
-</html>
+{% endblock %}

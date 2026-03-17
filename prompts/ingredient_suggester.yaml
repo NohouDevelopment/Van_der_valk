@@ -1,0 +1,18 @@
+suggest_dishes:
+  description: Genereer 3 gerecht-voorstellen op basis van risico-ingrediënten en trends
+  model: anthropic/claude-sonnet-4-5
+  temperature: 0.3
+  template: "Je bent een menu-consultant. Genereer EXACT 3 nieuwe gerecht-voorstellen als JSON array.\r\n\r\nCONTEXT:\r\n\
+    Risico-ingrediënten (single-use vers, dreigen te bederven): {risico}\r\nTop ingrediënten (al veel gebruikt): {top_5_namen}\r\
+    \nAlle beschikbare ingrediënten: {beschikbaar}{segment_tekst}{trend_tekst}{verkoop_tekst}\r\n\r\nREGELS:\r\n1. Elk voorstel\
+    \ MOET minimaal 2 risico-ingrediënten hergebruiken\r\n2. Maximaal 2 NIEUWE ingrediënten per gerecht (minimaliseer inkoop)\r\
+    \n3. Voorstel 1: focus op derving-reductie (hergebruik risico-ingrediënten)\r\n4. Voorstel 2: focus op trend/seizoen (past\
+    \ bij actuele trends)\r\n5. Voorstel 3: gebaseerd op ingrediënten van best verkopende gerechten (of premium variant als\
+    \ geen kassaboek data)\r\n6. Let op er zijn ook trends uitgekozen, zoek naar echt bestaande gerechtern kijk of de ingredienten\
+    \ echt bestaan, kom nooit met antwoorden die niet klopen zoals Varken Ribeye, \r\n\r\nPer ingrediënt in het voorstel,\
+    \ geef status:\r\n- \"bestaand\" = al in meerdere gerechten\r\n- \"bestaand_kritiek\" = single-use, wordt nu hergebruikt\r\
+    \n- \"nieuw_vers\" = nieuw vers ingrediënt\r\n- \"nieuw_droog\" = nieuw droog/lang houdbaar ingrediënt\r\n\r\nANTWOORD\
+    \ als JSON array (GEEN markdown, GEEN uitleg):\r\n[\r\n  {{\r\n    \"gerecht\": {{\r\n      \"naam\": \"Naam van het gerecht\"\
+    ,\r\n      \"beschrijving\": \"Korte beschrijving\",\r\n      \"categorie\": \"Categorie\",\r\n      \"prijs_suggestie\"\
+    : 18.50\r\n    }},\r\n    \"ingredienten\": [\r\n      {{\"naam\": \"ingrediënt\", \"status\": \"bestaand\", \"hoeveelheid\"\
+    : 100, \"eenheid\": \"g\"}}\r\n    ]\r\n  }}\r\n]"

@@ -24,7 +24,8 @@ except ImportError:
     BeautifulSoup = None
 
 try:
-    from tools.ai_client import ai_generate
+    from tools.ai_client import ai_call
+    from tools.prompt_loader import format_prompt
     AI_AVAILABLE = True
 except ImportError:
     AI_AVAILABLE = False
@@ -41,15 +42,10 @@ def _vind_website_url(bedrijfsnaam: str, adres: str) -> str | None:
     if not AI_AVAILABLE:
         return None
 
-    prompt = f"""Zoek de officiële website URL van dit bedrijf:
-Naam: {bedrijfsnaam}
-Adres: {adres}
-
-Antwoord ALLEEN met de URL (bijv. https://www.voorbeeld.nl), zonder verdere tekst.
-Als je geen website kunt vinden, antwoord dan met: NIET_GEVONDEN"""
-
     try:
-        url = ai_generate(prompt, temperature=0.1)
+        prompt, model, temp = format_prompt("logo_extractor", "find_website",
+                                            bedrijfsnaam=bedrijfsnaam, adres=adres)
+        url = ai_call(prompt, model=model, temperature=temp)
         if url.startswith("http") and "." in url:
             return url
     except Exception:

@@ -78,6 +78,7 @@
   {% endif %}
 
   <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
       <label for="bedrijfsnaam">Bedrijfsnaam / keten</label>
       <input type="text" id="bedrijfsnaam" name="bedrijfsnaam" placeholder="Van der Valk Hotel Ridderkerk" required value="{{ naam or request.form.get('bedrijfsnaam', '') }}">

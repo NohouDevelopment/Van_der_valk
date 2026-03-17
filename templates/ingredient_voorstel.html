@@ -1,115 +1,74 @@
-<!DOCTYPE html>
-<html lang="nl" data-theme="">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slim Voorstel — {{ org.naam }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/theme.css">
-  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
-  <style>
-    :root {
-      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
-      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
-      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
-      --green: #66BB6A; --yellow: #FFA726; --red: #EF5350; --blue: #6495ED;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+{% extends "base.html" %}
+{% block title %}Ingredi&euml;nten Analyse — {{ org.naam }}{% endblock %}
 
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
-    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
-    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
-    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
-    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+{% block extra_head %}
+<style>
+  .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; margin-bottom: .5rem; }
+  .page-title em { font-style: normal; color: var(--color-gold); }
+  .page-sub { color: var(--color-text-secondary); font-size: .85rem; margin-bottom: 2rem; }
 
-    .main { flex: 1; max-width: 800px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+  .gerecht-card { background: var(--color-card); border: 1px solid var(--color-gold); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .gerecht-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: .5rem; }
+  .gerecht-naam { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
+  .gerecht-prijs { font-size: 1rem; font-weight: 700; color: var(--color-gold); }
+  .gerecht-cat { font-size: .75rem; padding: .2rem .55rem; border-radius: 5px; background: var(--color-gold-bg); color: var(--color-gold); font-weight: 600; display: inline-block; margin-bottom: .5rem; }
+  .gerecht-beschrijving { font-size: .88rem; color: var(--color-text-secondary); line-height: 1.6; }
 
-    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; margin-bottom: .5rem; }
-    .page-title em { font-style: normal; color: var(--gold); }
-    .page-sub { color: var(--text-dim); font-size: .85rem; margin-bottom: 2rem; }
+  .sectie-titel { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--color-gold); margin-bottom: .75rem; padding-bottom: .3rem; border-bottom: 1px solid var(--color-gold-border); }
 
-    /* Gerecht card */
-    .gerecht-card { background: var(--dark-2); border: 1px solid var(--gold); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .gerecht-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: .5rem; }
-    .gerecht-naam { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
-    .gerecht-prijs { font-size: 1rem; font-weight: 700; color: var(--gold); }
-    .gerecht-cat { font-size: .75rem; padding: .2rem .55rem; border-radius: 5px; background: var(--gold-dim); color: var(--gold); font-weight: 600; display: inline-block; margin-bottom: .5rem; }
-    .gerecht-beschrijving { font-size: .88rem; color: var(--text-dim); line-height: 1.6; }
+  .ing-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.5rem; }
+  .ing-item { display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem; background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: 8px; font-size: .85rem; }
+  .ing-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .ing-dot.bestaand { background: #66BB6A; }
+  .ing-dot.bestaand_kritiek { background: #FFA726; }
+  .ing-dot.nieuw_droog { background: #6495ED; }
+  .ing-dot.nieuw_vers { background: #EF5350; }
+  .ing-naam-v { font-weight: 600; text-transform: capitalize; }
+  .ing-qty { font-size: .72rem; color: var(--color-text-secondary); padding: .1rem .35rem; background: var(--color-card-header); border-radius: 3px; }
+  .ing-detail { font-size: .75rem; color: var(--color-text-secondary); margin-left: auto; white-space: nowrap; }
+  .ing-status-lbl { font-size: .68rem; padding: .12rem .4rem; border-radius: 4px; font-weight: 600; }
+  .ing-status-lbl.bestaand { background: rgba(102,187,106,.1); color: #66BB6A; }
+  .ing-status-lbl.bestaand_kritiek { background: rgba(255,167,38,.1); color: #FFA726; }
+  .ing-status-lbl.nieuw_droog { background: rgba(100,149,237,.1); color: #6495ED; }
+  .ing-status-lbl.nieuw_vers { background: rgba(239,83,80,.1); color: #EF5350; }
 
-    /* Ingrediënten lijst */
-    .sectie-titel { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--gold); margin-bottom: .75rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border); }
+  .synergie-card { background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .synergie-stats { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .syn-stat { text-align: center; }
+  .syn-stat .val { font-size: 1.5rem; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .syn-stat .val.green { color: #66BB6A; }
+  .syn-stat .val.yellow { color: #FFA726; }
+  .syn-stat .val.red { color: #EF5350; }
+  .syn-stat .lbl { font-size: .7rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .04em; }
 
-    .ing-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.5rem; }
-    .ing-item { display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem; background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px; font-size: .85rem; }
-    .ing-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .ing-dot.bestaand { background: var(--green); }
-    .ing-dot.bestaand_kritiek { background: var(--yellow); }
-    .ing-dot.nieuw_droog { background: var(--blue); }
-    .ing-dot.nieuw_vers { background: var(--red); }
-    .ing-naam-v { font-weight: 600; text-transform: capitalize; }
-    .ing-qty { font-size: .72rem; color: var(--text-dim); padding: .1rem .35rem; background: var(--dark-3); border-radius: 3px; }
-    .ing-detail { font-size: .75rem; color: var(--text-dim); margin-left: auto; white-space: nowrap; }
-    .ing-status-lbl { font-size: .68rem; padding: .12rem .4rem; border-radius: 4px; font-weight: 600; }
-    .ing-status-lbl.bestaand { background: rgba(102,187,106,.1); color: var(--green); }
-    .ing-status-lbl.bestaand_kritiek { background: rgba(255,167,38,.1); color: var(--yellow); }
-    .ing-status-lbl.nieuw_droog { background: rgba(100,149,237,.1); color: var(--blue); }
-    .ing-status-lbl.nieuw_vers { background: rgba(239,83,80,.1); color: var(--red); }
+  .impact-text { font-size: .85rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: .75rem; }
+  .impact-highlight { color: #66BB6A; font-weight: 600; }
+  .samenvatting-text { font-size: .88rem; line-height: 1.6; padding: 1rem; background: var(--color-gold-bg); border: 1px solid var(--color-gold-border); border-radius: 10px; }
 
-    /* Synergie check */
-    .synergie-card { background: var(--dark-2); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .synergie-stats { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .syn-stat { text-align: center; }
-    .syn-stat .val { font-size: 1.5rem; font-weight: 700; font-family: 'Playfair Display', serif; }
-    .syn-stat .val.green { color: var(--green); }
-    .syn-stat .val.yellow { color: var(--yellow); }
-    .syn-stat .val.red { color: var(--red); }
-    .syn-stat .lbl { font-size: .7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .legend-item { display: flex; align-items: center; gap: .35rem; font-size: .72rem; color: var(--color-text-secondary); }
 
-    .impact-text { font-size: .85rem; color: var(--text-dim); line-height: 1.6; margin-bottom: .75rem; }
-    .impact-highlight { color: var(--green); font-weight: 600; }
+  .btn-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--color-gold-border); background: none; color: var(--color-text-secondary); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; }
+  .btn-sm:hover { border-color: var(--color-gold); color: var(--color-gold); }
 
-    .samenvatting-text { font-size: .88rem; line-height: 1.6; padding: 1rem; background: var(--gold-dim); border: 1px solid var(--border); border-radius: 10px; }
+  .tab-bar { display: flex; gap: .35rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .filter-pill { font-size: .75rem; padding: .35rem .7rem; border-radius: 6px; border: 1px solid var(--color-gold-border); background: none; color: var(--color-text-secondary); cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; display: flex; align-items: center; gap: .4rem; }
+  .filter-pill:hover { border-color: var(--color-gold); color: var(--color-gold); }
+  .filter-pill.active { border-color: var(--color-gold); color: var(--color-gold); background: var(--color-gold-bg); }
+  .hidden { display: none !important; }
+  .pill-badge { font-size: .62rem; font-weight: 700; padding: .08rem .3rem; border-radius: 3px; background: rgba(239,83,80,.15); color: #EF5350; }
+  .pill-badge.ok { background: rgba(102,187,106,.12); color: #66BB6A; }
+  .trend-badge { display: inline-flex; align-items: center; gap: .25rem; font-size: .7rem; font-weight: 700; padding: .18rem .45rem; border-radius: 5px; }
+  .trend-badge.trend { background: rgba(201,168,76,.15); color: var(--color-gold); border: 1px solid rgba(201,168,76,.3); }
+  .trend-badge.synergie-hoog { background: rgba(102,187,106,.12); color: #66BB6A; border: 1px solid rgba(102,187,106,.25); }
+  .trend-badge.synergie-mid { background: rgba(255,167,38,.12); color: #FFA726; border: 1px solid rgba(255,167,38,.25); }
+  .trend-badge.synergie-laag { background: rgba(239,83,80,.12); color: #EF5350; border: 1px solid rgba(239,83,80,.25); }
+  .badge-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+</style>
+{% endblock %}
 
-    /* Legend */
-    .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .legend-item { display: flex; align-items: center; gap: .35rem; font-size: .72rem; color: var(--text-dim); }
-
-    /* Buttons */
-    .btn-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; }
-    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
-
-    .tab-bar { display: flex; gap: .35rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .filter-pill { font-size: .75rem; padding: .35rem .7rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; display: flex; align-items: center; gap: .4rem; }
-    .filter-pill:hover { border-color: var(--gold); color: var(--gold); }
-    .filter-pill.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
-    .hidden { display: none !important; }
-    .pill-badge { font-size: .62rem; font-weight: 700; padding: .08rem .3rem; border-radius: 3px; background: rgba(239,83,80,.15); color: var(--red); }
-    .pill-badge.ok { background: rgba(102,187,106,.12); color: var(--green); }
-    .trend-badge { display: inline-flex; align-items: center; gap: .25rem; font-size: .7rem; font-weight: 700; padding: .18rem .45rem; border-radius: 5px; }
-    .trend-badge.trend { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.3); }
-    .trend-badge.synergie-hoog { background: rgba(102,187,106,.12); color: var(--green); border: 1px solid rgba(102,187,106,.25); }
-    .trend-badge.synergie-mid { background: rgba(255,167,38,.12); color: var(--yellow); border: 1px solid rgba(255,167,38,.25); }
-    .trend-badge.synergie-laag { background: rgba(239,83,80,.12); color: var(--red); border: 1px solid rgba(239,83,80,.25); }
-    .badge-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-
-    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
-    footer p { color: var(--text-dim); font-size: .78rem; }
-  </style>
-</head>
-<body>
-<nav>
-  <div class="nav-inner">
-    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
-    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
-    <a href="{{ url_for('ingredient.ingredienten_overzicht') }}" class="nav-link">Ingrediënten</a>
-  </div>
-</nav>
-
-<div class="main">
+{% block content %}
   <h1 class="page-title">Slim <em>Voorstel</em></h1>
   <p class="page-sub">AI-gegenereerd gerecht dat single-use ingrediënten hergebruikt en derving vermindert.</p>
 
@@ -137,7 +96,6 @@
   {% for v in items %}
   <div class="voorstel-blok {% if not loop.first %}hidden{% endif %}" data-idx="{{ loop.index0 }}">
 
-    <!-- Gerecht -->
     <div class="gerecht-card">
       <div class="gerecht-header">
         <span class="gerecht-naam">{{ v.gerecht.naam }}</span>
@@ -147,7 +105,6 @@
       <p class="gerecht-beschrijving">{{ v.gerecht.beschrijving }}</p>
     </div>
 
-    <!-- Badges: synergie + trend -->
     <div class="badge-row">
       {% if v.synergie_check.bestaand_percentage >= 70 %}
       <span class="trend-badge synergie-hoog">&#10003; {{ v.synergie_check.bestaand_percentage }}% bestaande inkoop</span>
@@ -168,7 +125,6 @@
       {% endif %}
     </div>
 
-    <!-- Legend -->
     <div class="legend">
       <div class="legend-item"><span class="ing-dot bestaand"></span> Al in menu</div>
       <div class="legend-item"><span class="ing-dot bestaand_kritiek"></span> In menu (was kritiek)</div>
@@ -176,7 +132,6 @@
       <div class="legend-item"><span class="ing-dot nieuw_vers"></span> Nieuw (vers)</div>
     </div>
 
-    <!-- Ingrediënten -->
     <div class="sectie-titel">Ingrediënten</div>
     <div class="ing-list">
       {% for ing in v.ingredienten %}
@@ -200,7 +155,6 @@
       {% endfor %}
     </div>
 
-    <!-- Synergie Check -->
     <div class="synergie-card">
       <div class="sectie-titel">Synergie Check</div>
       <div class="synergie-stats">
@@ -233,17 +187,13 @@
   <div class="btn-row">
     <a href="{{ url_for('ingredient.ingredienten_overzicht') }}" class="btn-sm">Terug naar analyse</a>
     <form method="POST" action="{{ url_for('ingredient.ingredienten_voorstel') }}" style="display:inline">
-      <button type="submit" class="btn-sm" style="border-color:var(--gold);color:var(--gold)">Nieuw voorstel</button>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-sm" style="border-color:var(--color-gold);color:var(--color-gold)">Nieuw voorstel</button>
     </form>
   </div>
-</div>
+{% endblock %}
 
-<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
-<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
-  <span class="theme-icon-moon">&#127769;</span>
-  <span class="theme-icon-sun">&#9728;</span>
-</button>
-<script src="/static/theme.js"></script>
+{% block extra_scripts %}
 {% if toon_tabs %}
 <script>
 function toonVoorstel(idx, btn) {
@@ -254,5 +204,4 @@ function toonVoorstel(idx, btn) {
 }
 </script>
 {% endif %}
-</body>
-</html>
+{% endblock %}

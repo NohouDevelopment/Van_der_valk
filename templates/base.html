@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Menu Maker{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/design.css">
+  <script>
+    (function(){
+      var t = localStorage.getItem('menu-maker-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  {% block extra_head %}{% endblock %}
+
+  {% if posthog_key %}
+  <script>
+    window.MM_ANALYTICS = {
+      posthogKey: '{{ posthog_key }}',
+      userId: '{{ current_user.id if current_user.is_authenticated else "" }}',
+      userType: '{{ user_type|default("stakeholder") }}',
+      orgName: '{{ org.naam if org else "" }}',
+      orgId: {{ org.id if org else 'null' }},
+      pageName: '{{ request.endpoint }}',
+      resultGoal: '{{ result_goal|default("") }}'
+    };
+  </script>
+  <script src="/static/analytics.js"></script>
+  {% endif %}
+</head>
+<body data-page="{{ request.endpoint }}">
+
+<!-- Skip to content -->
+<a href="#main" style="position:absolute;top:-100px;left:16px;z-index:9999;background:var(--color-gold);color:#0F0F0F;padding:8px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:.875rem" onfocus="this.style.top='16px'" onblur="this.style.top='-100px'">Ga naar inhoud</a>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Wissel thema">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+
+<!-- Mobile header -->
+<header class="mobile-header" id="mobileHeader">
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu openen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="24" height="24">
+      <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+    </svg>
+  </button>
+  <span style="font-family:var(--font-display);font-weight:700;color:var(--color-gold);font-size:1.1rem">Menu Maker</span>
+  <div style="width:44px"></div>
+</header>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- App layout -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar" aria-label="Hoofdnavigatie">
+    <div class="sidebar-logo">Menu Maker</div>
+    <div class="sidebar-nav">
+
+      <!-- HOOFD -->
+      <div class="nav-group-label">Hoofd</div>
+
+      <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </a>
+
+      <a href="{{ url_for('voorstel.ontwerpruimte') }}" class="nav-item nav-primary {% if request.endpoint and request.endpoint.startswith('voorstel.') %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M16.24 7.76l-6.36 6.36M14 10l-4 4"/><path d="M12 2a10 10 0 010 20 10 10 0 010-20z" stroke-dasharray="4 4"/></svg>
+        <span>Menu Advies</span>
+      </a>
+
+      <div class="nav-separator"></div>
+
+      <!-- CONTEXT -->
+      <div class="nav-group-label">Context</div>
+
+      <a href="{{ url_for('menu.menu_overzicht') }}" class="nav-item {% if request.endpoint and request.endpoint.startswith('menu.') %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h5M8 16h6"/></svg>
+        <span>Menu's</span>
+      </a>
+
+      <a href="{{ url_for('trend.trends_overzicht') }}" class="nav-item {% if request.endpoint and request.endpoint.startswith('trend.') %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20l5-5 4 4 9-11"/><path d="M17 4h4v4"/></svg>
+        <span>Marktinzichten</span>
+      </a>
+
+      <a href="{{ url_for('segment.segment_overzicht') }}" class="nav-item {% if request.endpoint in ('segment.segment_overzicht', 'segment.segment_bewerken') %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span>Restaurantprofiel</span>
+      </a>
+
+      <!-- ANALYSE -->
+      <div class="nav-group-label">Analyse</div>
+
+      <a href="{{ url_for('ingredient.ingredienten_overzicht') }}" class="nav-item {% if request.endpoint and request.endpoint.startswith('ingredient.') %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a7 7 0 017 7c0 4-3 7-7 11C9 16 5 13 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span>Ingredi&euml;nten</span>
+      </a>
+
+      {% if is_admin %}
+      <div class="nav-separator"></div>
+
+      <a href="{{ url_for('admin_panel') }}" class="nav-item {% if request.endpoint == 'admin_panel' %}active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Admin</span>
+      </a>
+      {% endif %}
+
+    </div>
+    <div class="sidebar-footer">
+      {% if current_user.is_authenticated %}
+      <div style="margin-bottom:8px;font-size:.8rem;font-weight:500;color:var(--color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        {% if org is defined and org %}{{ org.naam }}{% else %}{{ current_user.email }}{% endif %}
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="text-gold" style="font-size:.8rem;font-weight:500">Uitloggen</a>
+      {% endif %}
+      <div style="margin-top:12px;opacity:.5">Menu Maker v1.0 &mdash; 2026</div>
+      {% if posthog_key %}
+      <div style="margin-top:8px;opacity:.35;font-size:.65rem;line-height:1.4">We meten anonieme gebruiksdata om deze omgeving te verbeteren. Geen ingevoerde tekst of persoonlijke gegevens worden opgeslagen.</div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+
+<script>
+// Theme toggle
+(function() {
+  var btn = document.getElementById('themeToggle');
+  var moon = btn ? btn.querySelector('.icon-moon') : null;
+  var sun = btn ? btn.querySelector('.icon-sun') : null;
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('menu-maker-theme', t);
+    if (moon && sun) {
+      if (t === 'light') {
+        moon.style.display = 'none';
+        sun.style.display = 'block';
+      } else {
+        moon.style.display = 'block';
+        sun.style.display = 'none';
+      }
+    }
+  }
+
+  // Apply initial icon state
+  var current = localStorage.getItem('menu-maker-theme') || 'dark';
+  applyTheme(current);
+
+  if (btn) {
+    btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+  }
+})();
+
+// Mobile sidebar toggle
+(function() {
+  var hamburger = document.getElementById('hamburgerBtn');
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+
+  function openSidebar() {
+    sidebar && sidebar.classList.add('open');
+    overlay && overlay.classList.add('active');
+  }
+  function closeSidebar() {
+    sidebar && sidebar.classList.remove('open');
+    overlay && overlay.classList.remove('active');
+  }
+
+  if (hamburger) hamburger.addEventListener('click', openSidebar);
+  if (overlay) overlay.addEventListener('click', closeSidebar);
+})();
+
+// Animate-in on scroll
+document.addEventListener('DOMContentLoaded', function() {
+  var els = document.querySelectorAll('.animate-in');
+  if (!els.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  els.forEach(function(el) { observer.observe(el); });
+});
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

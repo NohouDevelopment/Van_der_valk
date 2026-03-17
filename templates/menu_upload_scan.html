@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Advies genereren — {{ org.naam }}</title>
+  <title>Menu verwerken — {{ org.naam }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/theme.css">
@@ -29,38 +29,31 @@
     .error-box { background: rgba(229,57,53,.12); border: 1px solid rgba(229,57,53,.35); border-radius: 10px; padding: .9rem 1.1rem; color: #EF9A9A; font-size: .85rem; margin-bottom: 1.5rem; text-align: left; }
     .btn-terug { margin-top: 1.5rem; color: var(--text-dim); font-size: .85rem; cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 8px; padding: .5rem 1rem; text-decoration: none; display: inline-block; }
     .btn-terug:hover { color: var(--text); border-color: var(--gold); }
-    .scan-focus { font-size: .82rem; color: var(--gold); font-style: italic; margin-top: .5rem; }
   </style>
 </head>
 <body>
 <div class="scan-box">
   {% if error %}
     <div class="error-box">{{ error }}</div>
-    <a href="{{ url_for('menu.menu_annotaties', menu_id=menu.id) }}" class="btn-terug">&larr; Terug</a>
+    <a href="{{ url_for('menu.menu_upload') }}" class="btn-terug">&larr; Terug naar upload</a>
   {% else %}
     <div class="spinner"></div>
-    <div class="scan-title">AI analyseert je menu</div>
-    <div class="scan-naam">{{ menu.naam }}</div>
-    <p class="scan-sub">Even geduld — AI beoordeelt elk gerecht op basis van trends en jouw menusegment, en stelt nieuwe gerechten voor. Dit duurt 20–40 seconden.</p>
-    {% if custom_prompt %}
-    <p class="scan-focus">Focus: "{{ custom_prompt }}"</p>
-    {% endif %}
+    <div class="scan-title">Menu wordt verwerkt</div>
+    <div class="scan-naam">{{ menu_naam }}</div>
+    <p class="scan-sub">Even geduld — AI analyseert de menukaart en herkent categorieën, gerechten en ingrediënten. Dit duurt 10–30 seconden.</p>
 
     <div class="stappen-list" id="stappen">
-      <div class="stap actief" id="s1"><span class="stap-icon">&#128196;</span> Menu en trends laden...</div>
-      <div class="stap" id="s2"><span class="stap-icon">&#129504;</span> Gerechten analyseren...</div>
-      <div class="stap" id="s3"><span class="stap-icon">&#9997;</span> Voorstel genereren...</div>
-      <div class="stap" id="s4"><span class="stap-icon">&#9989;</span> Resultaten opslaan...</div>
+      <div class="stap actief" id="s1"><span class="stap-icon">&#128196;</span> Menutekst analyseren...</div>
+      <div class="stap" id="s2"><span class="stap-icon">&#128193;</span> Categorieën herkennen...</div>
+      <div class="stap" id="s3"><span class="stap-icon">&#127859;</span> Gerechten verwerken...</div>
+      <div class="stap" id="s4"><span class="stap-icon">&#9989;</span> Ingrediënten koppelen...</div>
     </div>
   {% endif %}
 </div>
 
 {% if not error %}
-<form id="scan-form" method="POST" action="{{ url_for('menu.menu_annotaties_genereer', menu_id=menu.id) }}" style="display:none">
+<form id="scan-form" method="POST" action="{{ url_for('menu.menu_upload_verwerken') }}" style="display:none">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  {% if custom_prompt %}
-  <input type="hidden" name="custom_prompt" value="{{ custom_prompt | e }}">
-  {% endif %}
 </form>
 <script>
   var stappen = document.querySelectorAll('.stap');

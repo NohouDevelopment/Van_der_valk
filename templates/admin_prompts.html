@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Prompt Manager — Menu Maker{% endblock %}
+
+{% block extra_head %}
+<style>
+  .pm-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  /* Tool pills (left column) */
+  .tool-list { display: flex; flex-direction: column; gap: .4rem; }
+  .tool-pill {
+    display: block; padding: .6rem 1rem; border-radius: 8px;
+    font-size: .875rem; font-weight: 500; text-decoration: none;
+    color: var(--color-text-secondary); border: 1px solid transparent;
+    transition: all .15s; cursor: pointer; background: none; text-align: left;
+    width: 100%;
+  }
+  .tool-pill:hover { border-color: var(--color-gold-border); color: var(--color-text); }
+  .tool-pill.active {
+    border-color: var(--color-gold); color: var(--color-gold);
+    background: rgba(201,168,76,.08);
+  }
+  .tool-pill-label {
+    font-family: var(--font-body); font-size: .72rem; color: var(--color-text-secondary);
+    margin-top: .1rem; display: block;
+  }
+
+  /* Prompt cards (right column) */
+  .prompt-cards { display: flex; flex-direction: column; gap: 1.25rem; }
+  .prompt-card { border: 1px solid var(--color-gold-border); border-radius: 10px; overflow: hidden; }
+  .prompt-card-header {
+    background: var(--color-card-header); padding: .85rem 1.25rem;
+    display: flex; align-items: baseline; gap: .75rem;
+    border-bottom: 1px solid var(--color-gold-border);
+  }
+  .prompt-card-name {
+    font-family: var(--font-display); font-size: 1rem; color: var(--color-gold);
+  }
+  .prompt-card-desc { font-size: .8rem; color: var(--color-text-secondary); }
+
+  .prompt-card-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .field-group { display: flex; flex-direction: column; gap: .4rem; }
+  .field-label {
+    font-size: .75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--color-text-secondary);
+  }
+
+  select.pm-select, input.pm-input, textarea.pm-textarea {
+    background: var(--color-input-bg, var(--color-card-header));
+    border: 1px solid var(--color-gold-border); border-radius: 6px;
+    color: var(--color-text); font-family: var(--font-body); font-size: .875rem;
+    padding: .5rem .75rem; width: 100%; box-sizing: border-box;
+    transition: border-color .15s;
+  }
+  select.pm-select:focus, input.pm-input:focus, textarea.pm-textarea:focus {
+    outline: none; border-color: var(--color-gold);
+  }
+  textarea.pm-textarea {
+    font-family: monospace; font-size: .78rem; resize: vertical; min-height: 220px;
+    line-height: 1.5;
+  }
+
+  /* Custom model input — shown when "custom" is selected */
+  .custom-model-wrap { display: none; margin-top: .4rem; }
+  .custom-model-wrap.visible { display: block; }
+
+  .pm-actions { display: flex; gap: .75rem; align-items: center; }
+  .btn-save {
+    font-family: var(--font-body); font-size: .875rem; font-weight: 600;
+    padding: .5rem 1.25rem; border-radius: 6px; cursor: pointer;
+    background: var(--color-gold); color: #0F0F0F; border: none;
+    transition: opacity .15s;
+  }
+  .btn-save:hover { opacity: .85; }
+  .btn-reset {
+    font-family: var(--font-body); font-size: .78rem;
+    padding: .45rem .9rem; border-radius: 6px; cursor: pointer;
+    background: none; border: 1px solid var(--color-gold-border);
+    color: var(--color-text-secondary); transition: all .15s;
+  }
+  .btn-reset:hover { border-color: var(--color-red, #e05c5c); color: var(--color-red, #e05c5c); }
+
+  .save-notice {
+    font-size: .78rem; color: var(--color-green, #5cb85c);
+    opacity: 0; transition: opacity .3s;
+  }
+  .save-notice.show { opacity: 1; }
+
+  .back-link {
+    font-size: .8rem; color: var(--color-text-secondary); text-decoration: none;
+    display: inline-flex; align-items: center; gap: .3rem; margin-bottom: 1.25rem;
+  }
+  .back-link:hover { color: var(--color-gold); }
+
+  @media (max-width: 700px) {
+    .pm-layout { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('admin_panel') }}" class="back-link">← Terug naar Admin Panel</a>
+
+<div class="page-header">
+  <h1>Prompt <span style="color:var(--color-gold)">Manager</span></h1>
+  <p class="subtitle">Bekijk en bewerk alle AI-prompts per tool. Gebruik <code>{{'{{'}}placeholder{{'}}'}}</code> voor letterlijke accolades in JSON-voorbeelden.</p>
+</div>
+
+{% set tool_labels = {
+  "logo_extractor":      "Logo Extractor",
+  "segment_analyzer":    "Segment Analyzer",
+  "menu_parser":         "Menu Parser",
+  "trend_researcher":    "Trend Researcher",
+  "menu_annotator":      "Menu Annotator",
+  "ingredient_suggester":"Ingredient Suggester"
+} %}
+
+<div class="pm-layout">
+
+  <!-- Left: tool selectie -->
+  <div class="card" style="padding:1rem">
+    <div class="field-label" style="margin-bottom:.6rem">Tools</div>
+    <div class="tool-list">
+      {% for tool_key in prompts %}
+      <button
+        class="tool-pill {% if tool_key == selected_tool %}active{% endif %}"
+        onclick="selectTool('{{ tool_key }}')"
+        id="pill-{{ tool_key }}"
+      >
+        {{ tool_labels.get(tool_key, tool_key) }}
+        <span class="tool-pill-label">{{ prompts[tool_key]|length }} prompt{{ 's' if prompts[tool_key]|length != 1 }}</span>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Right: prompt kaarten -->
+  <div>
+    {% for tool_key, tool_prompts in prompts.items() %}
+    <div class="prompt-cards" id="tool-{{ tool_key }}" style="{{ 'display:none' if tool_key != selected_tool }}">
+
+      {% for prompt_name, prompt_cfg in tool_prompts.items() %}
+      <div class="prompt-card">
+        <div class="prompt-card-header">
+          <span class="prompt-card-name">{{ prompt_name }}</span>
+          <span class="prompt-card-desc">{{ prompt_cfg.get('description', '') }}</span>
+        </div>
+        <div class="prompt-card-body">
+          <form method="POST" action="{{ url_for('admin_prompts_save') }}" onsubmit="showSaved(this)">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tool" value="{{ tool_key }}">
+            <input type="hidden" name="name" value="{{ prompt_name }}">
+            <input type="hidden" name="action" value="save">
+
+            <div class="field-row">
+              <!-- Model dropdown -->
+              <div class="field-group">
+                <label class="field-label">Model</label>
+                {% set cur_model = prompt_cfg.get('model', 'cheap') %}
+                {% set predefined = ['cheap','reason','search',
+                  'openai/gpt-4.1-nano','openai/gpt-4.1-mini','openai/gpt-4.1',
+                  'anthropic/claude-haiku-4-5','anthropic/claude-sonnet-4-5',
+                  'google/gemini-2.5-flash-lite-preview:online',
+                  'google/gemini-2.5-flash:thinking',
+                  'inception/mercury-2',
+                  'meta-llama/llama-3.3-70b-instruct',
+                  'bytedance-seed/seed-2.0-mini',
+                  'perplexity/sonar'] %}
+                {% set is_custom = cur_model not in predefined %}
+                <select class="pm-select"
+                        name="model_select"
+                        id="sel-{{ tool_key }}-{{ prompt_name }}"
+                        onchange="onModelChange(this, '{{ tool_key }}-{{ prompt_name }}')">
+                  <optgroup label="— Tier aliassen —">
+                    <option value="cheap"  {% if cur_model == 'cheap' %}selected{% endif %}>cheap — snel &amp; goedkoop</option>
+                    <option value="reason" {% if cur_model == 'reason' %}selected{% endif %}>reason — redeneren</option>
+                    <option value="search" {% if cur_model == 'search' %}selected{% endif %}>search — met webzoeken</option>
+                  </optgroup>
+                  <optgroup label="— Populaire modellen —">
+                    <option value="openai/gpt-4.1-nano"               {% if cur_model == 'openai/gpt-4.1-nano' %}selected{% endif %}>openai/gpt-4.1-nano</option>
+                    <option value="openai/gpt-4.1-mini"               {% if cur_model == 'openai/gpt-4.1-mini' %}selected{% endif %}>openai/gpt-4.1-mini</option>
+                    <option value="openai/gpt-4.1"                    {% if cur_model == 'openai/gpt-4.1' %}selected{% endif %}>openai/gpt-4.1</option>
+                    <option value="anthropic/claude-haiku-4-5"        {% if cur_model == 'anthropic/claude-haiku-4-5' %}selected{% endif %}>anthropic/claude-haiku-4-5</option>
+                    <option value="anthropic/claude-sonnet-4-5"       {% if cur_model == 'anthropic/claude-sonnet-4-5' %}selected{% endif %}>anthropic/claude-sonnet-4-5</option>
+                    <option value="google/gemini-2.5-flash-lite-preview:online" {% if cur_model == 'google/gemini-2.5-flash-lite-preview:online' %}selected{% endif %}>gemini-2.5-flash-lite:online</option>
+                    <option value="google/gemini-2.5-flash:thinking"  {% if cur_model == 'google/gemini-2.5-flash:thinking' %}selected{% endif %}>gemini-2.5-flash:thinking</option>
+                    <option value="inception/mercury-2"               {% if cur_model == 'inception/mercury-2' %}selected{% endif %}>inception/mercury-2</option>
+                    <option value="meta-llama/llama-3.3-70b-instruct" {% if cur_model == 'meta-llama/llama-3.3-70b-instruct' %}selected{% endif %}>llama-3.3-70b-instruct</option>
+                    <option value="bytedance-seed/seed-2.0-mini"      {% if cur_model == 'bytedance-seed/seed-2.0-mini' %}selected{% endif %}>seed-2.0-mini</option>
+                    <option value="perplexity/sonar"                  {% if cur_model == 'perplexity/sonar' %}selected{% endif %}>perplexity/sonar</option>
+                  </optgroup>
+                  <optgroup label="— Anders (vrij invullen) —">
+                    <option value="custom" {% if is_custom %}selected{% endif %}>Anders (vrij invullen)...</option>
+                  </optgroup>
+                </select>
+                <!-- Custom model vrij invoerveld -->
+                <div class="custom-model-wrap {% if is_custom %}visible{% endif %}" id="custom-wrap-{{ tool_key }}-{{ prompt_name }}">
+                  <input class="pm-input" type="text"
+                         name="model_custom"
+                         id="custom-{{ tool_key }}-{{ prompt_name }}"
+                         placeholder="bijv. openai/o4-mini"
+                         value="{{ cur_model if is_custom else '' }}">
+                </div>
+                <!-- Hidden model field filled by JS before submit -->
+                <input type="hidden" name="model" id="model-hidden-{{ tool_key }}-{{ prompt_name }}"
+                       value="{{ cur_model }}">
+              </div>
+
+              <!-- Temperature -->
+              <div class="field-group">
+                <label class="field-label">Temperature</label>
+                <input class="pm-input" type="number" name="temperature" step="0.05" min="0" max="2"
+                       value="{{ prompt_cfg.get('temperature', 0.1) }}">
+              </div>
+            </div>
+
+            <!-- Template textarea -->
+            <div class="field-group">
+              <label class="field-label">Prompt template</label>
+              <textarea class="pm-textarea" name="template" rows="14">{{ prompt_cfg.get('template', '') }}</textarea>
+            </div>
+
+            <div class="pm-actions">
+              <button type="submit" class="btn-save" onclick="syncModel('{{ tool_key }}-{{ prompt_name }}')">Opslaan</button>
+              <span class="save-notice" id="saved-{{ tool_key }}-{{ prompt_name }}">Opgeslagen</span>
+            </div>
+          </form>
+
+          <!-- Reset form (separate) -->
+          <form method="POST" action="{{ url_for('admin_prompts_save') }}" style="margin-top:.5rem"
+                onsubmit="return confirm('Reset naar standaard prompt? Aanpassingen gaan verloren.')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tool" value="{{ tool_key }}">
+            <input type="hidden" name="name" value="{{ prompt_name }}">
+            <input type="hidden" name="action" value="reset">
+            <button type="submit" class="btn-reset">Reset naar standaard</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+function selectTool(toolKey) {
+  // Hide all tool panels
+  document.querySelectorAll('[id^="tool-"]').forEach(el => el.style.display = 'none');
+  // Deactivate all pills
+  document.querySelectorAll('.tool-pill').forEach(el => el.classList.remove('active'));
+  // Show selected
+  const panel = document.getElementById('tool-' + toolKey);
+  if (panel) panel.style.display = 'flex';
+  const pill = document.getElementById('pill-' + toolKey);
+  if (pill) pill.classList.add('active');
+  // Update URL without reload
+  const url = new URL(window.location);
+  url.searchParams.set('tool', toolKey);
+  window.history.replaceState({}, '', url);
+}
+
+function onModelChange(select, key) {
+  const wrap = document.getElementById('custom-wrap-' + key);
+  const hidden = document.getElementById('model-hidden-' + key);
+  if (select.value === 'custom') {
+    wrap.classList.add('visible');
+    const customInput = document.getElementById('custom-' + key);
+    hidden.value = customInput.value;
+  } else {
+    wrap.classList.remove('visible');
+    hidden.value = select.value;
+  }
+}
+
+function syncModel(key) {
+  const select = document.getElementById('sel-' + key);
+  const hidden = document.getElementById('model-hidden-' + key);
+  if (select.value === 'custom') {
+    const customInput = document.getElementById('custom-' + key);
+    hidden.value = customInput.value;
+  } else {
+    hidden.value = select.value;
+  }
+}
+
+function showSaved(form) {
+  // Find the save notice within the same card body
+  const tool = form.querySelector('[name=tool]').value;
+  const name = form.querySelector('[name=name]').value;
+  const notice = document.getElementById('saved-' + tool + '-' + name);
+  if (notice) {
+    notice.classList.add('show');
+    setTimeout(() => notice.classList.remove('show'), 2500);
+  }
+}
+
+// Init custom model inputs on page load
+document.querySelectorAll('[id^="custom-wrap-"]').forEach(wrap => {
+  const key = wrap.id.replace('custom-wrap-', '');
+  const customInput = document.getElementById('custom-' + key);
+  if (customInput) {
+    customInput.addEventListener('input', () => {
+      const hidden = document.getElementById('model-hidden-' + key);
+      if (hidden) hidden.value = customInput.value;
+    });
+  }
+});
+</script>
+{% endblock %}

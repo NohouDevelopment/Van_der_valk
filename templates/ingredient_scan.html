@@ -74,7 +74,8 @@
     <p class="scan-stap" id="stap">Ingrediënten analyseren...</p>
 
     <!-- Auto-submit form -->
-    <form method="POST" action="{{ url_for('ingredient.ingredienten_voorstel') }}" id="autoForm">
+    <form method="POST" action="{{ url_for('ingredient.ingredienten_voorstel_scan') }}" id="autoForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
 
     <script>

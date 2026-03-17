@@ -23,7 +23,10 @@ def segment_overzicht():
     if not segment:
         return render_template("segment.html", org=org, segment=None, profiel=None)
 
-    return render_template("segment.html", org=org, segment=segment, profiel=segment.data)
+    # Display met v2 migratie (niet persistent)
+    from onboarding import _migrate_v1_to_v2
+    profiel = _migrate_v1_to_v2(segment.data)
+    return render_template("segment.html", org=org, segment=segment, profiel=profiel)
 
 
 @segment_bp.route("/segment/bewerken", methods=["GET", "POST"])
@@ -43,8 +46,13 @@ def segment_bewerken():
         db.session.commit()
         return redirect(url_for("segment.segment_overzicht"))
 
-    return render_template("onboarding_approve.html",
-                           profiel=segment.data,
+    # Auto-migratie v1 → v2 voor display (niet persistent tot save)
+    from onboarding import _migrate_v1_to_v2
+    profiel = _migrate_v1_to_v2(segment.data)
+    needs_migration = profiel.get("_schema_versie", 0) != segment.data.get("_schema_versie", 0)
+
+    return render_template("segment_bewerken.html",
+                           profiel=profiel,
                            naam=org.naam,
                            adres=org.adres,
-                           bewerk_modus=True)
+                           needs_migration=needs_migration)

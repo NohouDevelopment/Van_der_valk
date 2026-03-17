@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Menu Advies genereren — {{ org.naam }}{% endblock %}
+
+{% block extra_head %}
+<style>
+.scan-wrapper { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+.scan-box { text-align: center; max-width: 440px; padding: 2rem; }
+.spinner { width: 56px; height: 56px; border: 3px solid var(--color-gold-border); border-top-color: var(--color-gold); border-radius: 50%; animation: spin .9s linear infinite; margin: 0 auto 2rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--color-gold); margin-bottom: .75rem; }
+.scan-sub { color: var(--color-text-secondary); font-size: .88rem; line-height: 1.7; margin-bottom: 2rem; }
+.stappen-list { text-align: left; display: flex; flex-direction: column; gap: .6rem; }
+.stap { display: flex; gap: .75rem; align-items: center; font-size: .85rem; color: var(--color-text-secondary); padding: .5rem .75rem; border-radius: 8px; background: var(--color-card-header); transition: background .3s; }
+.stap.actief { background: var(--color-gold-bg); color: var(--color-text); }
+.stap.done { color: var(--color-green); }
+.stap-icon { font-size: 1rem; flex-shrink: 0; }
+.error-box { background: rgba(229,57,53,.12); border: 1px solid rgba(229,57,53,.35); border-radius: 10px; padding: .9rem 1.1rem; color: #EF9A9A; font-size: .85rem; margin-bottom: 1.5rem; text-align: left; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scan-wrapper">
+  <div class="scan-box">
+    {% if error %}
+      <div class="error-box">{{ error }}</div>
+      <a href="{{ url_for('voorstel.ontwerpruimte') }}" class="btn btn-secondary">Terug naar builder</a>
+    {% else %}
+      <div class="spinner"></div>
+      <div class="scan-title">AI genereert je advies</div>
+      <div class="scan-sub">Even geduld — we analyseren je menu op basis van je configuratie. Dit duurt 20-40 seconden.</div>
+
+      <div class="stappen-list" id="stappen">
+        <div class="stap actief" id="s1"><span class="stap-icon">&#128196;</span> Context laden...</div>
+        <div class="stap" id="s2"><span class="stap-icon">&#129504;</span> Menu analyseren...</div>
+        {% if doel == 'nieuwe_gerechten' %}
+        <div class="stap" id="s3"><span class="stap-icon">&#9997;</span> Nieuwe gerechten bedenken...</div>
+        {% elif doel == 'verbeteren' %}
+        <div class="stap" id="s3"><span class="stap-icon">&#9997;</span> Verbeteringen formuleren...</div>
+        {% else %}
+        <div class="stap" id="s3"><span class="stap-icon">&#9997;</span> Diagnose uitvoeren...</div>
+        {% endif %}
+        <div class="stap" id="s4"><span class="stap-icon">&#9989;</span> Resultaten opslaan...</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if not error %}
+<form id="scan-form" method="POST" action="{{ url_for('voorstel.voorstel_genereer') }}" style="display:none">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+<script>
+  // Step animation
+  var stappen = document.querySelectorAll('.stap');
+  var huidig = 0;
+  setInterval(function() {
+    if (huidig < stappen.length - 1) {
+      stappen[huidig].classList.remove('actief');
+      stappen[huidig].classList.add('done');
+      huidig++;
+      stappen[huidig].classList.add('actief');
+    }
+  }, 5000);
+
+  // Auto-POST after page load
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      document.getElementById('scan-form').submit();
+    }, 300);
+  });
+</script>
+{% endif %}
+{% endblock %}

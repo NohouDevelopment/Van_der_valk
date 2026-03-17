@@ -1,95 +1,22 @@
-<!DOCTYPE html>
-<html lang="nl" data-theme="">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trend Configuratie — {{ org.naam }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/theme.css">
-  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
-  <style>
-    :root {
-      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
-      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
-      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+{% extends "base.html" %}
 
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
-    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
-    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
-    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
-    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+{% block title %}Trend Configuratie — {{ org.naam }}{% endblock %}
 
-    .main { flex: 1; max-width: 800px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
-    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; margin-bottom: .5rem; }
-    .page-title em { font-style: normal; color: var(--gold); }
-    .page-sub { color: var(--text-dim); font-size: .9rem; line-height: 1.6; margin-bottom: 2rem; }
+{% block content %}
+<div class="page-header">
+  <h1>Trend <span style="color:var(--color-gold)">configuratie</span></h1>
+  <p class="subtitle">Bepaal waar de AI naar zoekt. Hoe specifieker je instelt, hoe relevanter de trends. Na elke analyse krijg je suggesties om de configuratie bij te werken.</p>
+</div>
 
-    /* Secties */
-    .sectie { margin-bottom: 2rem; }
-    .sectie-titel { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--gold); margin-bottom: .25rem; }
-    .field-hint { font-size: .78rem; color: var(--text-dim); margin-bottom: .75rem; }
-
-    /* Subgroep titels */
-    .subgroep-titel { font-size: .78rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; margin-top: 1rem; margin-bottom: .5rem; padding-bottom: .25rem; border-bottom: 1px solid var(--border); }
-    .subgroep-titel:first-of-type { margin-top: .25rem; }
-
-    /* Checkbox grid */
-    .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .5rem; }
-    .checkbox-item { display: flex; align-items: center; gap: .55rem; padding: .55rem .8rem; background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .18s; font-size: .82rem; }
-    .checkbox-item:hover { border-color: var(--gold); }
-    .checkbox-item:has(input:checked) { border-color: var(--gold); background: var(--gold-dim); }
-    .checkbox-item input[type="checkbox"] { accent-color: var(--gold); width: 15px; height: 15px; flex-shrink: 0; }
-
-    /* Anders row */
-    .anders-row { display: flex; align-items: center; gap: .75rem; margin-top: .65rem; }
-    .anders-label { font-size: .78rem; color: var(--text-dim); white-space: nowrap; }
-    .anders-row input { flex: 1; background: var(--dark-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .85rem; padding: .55rem .75rem; outline: none; }
-    .anders-row input:focus { border-color: var(--gold); }
-
-    /* Textarea */
-    textarea { background: var(--dark-2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .85rem; padding: .85rem 1rem; outline: none; width: 100%; resize: vertical; min-height: 80px; line-height: 1.6; }
-    textarea:focus { border-color: var(--gold); }
-
-    .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0 1.5rem; }
-
-    .btn-submit { background: var(--gold); color: #0F0F0F; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600; border: none; border-radius: 10px; padding: .95rem 2rem; cursor: pointer; transition: background .2s; }
-    .btn-submit:hover { background: var(--gold-light); }
-    .btn-annuleer { color: var(--text-dim); font-size: .85rem; text-decoration: none; padding: .5rem 1rem; }
-    .btn-annuleer:hover { color: var(--text); }
-
-    /* Selecteer/deselecteer alles knoppen */
-    .groep-acties { display: flex; gap: .5rem; margin-bottom: .5rem; }
-    .groep-actie { font-size: .7rem; padding: .2rem .5rem; border-radius: 4px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; }
-    .groep-actie:hover { border-color: var(--gold); color: var(--gold); }
-
-    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
-    footer p { color: var(--text-dim); font-size: .78rem; }
-  </style>
-</head>
-<body>
-<nav>
-  <div class="nav-inner">
-    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
-    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
-    <a href="{{ url_for('trend.trends_overzicht') }}" class="nav-link">Trends</a>
-  </div>
-</nav>
-
-<div class="main">
-  <h1 class="page-title">Trend <em>configuratie</em></h1>
-  <p class="page-sub">Bepaal waar de AI naar zoekt. Hoe specifieker je instelt, hoe relevanter de trends. Na elke analyse krijg je suggesties om de configuratie bij te werken.</p>
+<div class="card" style="max-width:820px">
 
   <form method="POST" action="{{ url_for('trend.trends_config') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <!-- Sectie 1: Menucategorieen -->
-    <div class="sectie">
-      <div class="sectie-titel">Menucategorieën</div>
-      <p class="field-hint">Welke delen van de kaart wil je analyseren?</p>
+    <!-- Sectie 1: Menucategorieën -->
+    <div style="margin-bottom:32px">
+      <h3 style="color:var(--color-gold);margin-bottom:4px">Menucategorieën</h3>
+      <p class="text-secondary" style="font-size:.875rem;margin-bottom:16px">Welke delen van de kaart wil je analyseren?</p>
       <div class="checkbox-grid">
         {% for val, lbl in categorie_opties %}
         <label class="checkbox-item">
@@ -101,13 +28,13 @@
       </div>
     </div>
 
-    <!-- Sectie 2: Inspiratiebronnen (gegroepeerd) -->
-    <div class="sectie">
-      <div class="sectie-titel">Inspiratiebronnen</div>
-      <p class="field-hint">Van welke chefs, stijlen, media of industrie-bronnen wil je trends meenemen?</p>
+    <!-- Sectie 2: Inspiratiebronnen -->
+    <div style="margin-bottom:32px">
+      <h3 style="color:var(--color-gold);margin-bottom:4px">Inspiratiebronnen</h3>
+      <p class="text-secondary" style="font-size:.875rem;margin-bottom:16px">Van welke chefs, stijlen, media of industrie-bronnen wil je trends meenemen?</p>
 
       {% for groep_naam, groep_items in inspiratie_groepen %}
-      <div class="subgroep-titel">{{ groep_naam }}</div>
+      <div style="font-size:.78rem;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:16px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--color-gold-border)">{{ groep_naam }}</div>
       <div class="checkbox-grid">
         {% for val, lbl in groep_items %}
         <label class="checkbox-item">
@@ -119,19 +46,19 @@
       </div>
       {% endfor %}
 
-      <div class="anders-row">
-        <span class="anders-label">Anders</span>
-        <input type="text" name="inspiratie_anders" value="{{ anders_inspiratie }}" placeholder="Andere bronnen, komma-gescheiden">
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+        <span class="text-secondary" style="font-size:.8rem;white-space:nowrap">Anders</span>
+        <input class="form-input" type="text" name="inspiratie_anders" value="{{ anders_inspiratie }}" placeholder="Andere bronnen, komma-gescheiden" style="flex:1">
       </div>
     </div>
 
-    <!-- Sectie 3: Focusthema's (gegroepeerd) -->
-    <div class="sectie">
-      <div class="sectie-titel">Focusthema's</div>
-      <p class="field-hint">Op welke thema's wil je extra inzoomen? De AI zoekt breder maar geeft extra gewicht aan deze onderwerpen.</p>
+    <!-- Sectie 3: Focusthema's -->
+    <div style="margin-bottom:32px">
+      <h3 style="color:var(--color-gold);margin-bottom:4px">Focusthema's</h3>
+      <p class="text-secondary" style="font-size:.875rem;margin-bottom:16px">Op welke thema's wil je extra inzoomen? De AI zoekt breder maar geeft extra gewicht aan deze onderwerpen.</p>
 
       {% for groep_naam, groep_items in focus_groepen %}
-      <div class="subgroep-titel">{{ groep_naam }}</div>
+      <div style="font-size:.78rem;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:16px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--color-gold-border)">{{ groep_naam }}</div>
       <div class="checkbox-grid">
         {% for val, lbl in groep_items %}
         <label class="checkbox-item">
@@ -143,32 +70,25 @@
       </div>
       {% endfor %}
 
-      <div class="anders-row">
-        <span class="anders-label">Anders</span>
-        <input type="text" name="focus_anders" value="{{ anders_focus }}" placeholder="Andere thema's, komma-gescheiden">
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+        <span class="text-secondary" style="font-size:.8rem;white-space:nowrap">Anders</span>
+        <input class="form-input" type="text" name="focus_anders" value="{{ anders_focus }}" placeholder="Andere thema's, komma-gescheiden" style="flex:1">
       </div>
     </div>
 
     <!-- Sectie 4: Custom prompt -->
-    <div class="sectie">
-      <div class="sectie-titel">Extra instructie</div>
-      <p class="field-hint">Optioneel: geef de AI extra context of instructies mee voor het zoeken.</p>
-      <textarea name="custom_prompt" rows="3" placeholder="Bijv: Focus op gerechten die goed werken voor grote groepen, of: Negeer fast-casual trends">{{ config.custom_prompt }}</textarea>
+    <div style="margin-bottom:32px">
+      <h3 style="color:var(--color-gold);margin-bottom:4px">Extra instructie</h3>
+      <p class="text-secondary" style="font-size:.875rem;margin-bottom:16px">Optioneel: geef de AI extra context of instructies mee voor het zoeken.</p>
+      <textarea class="form-input" name="custom_prompt" rows="3" placeholder="Bijv: Focus op gerechten die goed werken voor grote groepen, of: Negeer fast-casual trends">{{ config.custom_prompt }}</textarea>
     </div>
 
-    <hr class="divider">
-    <div style="display:flex;gap:1rem;align-items:center">
-      <button type="submit" class="btn-submit" style="flex:1">Configuratie opslaan</button>
-      <a href="{{ url_for('trend.trends_overzicht') }}" class="btn-annuleer">Annuleren</a>
+    <div style="display:flex;gap:16px;align-items:center;padding-top:16px;border-top:1px solid var(--color-gold-border)">
+      <button type="submit" class="btn btn-primary" style="flex:1">Configuratie opslaan</button>
+      <a href="{{ url_for('trend.trends_overzicht') }}" class="btn-ghost">Annuleren</a>
     </div>
+
   </form>
-</div>
 
-<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
-<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
-  <span class="theme-icon-moon">&#127769;</span>
-  <span class="theme-icon-sun">&#9728;</span>
-</button>
-<script src="/static/theme.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

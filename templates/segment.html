@@ -1,178 +1,187 @@
-<!DOCTYPE html>
-<html lang="nl" data-theme="">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menusegment — {{ org.naam }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/theme.css">
-  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
-  <style>
-    :root {
-      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
-      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
-      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
-      --green: #66BB6A;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+{% extends "base.html" %}
 
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
-    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
-    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
-    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
-    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+{% block title %}Restaurantprofiel — {{ org.naam }}{% endblock %}
 
-    .main { flex: 1; max-width: 800px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
-    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
-    .page-title em { font-style: normal; color: var(--gold); }
-    .btn-bewerk { color: var(--gold); font-size: .85rem; text-decoration: none; padding: .45rem 1rem; border: 1px solid var(--gold); border-radius: 8px; transition: background .2s; white-space: nowrap; }
-    .btn-bewerk:hover { background: var(--gold-dim); }
+{% block extra_head %}
+<style>
+  .profiel-grid { display: grid; gap: 1rem; }
+  .profiel-label { font-size: .7rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: .65rem; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .tag { background: var(--color-gold-bg); border: 1px solid var(--color-gold-border); border-radius: 20px; padding: .3rem .7rem; font-size: .8rem; color: var(--color-text); }
+  .tag.gold { color: var(--color-gold); font-weight: 600; }
+  .tag.primair { background: var(--color-gold-bg); border-color: var(--color-gold); color: var(--color-gold); font-weight: 600; }
+  .tag.dim { opacity: .6; }
+  .profiel-tekst { color: var(--color-text); font-size: .9rem; line-height: 1.6; }
+  .profiel-tekst.dim { color: var(--color-text-secondary); font-style: italic; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .kaart-overzicht { display: flex; align-items: center; gap: .75rem; padding: .65rem 0; border-bottom: 1px solid var(--color-gold-border); }
+  .kaart-overzicht:last-child { border-bottom: none; }
+  .kaart-rol-badge { font-size: .6rem; font-weight: 700; padding: .15rem .45rem; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .kaart-rol-badge.rol-leidend { background: var(--color-gold-bg); color: var(--color-gold); }
+  .kaart-rol-badge.rol-ondersteunend { color: var(--color-text-secondary); }
+  .kaart-rol-badge.rol-aanvullend { color: var(--color-text-secondary); opacity: .5; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 
-    .geen-segment { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
-    .geen-segment p { color: var(--text-dim); font-size: .9rem; margin-bottom: 1rem; }
-    .btn-primary { background: var(--gold); color: #0F0F0F; font-size: .9rem; font-weight: 600; border: none; border-radius: 8px; padding: .7rem 1.5rem; cursor: pointer; text-decoration: none; display: inline-block; }
-    .btn-primary:hover { background: var(--gold-light); }
-
-    .profiel-grid { display: grid; gap: 1.25rem; }
-    .profiel-card { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
-    .profiel-label { font-size: .7rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-dim); margin-bottom: .65rem; }
-    .tag-list { display: flex; flex-wrap: wrap; gap: .4rem; }
-    .tag { background: var(--gold-dim); border: 1px solid var(--border); border-radius: 20px; padding: .3rem .7rem; font-size: .8rem; color: var(--text); }
-    .tag.gold { color: var(--gold); font-weight: 600; }
-    .profiel-tekst { color: var(--text); font-size: .9rem; line-height: 1.6; }
-    .profiel-tekst.dim { color: var(--text-dim); font-style: italic; }
-
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-    @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
-
-    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
-    footer p { color: var(--text-dim); font-size: .78rem; }
-  </style>
-</head>
-<body>
-<nav>
-  <div class="nav-inner">
-    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
-    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+  <div>
+    <h1 class="animate-in">Restaurant<span style="color:var(--color-gold)">profiel</span></h1>
+    <p class="subtitle animate-in" style="transition-delay:80ms">{{ org.naam }}</p>
   </div>
-</nav>
+  {% if profiel %}
+  <a href="{{ url_for('segment.segment_bewerken') }}" class="btn btn-primary" data-track="profiel_bewerken" style="align-self:flex-start">Bewerken</a>
+  {% endif %}
+</div>
 
-<div class="main">
-  {% if not profiel %}
-  <div class="geen-segment">
-    <p>Er is nog geen menusegment-profiel ingesteld voor {{ org.naam }}.</p>
-    <p>Dit wordt normaal gesproken aangemaakt tijdens de registratie.</p>
-  </div>
-  {% else %}
-  <div class="page-header">
-    <h1 class="page-title">Menusegment <em>{{ org.naam }}</em></h1>
-    <a href="{{ url_for('segment.segment_bewerken') }}" class="btn-bewerk">Bewerken</a>
-  </div>
+{% if not profiel %}
+<div class="card" style="text-align:center;padding:48px 32px">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="color:var(--color-text-secondary);margin:0 auto 16px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+  <p class="text-secondary" style="margin-bottom:16px">Er is nog geen restaurantprofiel ingesteld voor {{ org.naam }}.</p>
+  <a href="{{ url_for('segment.segment_bewerken') }}" class="btn btn-primary">Profiel instellen</a>
+</div>
 
-  <div class="profiel-grid">
-    <!-- Restaurant type -->
-    <div class="profiel-card">
-      <div class="profiel-label">Restaurant type</div>
-      <div class="tag-list">
-        {% for t in (profiel.restaurant_type or []) %}
-        <span class="tag">{{ t }}</span>
-        {% endfor %}
-        {% if not profiel.restaurant_type %}
-        <span class="profiel-tekst dim">Niet ingesteld</span>
-        {% endif %}
-      </div>
-    </div>
+{% else %}
+<div class="profiel-grid">
 
-    <div class="two-col">
-      <!-- Culinaire stijl -->
-      <div class="profiel-card">
-        <div class="profiel-label">Culinaire stijl</div>
-        <div class="tag-list">
-          {% for s in (profiel.culinaire_stijl or []) %}
-          <span class="tag">{{ s }}</span>
-          {% endfor %}
-          {% if not profiel.culinaire_stijl %}
-          <span class="profiel-tekst dim">Niet ingesteld</span>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Prijssegment -->
-      <div class="profiel-card">
-        <div class="profiel-label">Prijssegment</div>
-        <span class="tag gold">{{ profiel.prijssegment or 'Niet ingesteld' }}</span>
-      </div>
-    </div>
-
-    <!-- Doelgroep -->
-    <div class="profiel-card">
-      <div class="profiel-label">Doelgroep</div>
-      <div class="tag-list">
-        {% for d in (profiel.doelgroep or []) %}
-        <span class="tag">{{ d }}</span>
-        {% endfor %}
-        {% if not profiel.doelgroep %}
-        <span class="profiel-tekst dim">Niet ingesteld</span>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Waardepropositie -->
-    <div class="profiel-card">
-      <div class="profiel-label">Waardepropositie</div>
-      <p class="profiel-tekst {% if not profiel.waardepropositie %}dim{% endif %}">{{ profiel.waardepropositie or 'Niet ingesteld' }}</p>
-    </div>
-
-    <!-- Menu kenmerken -->
-    <div class="profiel-card">
-      <div class="profiel-label">Menu kenmerken</div>
-      <div class="tag-list">
-        {% for k in (profiel.menu_kenmerken or []) %}
-        <span class="tag">{{ k }}</span>
-        {% endfor %}
-        {% if not profiel.menu_kenmerken %}
-        <span class="profiel-tekst dim">Niet ingesteld</span>
-        {% endif %}
-      </div>
-    </div>
-
-    {% if profiel.sterke_punten or profiel.verbeterpunten %}
-    <div class="two-col">
-      {% if profiel.sterke_punten %}
-      <div class="profiel-card">
-        <div class="profiel-label">Sterke punten (AI)</div>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:.3rem">
-          {% for p in profiel.sterke_punten %}
-          <li style="font-size:.85rem;color:var(--green)">+ {{ p }}</li>
-          {% endfor %}
-        </ul>
-      </div>
+  <!-- Restaurant type -->
+  <div class="card" data-section="restaurant_type">
+    <div class="profiel-label">Restaurant type</div>
+    <div class="tag-list">
+      {% for t in (profiel.restaurant_type or []) %}
+      <span class="tag">{{ t }}</span>
+      {% endfor %}
+      {% if not profiel.restaurant_type %}
+      <span class="profiel-tekst dim">Niet ingesteld</span>
       {% endif %}
-      {% if profiel.verbeterpunten %}
-      <div class="profiel-card">
-        <div class="profiel-label">Verbeterpunten (AI)</div>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:.3rem">
-          {% for p in profiel.verbeterpunten %}
-          <li style="font-size:.85rem;color:var(--text-dim)">- {{ p }}</li>
-          {% endfor %}
-        </ul>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Culinaire stijl -->
+    <div class="card">
+      <div class="profiel-label">Culinaire stijl</div>
+      <div class="tag-list">
+        {% for s in (profiel.culinaire_stijl or []) %}
+        <span class="tag">{{ s }}</span>
+        {% endfor %}
+        {% if not profiel.culinaire_stijl %}
+        <span class="profiel-tekst dim">Niet ingesteld</span>
+        {% endif %}
       </div>
+    </div>
+
+    <!-- Prijssegment -->
+    <div class="card">
+      <div class="profiel-label">Prijssegment</div>
+      <span class="tag gold">{{ profiel.prijssegment or 'Niet ingesteld' }}</span>
+    </div>
+  </div>
+
+  <!-- Doelgroep -->
+  <div class="card" data-section="doelgroep">
+    <div class="profiel-label">Doelgroep</div>
+    {% set dg_p = profiel.get('doelgroep_primair', []) %}
+    {% set dg_s = profiel.get('doelgroep_secundair', []) %}
+    {% if dg_p or dg_s %}
+    <div class="tag-list" style="margin-bottom:.5rem">
+      {% for d in dg_p %}
+      <span class="tag primair">{{ d }}</span>
+      {% endfor %}
+      {% for d in dg_s %}
+      <span class="tag dim">{{ d }}</span>
+      {% endfor %}
+    </div>
+    {% if dg_p %}
+    <p style="font-size:.7rem;color:var(--color-text-secondary)">Goud = primair, grijs = secundair</p>
+    {% endif %}
+    {% else %}
+    {# Fallback voor v1 data #}
+    <div class="tag-list">
+      {% for d in (profiel.doelgroep or []) %}
+      <span class="tag">{{ d }}</span>
+      {% endfor %}
+      {% if not profiel.doelgroep %}
+      <span class="profiel-tekst dim">Niet ingesteld</span>
       {% endif %}
     </div>
     {% endif %}
   </div>
-  {% endif %}
-</div>
 
-<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
-<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
-  <span class="theme-icon-moon">&#127769;</span>
-  <span class="theme-icon-sun">&#9728;</span>
-</button>
-<script src="/static/theme.js"></script>
-</body>
-</html>
+  <!-- F&B Propositie -->
+  {% set fb = profiel.get('fb_propositie', []) %}
+  {% if fb %}
+  <div class="card" data-section="fb_propositie">
+    <div class="profiel-label">F&amp;B Propositie</div>
+    <div class="tag-list">
+      {% set fb_labels = {
+        'dinner_driven': 'Dinner-driven', 'ontbijt_inclusief': 'Ontbijt inclusief',
+        'all_day_dining': 'All-day dining', 'seizoensgebonden': 'Seizoensgebonden',
+        'lokaal_gedreven': 'Lokaal gedreven', 'internationale_keuken': 'Internationale keuken',
+        'family_friendly': 'Family-friendly', 'experience_dining': 'Experience dining',
+        'grab_and_go': 'Grab & Go', 'banqueting': 'Banqueting',
+        'duurzaam_concept': 'Duurzaam', 'wellness_health': 'Wellness / Health'
+      } %}
+      {% for f in fb %}
+      <span class="tag">{{ fb_labels.get(f, f) }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Kaarten & Menu's -->
+  {% set kaarten = profiel.get('kaarten', []) %}
+  {% if kaarten %}
+  <div class="card" data-section="kaarten_menus">
+    <div class="profiel-label">Kaarten &amp; Menu's</div>
+    {% for kaart in kaarten %}
+    <div class="kaart-overzicht">
+      <span class="kaart-rol-badge rol-{{ kaart.rol }}">{{ kaart.rol }}</span>
+      <span style="font-weight:600;font-size:.9rem">{{ kaart.label or kaart.type }}</span>
+      {% if kaart.kenmerken %}
+      <div class="tag-list" style="margin-left:auto">
+        {% for k in kaart.kenmerken %}
+        <span class="tag" style="font-size:.7rem;padding:.15rem .5rem">{{ k }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Waardepropositie -->
+  <div class="card" data-section="waardepropositie">
+    <div class="profiel-label">Waardepropositie</div>
+    <p class="profiel-tekst {% if not profiel.waardepropositie %}dim{% endif %}">{{ profiel.waardepropositie or 'Niet ingesteld' }}</p>
+  </div>
+
+  {% if profiel.sterke_punten or profiel.verbeterpunten %}
+  <div class="two-col" data-section="ai_inzichten">
+    {% if profiel.sterke_punten %}
+    <div class="card">
+      <div class="profiel-label">Sterke punten (AI)</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.3rem">
+        {% for p in profiel.sterke_punten %}
+        <li style="font-size:.85rem;color:var(--color-green)">+ {{ p }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if profiel.verbeterpunten %}
+    <div class="card">
+      <div class="profiel-label">Verbeterpunten (AI)</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.3rem">
+        {% for p in profiel.verbeterpunten %}
+        <li style="font-size:.85rem;color:var(--color-text-secondary)">- {{ p }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+{% endblock %}

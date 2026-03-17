@@ -22,7 +22,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from tools.ai_client import ai_generate, ai_generate_json, ai_generate_vision
+from tools.ai_client import ai_call
+from tools.prompt_loader import format_prompt
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -38,13 +39,8 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 
 def extract_text_from_image(image_path: str) -> str:
     """Extraheer menutekst uit een afbeelding via AI vision."""
-    return ai_generate_vision(
-        prompt="""Lees deze menukaart-afbeelding en schrijf ALLE tekst over die je ziet.
-Behoud de structuur: categorieën, gerechtnamen, beschrijvingen, prijzen.
-Schrijf ALLEEN de menutekst, geen uitleg.""",
-        image_path=image_path,
-        temperature=0.1
-    )
+    prompt, model, temp = format_prompt("menu_parser", "extract_image")
+    return ai_call(prompt, model=model, temperature=temp, vision_path=image_path)
 
 
 def parse_menu_text(ruwe_tekst: str) -> dict:
@@ -71,48 +67,12 @@ def parse_menu_text(ruwe_tekst: str) -> dict:
             ]
         }
     """
-    prompt = f"""Analyseer deze menukaart-tekst en structureer het als JSON.
-
-MENUTEKST:
----
-{ruwe_tekst}
----
-
-Geef je antwoord als JSON met EXACT dit formaat (geen extra tekst eromheen):
-{{
-  "categorieën": [
-    {{
-      "naam": "Categorienaam (bijv. Voorgerechten, Hoofdgerechten, etc.)",
-      "gerechten": [
-        {{
-          "naam": "Naam van het gerecht",
-          "beschrijving": "Korte beschrijving of ingrediënten zoals op de kaart",
-          "prijs": 12.50,
-          "ingredienten": [{{"naam": "ingrediënt1", "categorie": "vers", "hoeveelheid": 100, "eenheid": "g"}}],
-          "tags": ["tag1"],
-          "dieet": ["vegetarisch"]
-        }}
-      ]
-    }}
-  ]
-}}
-
-Regels:
-- Behoud de oorspronkelijke categorieën van het menu
-- Als er geen duidelijke categorieën zijn, maak er logische aan (Voorgerechten, Hoofdgerechten, etc.)
-- Prijs als decimaal getal (bijv. 12.50), null als niet gevonden
-- Ingrediënten: geef als array van objects [{naam, categorie, hoeveelheid, eenheid}]
-  Categorieën (exact): "vers" (groente/fruit/vlees/vis), "zuivel" (kaas/boter/room/melk), "droog" (pasta/rijst/meel/kruiden/noten), "saus" (sauzen/olie/dressings), "diepvries" (diepvriesproducten)
-  Hoeveelheid: getal per portie, null als onbekend. Eenheid: "g", "ml", "stuks" of ""
-- Tags: bijv. "klassiek", "seizoen", "signature", "nieuw", "populair"
-- Dieet: bijv. "vegetarisch", "veganistisch", "glutenvrij", "lactosevrij" — alleen als duidelijk
-
-Antwoord ALLEEN met de JSON, geen markdown, geen uitleg eromheen."""
+    prompt, model, temp = format_prompt("menu_parser", "parse_text", ruwe_tekst=ruwe_tekst)
 
     print("  Menu tekst parsen naar JSON...", end=" ", flush=True)
 
     try:
-        result = ai_generate_json(prompt, temperature=0.1)
+        result = ai_call(prompt, model=model, temperature=temp, json_mode=True)
         gerechten_count = sum(len(cat.get("gerechten", [])) for cat in result.get("categorieën", []))
         print(f"OK ({len(result.get('categorieën', []))} categorieën, {gerechten_count} gerechten)")
         return result

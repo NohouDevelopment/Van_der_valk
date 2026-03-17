@@ -186,48 +186,145 @@ def maak_gebruiker():
     return render_template("onboarding_gebruiker.html", error=error, naam=naam)
 
 
+def _lees_checkbox_anders(req, checkbox_naam: str, anders_naam: str) -> list:
+    """Lees checkbox-lijst + anders-tekstveld, combineer tot één lijst."""
+    selected = req.form.getlist(checkbox_naam)
+    anders_raw = req.form.get(anders_naam, "")
+    anders = [s.strip() for s in anders_raw.split(",") if s.strip()]
+    return selected + anders
+
+
 def _verwerk_approve_form(req, profiel: dict) -> dict:
-    """Verwerk het goedkeuringsformulier en combineer met AI-voorstel."""
-    # Restaurant type checkboxes + anders
-    selected_types = req.form.getlist("restaurant_type_check")
-    anders_type_raw = req.form.get("restaurant_type_anders", "")
-    anders_types = [s.strip() for s in anders_type_raw.split(",") if s.strip()]
-    restaurant_type = selected_types + anders_types
+    """Verwerk het goedkeuringsformulier (v2: drielaags profiel) en combineer met AI-voorstel."""
+    result = dict(profiel)
 
-    # Culinaire stijl checkboxes + anders
-    selected_stijl = req.form.getlist("culinaire_stijl_check")
-    anders_stijl_raw = req.form.get("culinaire_stijl_anders", "")
-    anders_stijl = [s.strip() for s in anders_stijl_raw.split(",") if s.strip()]
-    culinaire_stijl = selected_stijl + anders_stijl
-
-    # Doelgroep checkboxes + anders
-    selected_doelgroep = req.form.getlist("doelgroep_check")
-    anders_doelgroep_raw = req.form.get("doelgroep_anders", "")
-    anders_doelgroep = [s.strip() for s in anders_doelgroep_raw.split(",") if s.strip()]
-    doelgroep = selected_doelgroep + anders_doelgroep
-
-    # Prijssegment (radio)
+    # --- Concept niveau ---
+    restaurant_type = _lees_checkbox_anders(req, "restaurant_type_check", "restaurant_type_anders")
+    culinaire_stijl = _lees_checkbox_anders(req, "culinaire_stijl_check", "culinaire_stijl_anders")
     prijssegment = req.form.get("prijssegment", profiel.get("prijssegment", "middensegment"))
 
-    # Waardepropositie (textarea)
-    waardepropositie = req.form.get("waardepropositie", profiel.get("waardepropositie", "")).strip()
+    result["concept"] = {
+        "restaurant_type": restaurant_type,
+        "culinaire_stijl": culinaire_stijl,
+        "prijssegment": prijssegment,
+    }
 
-    # Menu kenmerken checkboxes + anders
-    selected_kenmerken = req.form.getlist("menu_kenmerken_check")
-    anders_kenmerken_raw = req.form.get("menu_kenmerken_anders", "")
-    anders_kenmerken = [s.strip() for s in anders_kenmerken_raw.split(",") if s.strip()]
-    menu_kenmerken = selected_kenmerken + anders_kenmerken
+    # --- Doelgroep met prioriteit ---
+    doelgroep_primair = _lees_checkbox_anders(req, "doelgroep_primair_check", "doelgroep_primair_anders")
+    doelgroep_secundair = _lees_checkbox_anders(req, "doelgroep_secundair_check", "doelgroep_secundair_anders")
 
-    # Combineer met oorspronkelijk profiel
-    result = dict(profiel)
+    result["doelgroep_primair"] = doelgroep_primair
+    result["doelgroep_secundair"] = doelgroep_secundair
+
+    # --- F&B Propositie ---
+    result["fb_propositie"] = _lees_checkbox_anders(req, "fb_propositie_check", "fb_propositie_anders")
+
+    # --- Kaarten ---
+    kaart_count = int(req.form.get("kaart_count", "0"))
+    kaarten = []
+    for i in range(kaart_count):
+        kaart_type = req.form.get(f"kaart_type_{i}", "")
+        if not kaart_type:
+            continue
+        kaart_label = req.form.get(f"kaart_label_{i}", kaart_type)
+        kaart_rol = req.form.get(f"kaart_rol_{i}", "aanvullend")
+        kaart_kenmerken = req.form.getlist(f"kaart_kenmerken_{i}")
+        kaart_anders_raw = req.form.get(f"kaart_kenmerken_anders_{i}", "")
+        kaart_anders = [s.strip() for s in kaart_anders_raw.split(",") if s.strip()]
+        kaart_notitie = req.form.get(f"kaart_notitie_{i}", "").strip()[:200]
+
+        kaarten.append({
+            "type": kaart_type,
+            "label": kaart_label,
+            "rol": kaart_rol,
+            "kenmerken": kaart_kenmerken + kaart_anders,
+            "notitie": kaart_notitie,
+        })
+
+    result["kaarten"] = kaarten
+
+    # --- Waardepropositie ---
+    result["waardepropositie"] = req.form.get("waardepropositie", profiel.get("waardepropositie", "")).strip()
+
+    # --- Backward compatibility: compute top-level keys ---
     result["restaurant_type"] = restaurant_type
     result["culinaire_stijl"] = culinaire_stijl
-    result["doelgroep"] = doelgroep
     result["prijssegment"] = prijssegment
-    result["waardepropositie"] = waardepropositie
-    result["menu_kenmerken"] = menu_kenmerken
+    result["doelgroep"] = doelgroep_primair + doelgroep_secundair
+    result["menu_kenmerken"] = list(set(
+        k for kaart in kaarten for k in kaart.get("kenmerken", [])
+    ))
+
+    # Schema versie markeren
+    result["_schema_versie"] = 2
 
     return result
+
+
+def _migrate_v1_to_v2(profiel: dict) -> dict:
+    """Converteer oud plat format naar v2 drielaags format (voor display, niet persistent tot save)."""
+    if profiel.get("_schema_versie", 0) >= 2:
+        return profiel
+
+    migrated = dict(profiel)
+
+    # Concept niveau
+    migrated["concept"] = {
+        "restaurant_type": profiel.get("restaurant_type", []),
+        "culinaire_stijl": profiel.get("culinaire_stijl", []),
+        "prijssegment": profiel.get("prijssegment", "middensegment"),
+    }
+
+    # Doelgroep: eerste 2 → primair, rest → secundair
+    dg = profiel.get("doelgroep", [])
+    migrated["doelgroep_primair"] = dg[:2] if len(dg) >= 2 else dg
+    migrated["doelgroep_secundair"] = dg[2:] if len(dg) > 2 else []
+
+    # F&B propositie: infer uit menu_kenmerken
+    mk = profiel.get("menu_kenmerken", [])
+    fb = []
+    if "seizoensgebonden" in mk:
+        fb.append("seizoensgebonden")
+    if "diner" in mk:
+        fb.append("dinner_driven")
+    if "ontbijt" in mk:
+        fb.append("ontbijt_inclusief")
+    if "kindermenu" in mk:
+        fb.append("family_friendly")
+    if "duurzaam" in mk or "biologisch" in mk:
+        fb.append("duurzaam_concept")
+    migrated["fb_propositie"] = fb
+
+    # Kaarten: infer uit menu_kenmerken
+    kenmerk_to_card = {
+        "diner": ("dinerkaart", "Dinerkaart", "leidend"),
+        "ontbijt": ("ontbijtbuffet", "Ontbijtbuffet", "ondersteunend"),
+        "lunch": ("lunchkaart", "Lunchkaart", "ondersteunend"),
+        "kindermenu": ("kindermenu", "Kindermenu", "aanvullend"),
+        "high tea": ("high_tea", "High Tea", "aanvullend"),
+        "bar snacks": ("borrelkaart", "Borrelkaart / Bites", "aanvullend"),
+    }
+    kaart_level = {"a la carte", "buffet", "dagmenu", "proeverijmenu", "kindermenu",
+                   "ontbijt", "lunch", "diner", "high tea", "bar snacks"}
+    concept_kenmerken = [k for k in mk if k not in kaart_level]
+
+    kaarten = []
+    for mk_key, (ctype, clabel, crol) in kenmerk_to_card.items():
+        if mk_key in mk:
+            kaarten.append({
+                "type": ctype, "label": clabel, "rol": crol,
+                "kenmerken": list(concept_kenmerken), "notitie": "",
+            })
+
+    if not kaarten:
+        kaarten.append({
+            "type": "dinerkaart", "label": "Dinerkaart", "rol": "leidend",
+            "kenmerken": list(concept_kenmerken), "notitie": "",
+        })
+
+    migrated["kaarten"] = kaarten
+    migrated["_schema_versie"] = 2
+    return migrated
 
 
 def _hernoem_logo(oud_pad: str, org_id: int):

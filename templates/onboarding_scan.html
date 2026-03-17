@@ -53,6 +53,7 @@
 
 {% if not error %}
 <form id="scan-form" method="POST" style="display:none">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 </form>
 <script>
   // Automatisch POST starten zodra pagina laadt

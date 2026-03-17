@@ -1,83 +1,43 @@
-<!DOCTYPE html>
-<html lang="nl" data-theme="">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trend Geheugen — {{ org.naam }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/theme.css">
-  <script>(function(){var t=localStorage.getItem("menu-maker-theme")||(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);})();</script>
-  <style>
-    :root {
-      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dim: rgba(201,168,76,.15);
-      --dark: #0F0F0F; --dark-2: #1A1A1A; --dark-3: #242424;
-      --text: #E8E4DC; --text-dim: #9A9590; --border: rgba(201,168,76,.2);
-      --green: #66BB6A; --orange: #FFA726;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+{% extends "base.html" %}
+{% block title %}Marktinzichten — {{ org.naam }}{% endblock %}
 
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; height: 64px; display: flex; align-items: center; gap: 1.25rem; }
-    .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gold); letter-spacing: .05em; margin-right: auto; }
-    .nav-brand span { color: var(--text-dim); font-weight: 300; font-size: .85rem; margin-left: .5rem; }
-    .nav-link { color: var(--text-dim); font-size: .82rem; text-decoration: none; padding: .35rem .65rem; border-radius: 6px; transition: color .2s, background .2s; }
-    .nav-link:hover { color: var(--text); background: var(--dark-3); }
+{% block extra_head %}
+<style>
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
+  .page-title em { font-style: normal; color: var(--color-gold); }
+  .versie-badge { font-family: 'Inter', sans-serif; font-size: .7rem; font-weight: 700; color: var(--color-gold); background: var(--color-gold-bg); border: 1px solid var(--color-gold-border); border-radius: 6px; padding: .15rem .5rem; vertical-align: middle; margin-left: .5rem; }
+  .page-sub { color: var(--color-text-secondary); font-size: .85rem; margin-bottom: 2rem; }
+  .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--color-gold-border); background: none; color: var(--color-text-secondary); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; }
+  .btn-sm:hover { border-color: var(--color-gold); color: var(--color-gold); }
 
-    .main { flex: 1; max-width: 800px; margin: 0 auto; padding: 2rem 2rem 5rem; width: 100%; }
+  .sectie-titel { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--color-gold); margin-bottom: .75rem; padding-bottom: .35rem; border-bottom: 1px solid var(--color-gold-border); }
 
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
-    .page-title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; }
-    .page-title em { font-style: normal; color: var(--gold); }
-    .versie-badge { font-family: 'Inter', sans-serif; font-size: .7rem; font-weight: 700; color: var(--gold); background: var(--gold-dim); border: 1px solid var(--border); border-radius: 6px; padding: .15rem .5rem; vertical-align: middle; margin-left: .5rem; }
+  .geheugen-trend { background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: .6rem; transition: border-color .2s; }
+  .geheugen-trend:hover { border-color: var(--color-gold); }
+  .geheugen-trend.verouderd { opacity: .6; }
+  .geheugen-trend.verlopen { opacity: .35; }
 
-    .page-sub { color: var(--text-dim); font-size: .85rem; margin-bottom: 2rem; }
+  .trend-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; margin-bottom: .35rem; }
+  .trend-naam { font-weight: 600; font-size: .95rem; }
+  .trend-scores { display: flex; gap: .35rem; align-items: center; flex-shrink: 0; }
+  .score-badge { font-size: .75rem; font-weight: 700; color: var(--color-gold); background: var(--color-gold-bg); border: 1px solid var(--color-gold-border); border-radius: 6px; padding: .15rem .5rem; }
+  .bevestigingen-badge { font-size: .7rem; font-weight: 600; color: #66BB6A; background: rgba(102,187,106,.1); border: 1px solid rgba(102,187,106,.2); border-radius: 6px; padding: .15rem .45rem; }
+  .status-badge { font-size: .68rem; font-weight: 600; padding: .15rem .45rem; border-radius: 4px; }
+  .status-badge.verouderd { color: #FFA726; background: rgba(255,167,38,.1); border: 1px solid rgba(255,167,38,.2); }
 
-    .btn-sm { font-size: .78rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; transition: all .2s; font-family: 'Inter', sans-serif; }
-    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+  .trend-beschrijving { font-size: .85rem; color: var(--color-text-secondary); line-height: 1.55; margin-bottom: .4rem; }
+  .trend-meta { display: flex; gap: .3rem; flex-wrap: wrap; align-items: center; }
+  .categorie-tag { font-size: .7rem; padding: .15rem .5rem; border-radius: 4px; background: var(--color-gold-bg); color: var(--color-gold); font-weight: 600; }
+  .trend-tag { font-size: .68rem; padding: .15rem .45rem; border-radius: 4px; background: var(--color-card-header); color: var(--color-text-secondary); border: 1px solid var(--color-gold-border); }
+  .datum-info { font-size: .7rem; color: var(--color-text-secondary); margin-left: auto; }
 
-    /* Sectie */
-    .sectie-titel { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--gold); margin-bottom: .75rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+</style>
+{% endblock %}
 
-    /* Geheugen trend card */
-    .geheugen-trend { background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: .6rem; transition: border-color .2s; }
-    .geheugen-trend:hover { border-color: var(--gold); }
-    .geheugen-trend.verouderd { opacity: .6; }
-    .geheugen-trend.verlopen { opacity: .35; }
-
-    .trend-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; margin-bottom: .35rem; }
-    .trend-naam { font-weight: 600; font-size: .95rem; }
-    .trend-scores { display: flex; gap: .35rem; align-items: center; flex-shrink: 0; }
-    .score-badge { font-size: .75rem; font-weight: 700; color: var(--gold); background: var(--gold-dim); border: 1px solid var(--border); border-radius: 6px; padding: .15rem .5rem; }
-    .bevestigingen-badge { font-size: .7rem; font-weight: 600; color: var(--green); background: rgba(102,187,106,.1); border: 1px solid rgba(102,187,106,.2); border-radius: 6px; padding: .15rem .45rem; }
-    .status-badge { font-size: .68rem; font-weight: 600; padding: .15rem .45rem; border-radius: 4px; }
-    .status-badge.verouderd { color: var(--orange); background: rgba(255,167,38,.1); border: 1px solid rgba(255,167,38,.2); }
-
-    .trend-beschrijving { font-size: .85rem; color: var(--text-dim); line-height: 1.55; margin-bottom: .4rem; }
-    .trend-meta { display: flex; gap: .3rem; flex-wrap: wrap; align-items: center; }
-    .categorie-tag { font-size: .7rem; padding: .15rem .5rem; border-radius: 4px; background: var(--gold-dim); color: var(--gold); font-weight: 600; }
-    .trend-tag { font-size: .68rem; padding: .15rem .45rem; border-radius: 4px; background: var(--dark-3); color: var(--text-dim); border: 1px solid var(--border); }
-    .datum-info { font-size: .7rem; color: var(--text-dim); margin-left: auto; }
-
-    /* Details/summary */
-    details summary { cursor: pointer; list-style: none; }
-    details summary::-webkit-details-marker { display: none; }
-
-    footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
-    footer p { color: var(--text-dim); font-size: .78rem; }
-  </style>
-</head>
-<body>
-<nav>
-  <div class="nav-inner">
-    <div class="nav-brand">MENU MAKER <span>{{ org.naam }}</span></div>
-    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
-    <a href="{{ url_for('trend.trends_overzicht') }}" class="nav-link">Trends</a>
-  </div>
-</nav>
-
-<div class="main">
+{% block content %}
   <div class="page-header">
     <h1 class="page-title">Trend <em>geheugen</em> <span class="versie-badge">v{{ geheugen.versie }}</span></h1>
     <a href="{{ url_for('trend.trends_overzicht') }}" class="btn-sm">&larr; Terug</a>
@@ -90,7 +50,6 @@
      · Laatst bijgewerkt: {{ geheugen.laatst_bijgewerkt.strftime('%d-%m-%Y %H:%M') if geheugen.laatst_bijgewerkt else '' }}
   </p>
 
-  <!-- Actieve trends -->
   {% if actieve_trends %}
   <div class="sectie-titel">Actieve trends</div>
   {% for trend in actieve_trends %}
@@ -120,10 +79,9 @@
   </div>
   {% endfor %}
   {% else %}
-  <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:2rem">Geen actieve trends in het geheugen.</p>
+  <p style="color:var(--color-text-secondary);font-size:.9rem;margin-bottom:2rem">Geen actieve trends in het geheugen.</p>
   {% endif %}
 
-  <!-- Verouderde trends -->
   {% if verouderde_trends %}
   <details style="margin-top:1.5rem">
     <summary class="sectie-titel" style="cursor:pointer">Verouderde trends ({{ verouderde_trends|length }})</summary>
@@ -152,10 +110,9 @@
   </details>
   {% endif %}
 
-  <!-- Verlopen trends -->
   {% if verlopen_trends %}
   <details style="margin-top:1rem">
-    <summary style="font-size:.82rem;color:var(--text-dim);cursor:pointer;padding:.5rem 0">Verlopen trends ({{ verlopen_trends|length }})</summary>
+    <summary style="font-size:.82rem;color:var(--color-text-secondary);cursor:pointer;padding:.5rem 0">Verlopen trends ({{ verlopen_trends|length }})</summary>
     <div style="margin-top:.5rem">
     {% for trend in verlopen_trends %}
     <div class="geheugen-trend verlopen">
@@ -168,13 +125,4 @@
     </div>
   </details>
   {% endif %}
-</div>
-
-<footer><p>Menu Maker · Aangedreven door Gemini AI · {{ org.naam }}</p></footer>
-<button class="theme-toggle" onclick="toggleTheme()" title="Licht/Donker modus">
-  <span class="theme-icon-moon">&#127769;</span>
-  <span class="theme-icon-sun">&#9728;</span>
-</button>
-<script src="/static/theme.js"></script>
-</body>
-</html>
+{% endblock %}

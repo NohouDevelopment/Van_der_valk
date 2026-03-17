@@ -200,6 +200,7 @@
   {% endfor %}
 
   <form method="POST" action="{{ url_for('segment.segment_bewerken') if bewerk_modus|default(false) else url_for('onboarding.approve') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     <!-- Restaurant type: checkboxes -->
     <div class="sectie">

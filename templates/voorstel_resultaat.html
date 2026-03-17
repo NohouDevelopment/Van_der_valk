@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}{{ sessie.titel }} — {{ org.naam }}{% endblock %}
+
+{% block extra_head %}
+<style>
+.result-header { margin-bottom: 28px; }
+.result-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.result-meta .meta-item { font-size: .8rem; color: var(--color-text-secondary); }
+.samenvatting-box { background: var(--color-gold-bg); border: 1px solid var(--color-gold-border); border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 24px; }
+.samenvatting-box p { font-size: .9rem; line-height: 1.6; }
+
+.stats-bar { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: var(--radius-sm); font-size: .85rem; }
+.stat-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.annot-list { display: flex; flex-direction: column; gap: 12px; }
+.annot-card { padding: 16px 20px; }
+.annot-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.annot-naam { font-weight: 600; font-size: .95rem; }
+.annot-cat { font-size: .78rem; color: var(--color-text-secondary); }
+.annot-score { font-size: .85rem; font-weight: 600; }
+.annot-body { font-size: .85rem; line-height: 1.6; color: var(--color-text-secondary); }
+.annot-suggesties { margin-top: 8px; }
+.annot-suggesties li { font-size: .82rem; color: var(--color-text); padding: 2px 0; }
+.annot-suggesties li::before { content: '→ '; color: var(--color-gold); }
+.annot-trends { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-btn { font-size: .78rem; padding: 5px 12px; border: 1px solid var(--color-gold-border); background: none; color: var(--color-text-secondary); border-radius: var(--radius-pill); cursor: pointer; transition: all .18s; }
+.filter-btn:hover, .filter-btn.active { border-color: var(--color-gold); color: var(--color-gold); background: var(--color-gold-bg); }
+
+.voorstel-card { padding: 20px 24px; }
+.voorstel-naam { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.voorstel-cat { font-size: .78rem; color: var(--color-text-secondary); margin-bottom: 8px; }
+.voorstel-desc { font-size: .88rem; line-height: 1.6; margin-bottom: 16px; }
+.fit-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.fit-block { padding: 12px 16px; background: var(--color-card-header); border-radius: var(--radius-sm); border-left: 3px solid var(--color-gold-border); }
+.fit-block-title { font-size: .75rem; font-weight: 600; color: var(--color-gold); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.fit-block-body { font-size: .82rem; line-height: 1.5; color: var(--color-text-secondary); }
+.voorstel-actions { display: flex; gap: 8px; align-items: center; }
+.bewaard-badge { font-size: .78rem; color: var(--color-green); font-weight: 600; }
+
+.verfijn-panel { margin-top: 40px; padding: 20px; background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: var(--radius-md); }
+.verfijn-panel p { font-size: .85rem; color: var(--color-text-secondary); margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-header">
+  <h1>{{ sessie.titel }}</h1>
+  <div class="result-meta">
+    <span class="meta-item">{{ sessie.aangemaakt_op|nl_datum }}</span>
+    <span class="meta-item">{{ sessie.doel|capitalize }}</span>
+    <span class="meta-item">{{ sessie.focus_type|replace('_', ' ')|capitalize }}</span>
+  </div>
+</div>
+
+{% set res_type = resultaat.get('type', '') %}
+
+{# ===== DIAGNOSE ===== #}
+{% if res_type == 'diagnose' %}
+  <div class="samenvatting-box" data-section="result_summary">
+    <p><strong>{{ resultaat.get('samenvatting', '') }}</strong></p>
+    {% if resultaat.get('gemiddelde_score') %}
+    <p style="margin-top:6px;font-size:.82rem;color:var(--color-text-secondary)">Gemiddelde score: {{ resultaat.gemiddelde_score }}/10</p>
+    {% endif %}
+  </div>
+
+  {% set counts = resultaat.get('counts', {}) %}
+  <div class="stats-bar" data-section="result_stats">
+    <div class="stat-item"><span class="stat-dot" style="background:var(--color-green)"></span> Houden: {{ counts.get('HOUDEN', 0) }}</div>
+    <div class="stat-item"><span class="stat-dot" style="background:var(--color-orange)"></span> Aanpassen: {{ counts.get('AANPASSEN', 0) }}</div>
+    <div class="stat-item"><span class="stat-dot" style="background:var(--color-red)"></span> Vervangen: {{ counts.get('VERVANGEN', 0) }}</div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterAnnotaties('alle', this)">Alle</button>
+    <button class="filter-btn" onclick="filterAnnotaties('HOUDEN', this)">Houden</button>
+    <button class="filter-btn" onclick="filterAnnotaties('AANPASSEN', this)">Aanpassen</button>
+    <button class="filter-btn" onclick="filterAnnotaties('VERVANGEN', this)">Vervangen</button>
+  </div>
+
+  <div class="annot-list" id="annotList" data-section="result_annotations">
+    {% for a in resultaat.get('annotaties', []) %}
+    <div class="card card-status-left status-{{ a.get('status', 'houden')|lower }} annot-card" data-status="{{ a.get('status', 'HOUDEN') }}">
+      <div class="annot-top">
+        <div>
+          <div class="annot-naam">{{ a.get('gerecht_naam', '?') }}</div>
+          <div class="annot-cat">{{ a.get('categorie', '') }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge badge-{{ a.get('status', 'houden')|lower }}">{{ a.get('status', '?') }}</span>
+          <span class="annot-score">{{ a.get('score', '?') }}/10</span>
+        </div>
+      </div>
+      <div class="annot-body">{{ a.get('opmerkingen', '') }}</div>
+      {% if a.get('suggesties') %}
+      <ul class="annot-suggesties">
+        {% for s in a.suggesties %}
+        <li>{{ s }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if a.get('positief') %}
+      <div style="margin-top:6px;font-size:.8rem;color:var(--color-green)">
+        {% for p in a.positief %}&#10003; {{ p }}{% if not loop.last %} &middot; {% endif %}{% endfor %}
+      </div>
+      {% endif %}
+      {% if a.get('relevante_trends') %}
+      <div class="annot-trends">
+        {% for t in a.relevante_trends %}
+        <span class="badge badge-outline">{{ t }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+{# ===== VERBETEREN ===== #}
+{% elif res_type == 'verbeteren' %}
+  <div class="samenvatting-box">
+    <p><strong>{{ resultaat.get('samenvatting', '') }}</strong></p>
+    <p style="margin-top:4px;font-size:.82rem;color:var(--color-text-secondary)">{{ resultaat.get('totaal_geanalyseerd', 0) }} gerechten geanalyseerd</p>
+  </div>
+
+  {% if resultaat.get('annotaties') %}
+  <div class="annot-list">
+    {% for a in resultaat.get('annotaties', []) %}
+    <div class="card card-status-left status-{{ a.get('status', 'aanpassen')|lower }} annot-card">
+      <div class="annot-top">
+        <div>
+          <div class="annot-naam">{{ a.get('gerecht_naam', '?') }}</div>
+          <div class="annot-cat">{{ a.get('categorie', '') }}</div>
+        </div>
+        <span class="badge badge-{{ a.get('status', 'aanpassen')|lower }}">{{ a.get('status', '?') }}</span>
+      </div>
+      <div class="annot-body">{{ a.get('opmerkingen', '') }}</div>
+      {% if a.get('suggesties') %}
+      <ul class="annot-suggesties">
+        {% for s in a.suggesties %}
+        <li>{{ s }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:40px">
+    <p style="color:var(--color-text-secondary)">Alle gerechten scoren goed — geen aanpassingen nodig.</p>
+  </div>
+  {% endif %}
+
+{# ===== NIEUWE GERECHTEN ===== #}
+{% elif res_type == 'nieuwe_gerechten' %}
+  <p style="font-size:.9rem;color:var(--color-text-secondary);margin-bottom:24px">{{ resultaat.get('aantal', 0) }} voorstellen gegenereerd</p>
+
+  <div data-section="result_suggestions" style="display:flex;flex-direction:column;gap:16px">
+    {% for v in resultaat.get('voorstellen', []) %}
+    <div class="card voorstel-card">
+      <div class="voorstel-naam">{{ v.get('naam', '?') }}</div>
+      <div class="voorstel-cat">{{ v.get('categorie', '') }}{% if v.get('relevante_trend') %} &middot; Trend: {{ v.relevante_trend }}{% endif %}</div>
+      <div class="voorstel-desc">{{ v.get('beschrijving', '') }}</div>
+
+      <!-- Explainability blokken -->
+      <div class="fit-blocks">
+        {% if v.get('marktfit') %}
+        <div class="fit-block" style="border-left-color:var(--color-blue)">
+          <div class="fit-block-title">Marktfit</div>
+          <div class="fit-block-body">{{ v.marktfit }}</div>
+        </div>
+        {% endif %}
+        {% if v.get('conceptfit') %}
+        <div class="fit-block" style="border-left-color:var(--color-gold)">
+          <div class="fit-block-title">Conceptfit</div>
+          <div class="fit-block-body">{{ v.conceptfit }}</div>
+        </div>
+        {% endif %}
+        {% if v.get('operationele_fit') %}
+        <div class="fit-block" style="border-left-color:var(--color-green)">
+          <div class="fit-block-title">Operationele fit</div>
+          <div class="fit-block-body">
+            {% set op = v.operationele_fit if v.operationele_fit is mapping else {} %}
+            {% if op.get('ingrediënt_hergebruik_pct') is not none %}Hergebruik: {{ op['ingrediënt_hergebruik_pct'] }}%{% endif %}
+            {% if op.get('derving_impact') %} &middot; Derving: {{ op.derving_impact }}{% endif %}
+            {% if op.get('extra_inkoop') %}<br>Extra inkoop: {{ op.extra_inkoop|join(', ') }}{% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if v.get('onderbouwing') %}
+      <p style="font-size:.82rem;color:var(--color-text-secondary);margin-bottom:12px">{{ v.onderbouwing }}</p>
+      {% endif %}
+
+      <div class="voorstel-actions">
+        {% if v.get('bewaard') %}
+          <span class="bewaard-badge">&#10003; Bewaard als concept</span>
+        {% else %}
+          <form method="POST" action="{{ url_for('voorstel.voorstel_bewaar_concept', sessie_id=sessie.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="voorstel_index" value="{{ loop.index0 }}">
+            <button type="submit" class="btn-sm gold">Bewaar als concept</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div class="card" style="text-align:center;padding:40px">
+    <p style="color:var(--color-text-secondary)">Geen resultaat beschikbaar.</p>
+  </div>
+{% endif %}
+
+<!-- Verfijn paneel -->
+<div class="verfijn-panel">
+  <p>Niet helemaal wat je zocht? Verfijn je configuratie en genereer opnieuw.</p>
+  <a href="{{ url_for('voorstel.ontwerpruimte', basis=sessie.id) }}" class="btn btn-secondary">Opnieuw genereren</a>
+  <a href="{{ url_for('voorstel.voorstel_geschiedenis') }}" class="btn-ghost" style="margin-left:16px">Bekijk geschiedenis</a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterAnnotaties(status, btn) {
+  var cards = document.querySelectorAll('#annotList .annot-card');
+  cards.forEach(function(c) {
+    if (status === 'alle' || c.dataset.status === status) {
+      c.style.display = '';
+    } else {
+      c.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

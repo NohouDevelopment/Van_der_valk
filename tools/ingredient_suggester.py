@@ -1,10 +1,11 @@
 """
 Ingredient Suggester — genereert slimme gerecht-voorstellen via AI.
 """
-from tools.ai_client import ai_reason_json
+from tools.ai_client import ai_call
+from tools.prompt_loader import format_prompt
 
 
-def genereer_voorstel(analyse_data: dict, segment_data: dict | None = None, geheugen_data: dict | None = None, verkoop_data: dict | None = None) -> list[dict]:
+def genereer_voorstel(analyse_data: dict, segment_data: dict | None = None, geheugen_data: dict | None = None, verkoop_data: dict | None = None, focus_trends: list | None = None) -> list[dict]:
     """
     Genereer 2-3 slimme gerecht-voorstellen via AI.
 
@@ -39,10 +40,13 @@ Restaurant profiel:
 
     trend_tekst = ""
     if geheugen_data and isinstance(geheugen_data, dict):
-        trends = geheugen_data.get("trends", [])[:5]
-        if trends:
-            trend_namen = [t.get("naam", "") for t in trends if t.get("naam")]
-            trend_tekst = f"\nActuele trends: {', '.join(trend_namen)}"
+        if focus_trends:
+            trend_tekst = f"\nFocus trends (gebruik deze PRIMAIR): {', '.join(focus_trends)}"
+        else:
+            trends = geheugen_data.get("trends", [])[:5]
+            if trends:
+                trend_namen = [t.get("naam", "") for t in trends if t.get("naam")]
+                trend_tekst = f"\nActuele trends: {', '.join(trend_namen)}"
 
     verkoop_tekst = ""
     if verkoop_data and isinstance(verkoop_data, dict):
@@ -53,46 +57,21 @@ Restaurant profiel:
         if slecht:
             verkoop_tekst += f"\nSlecht verkopende gerechten: {', '.join(slecht)} — overweeg deze te vervangen of hun ingrediënten in betere combinaties te hergebruiken."
 
-    prompt = f"""Je bent een menu-consultant. Genereer EXACT 3 nieuwe gerecht-voorstellen als JSON array.
+    top_5_namen = [t['naam'] for t in top_5]
+    beschikbaar = list(lookup.keys())
 
-CONTEXT:
-Risico-ingrediënten (single-use vers, dreigen te bederven): {risico}
-Top ingrediënten (al veel gebruikt): {[t['naam'] for t in top_5]}
-Alle beschikbare ingrediënten: {list(lookup.keys())}
-{segment_tekst}
-{trend_tekst}
-{verkoop_tekst}
-
-REGELS:
-1. Elk voorstel MOET minimaal 2 risico-ingrediënten hergebruiken
-2. Maximaal 2 NIEUWE ingrediënten per gerecht (minimaliseer inkoop)
-3. Voorstel 1: focus op derving-reductie (hergebruik risico-ingrediënten)
-4. Voorstel 2: focus op trend/seizoen (past bij actuele trends)
-5. Voorstel 3: gebaseerd op ingrediënten van best verkopende gerechten (of premium variant als geen kassaboek data)
-
-Per ingrediënt in het voorstel, geef status:
-- "bestaand" = al in meerdere gerechten
-- "bestaand_kritiek" = single-use, wordt nu hergebruikt
-- "nieuw_vers" = nieuw vers ingrediënt
-- "nieuw_droog" = nieuw droog/lang houdbaar ingrediënt
-
-ANTWOORD als JSON array (GEEN markdown, GEEN uitleg):
-[
-  {{
-    "gerecht": {{
-      "naam": "Naam van het gerecht",
-      "beschrijving": "Korte beschrijving",
-      "categorie": "Categorie",
-      "prijs_suggestie": 18.50
-    }},
-    "ingredienten": [
-      {{"naam": "ingrediënt", "status": "bestaand", "hoeveelheid": 100, "eenheid": "g"}}
-    ]
-  }}
-]"""
+    prompt, model, temp = format_prompt(
+        "ingredient_suggester", "suggest_dishes",
+        risico=risico,
+        top_5_namen=top_5_namen,
+        beschikbaar=beschikbaar,
+        segment_tekst=segment_tekst,
+        trend_tekst=trend_tekst,
+        verkoop_tekst=verkoop_tekst,
+    )
 
     try:
-        raw_voorstellen = ai_reason_json(prompt, temperature=0.3)
+        raw_voorstellen = ai_call(prompt, model=model, temperature=temp, json_mode=True)
 
         if not isinstance(raw_voorstellen, list):
             raw_voorstellen = [raw_voorstellen]

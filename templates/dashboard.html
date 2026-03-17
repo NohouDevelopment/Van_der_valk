@@ -1,570 +1,303 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — {{ org.naam }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+{% extends "base.html" %}
 
-    :root {
-      --cream:    #EDE8DE;
-      --cream-2:  #F5F1E8;
-      --white:    #FFFFFF;
-      --sidebar:  #F8F5EF;
-      --border:   #DDD8CE;
-      --gold:     #7A6A35;
-      --gold-btn: #6B5A25;
-      --gold-btn-hover: #5A4B1E;
-      --text:     #2A2720;
-      --text-mid: #6B6558;
-      --text-dim: #9A9285;
-      --green:    #2E7D32;
-      --green-bg: #E8F5E9;
-      --orange:   #C25A00;
-      --orange-bg:#FFF3E0;
-      --red:      #C62828;
-      --red-bg:   #FFEBEE;
-      --sidebar-w: 200px;
-      --radius:   12px;
-    }
+{% block title %}Dashboard — {{ org.naam }}{% endblock %}
 
-    body {
-      background: var(--cream);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      min-height: 100vh;
-      display: flex;
-    }
+{% block content %}
+<style>
+/* Progress bar */
+.progress-bar{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.status-indicator{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--radius-pill);font-size:.8125rem;font-weight:500;border:1px solid var(--color-gold-border);background:var(--color-card)}
+.status-indicator .status-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0}
+.status-ok .status-icon{background:var(--color-green);color:#fff}
+.status-warning .status-icon{background:var(--color-orange);color:#fff}
+.status-indicator a{color:var(--color-gold);font-weight:600;margin-left:4px}
+.status-indicator a:hover{text-decoration:underline}
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: var(--sidebar-w);
-      min-height: 100vh;
-      background: var(--sidebar);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-    }
+/* Hero card */
+.hero-card{background:var(--color-card);border:1px solid var(--color-gold-border);border-radius:var(--radius-md);padding:36px 32px;margin-bottom:32px}
+.hero-card h2{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:12px;color:var(--color-gold)}
+.hero-card p{color:var(--color-text-secondary);font-size:.95rem;margin-bottom:20px;line-height:1.6}
+.hero-checklist{list-style:none;padding:0;margin-bottom:24px}
+.hero-checklist li{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:.9rem}
+.hero-checklist li .check-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0}
+.hero-checklist li .check-ok{background:var(--color-green);color:#fff}
+.hero-checklist li .check-warn{background:var(--color-orange);color:#fff}
+.hero-checklist li .check-pending{background:var(--color-subtle);color:var(--color-text-secondary)}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
 
-    .sidebar-brand {
-      padding: 1.5rem 1.25rem 1rem;
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: .02em;
-      border-bottom: 1px solid var(--border);
-    }
+/* Callout */
+.callout-warning{border-left:3px solid var(--color-orange);padding:12px 16px;background:rgba(255,152,0,.08);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:16px;font-size:.85rem;color:var(--color-text)}
 
-    .sidebar-nav {
-      flex: 1;
-      padding: .75rem 0;
-    }
+/* Recente activiteit */
+.activity-card{display:flex;align-items:center;gap:16px;padding:16px;background:var(--color-card);border:1px solid var(--color-gold-border);border-radius:var(--radius-md);transition:transform var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out)}
+.activity-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(201,168,76,.1)}
+.activity-card .activity-info{flex:1;min-width:0}
+.activity-card .activity-title{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.activity-card .activity-meta{font-size:.78rem;color:var(--color-text-secondary);display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap}
 
-    .sidebar-nav a {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      padding: .55rem 1.25rem;
-      color: var(--text-mid);
-      text-decoration: none;
-      font-size: .82rem;
-      font-weight: 500;
-      border-radius: 0;
-      transition: background .15s, color .15s;
-      position: relative;
-    }
-    .sidebar-nav a:hover {
-      background: var(--cream);
-      color: var(--text);
-    }
-    .sidebar-nav a.active {
-      background: var(--cream);
-      color: var(--gold);
-      font-weight: 600;
-    }
-    .sidebar-nav a.active::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--gold);
-      border-radius: 0 2px 2px 0;
-    }
+/* Badge doel */
+.badge-doel{display:inline-flex;align-items:center;padding:3px 10px;border-radius:var(--radius-pill);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.badge-diagnose{background:rgba(100,149,237,.15);color:var(--color-blue);border:1px solid rgba(100,149,237,.25)}
+.badge-verbeteren{background:var(--color-gold-bg);color:var(--color-gold);border:1px solid var(--color-gold-border)}
+.badge-nieuwe_gerechten{background:rgba(76,175,80,.12);color:var(--color-green);border:1px solid rgba(76,175,80,.25)}
 
-    .nav-icon {
-      font-size: .9rem;
-      width: 16px;
-      text-align: center;
-      flex-shrink: 0;
-      opacity: .7;
-    }
+@media(max-width:768px){
+  .hero-card{padding:24px 20px}
+  .progress-bar{gap:8px}
+  .status-indicator{font-size:.75rem;padding:6px 12px}
+}
+</style>
 
-    .sidebar-footer {
-      padding: 1rem 1.25rem;
-      border-top: 1px solid var(--border);
-    }
-    .sidebar-footer .org-name {
-      font-size: .75rem;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: .3rem;
-    }
-    .sidebar-footer a {
-      font-size: .75rem;
-      color: var(--gold);
-      text-decoration: none;
-    }
-    .sidebar-footer a:hover { text-decoration: underline; }
-    .sidebar-footer .version {
-      font-size: .68rem;
-      color: var(--text-dim);
-      margin-top: .4rem;
-    }
+<!-- HEADER -->
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+  <div>
+    <h1 class="animate-in">Welkom terug</h1>
+    <p class="subtitle animate-in" style="transition-delay:80ms">{{ org.naam }}</p>
+  </div>
+  <div style="width:40px;height:40px;border-radius:50%;background:var(--color-gold);color:#0F0F0F;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;flex-shrink:0">
+    {{ current_user.naam[0].upper() if current_user.naam else '?' }}
+  </div>
+</div>
 
-    /* ── MAIN ── */
-    .main {
-      margin-left: var(--sidebar-w);
-      flex: 1;
-      padding: 2rem 2rem 3rem;
-      max-width: 960px;
-    }
+<!-- VOORTGANGSBALK -->
+<div class="progress-bar animate-in" style="transition-delay:120ms">
+  {% if actief_menu %}
+  <div class="status-indicator status-ok">
+    <span class="status-icon">&#10003;</span>
+    Menu actief
+  </div>
+  {% else %}
+  <div class="status-indicator status-warning">
+    <span class="status-icon">!</span>
+    Geen menu <a href="{{ url_for('menu.menu_upload') }}">Upload</a>
+  </div>
+  {% endif %}
 
-    /* ── PAGE HEADER ── */
-    .page-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 1.75rem;
-    }
-    .page-header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1.2;
-    }
-    .page-header .sub {
-      font-size: .85rem;
-      color: var(--text-mid);
-      margin-top: .2rem;
-    }
-    .avatar {
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: var(--gold);
-      color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .9rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
+  {% if segment %}
+  <div class="status-indicator status-ok">
+    <span class="status-icon">&#10003;</span>
+    Profiel compleet
+  </div>
+  {% else %}
+  <div class="status-indicator status-warning">
+    <span class="status-icon">!</span>
+    Niet ingesteld <a href="{{ url_for('segment.segment_bewerken') }}">Instellen</a>
+  </div>
+  {% endif %}
 
-    /* ── ACTION CARDS ROW ── */
-    .action-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
+  {% if geheugen and marktinzichten_actueel %}
+  <div class="status-indicator status-ok">
+    <span class="status-icon">&#10003;</span>
+    {{ trend_actief }} actieve inzichten
+  </div>
+  {% elif geheugen and not marktinzichten_actueel %}
+  <div class="status-indicator status-warning">
+    <span class="status-icon">!</span>
+    {{ geheugen_dagen_oud }} dagen oud <a href="{{ url_for('trend.trends_analyseer') }}">Vernieuwen</a>
+  </div>
+  {% else %}
+  <div class="status-indicator status-warning">
+    <span class="status-icon">!</span>
+    Ontbreekt <a href="{{ url_for('trend.trends_analyseer') }}">Analyseren</a>
+  </div>
+  {% endif %}
+</div>
 
-    .action-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem 1.25rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: .6rem;
-      transition: box-shadow .2s, border-color .2s;
-    }
-    .action-card:hover {
-      box-shadow: 0 4px 16px rgba(0,0,0,.07);
-      border-color: #C8C0B0;
-    }
-
-    .action-card-icon {
-      font-size: 1.6rem;
-      color: var(--gold);
-      line-height: 1;
-      margin-bottom: .2rem;
-    }
-
-    .action-card h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: .95rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .action-card p {
-      font-size: .78rem;
-      color: var(--text-mid);
-      line-height: 1.5;
-    }
-
-    .btn-action {
-      display: inline-block;
-      margin-top: .4rem;
-      padding: .55rem 1.4rem;
-      background: var(--gold-btn);
-      color: #fff;
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      text-decoration: none;
-      border-radius: 6px;
-      transition: background .15s;
-    }
-    .btn-action:hover { background: var(--gold-btn-hover); }
-
-    /* ── MIDDLE ROW ── */
-    .middle-row {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    /* ── INFO CARD (Laatste Menu, Profiel) ── */
-    .info-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem 1.5rem;
-    }
-    .info-card h2 {
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: .75rem;
-    }
-
-    .menu-naam {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: .2rem;
-    }
-    .menu-meta {
-      font-size: .78rem;
-      color: var(--text-mid);
-      margin-bottom: .85rem;
-    }
-
-    .badge-row {
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-      margin-bottom: .85rem;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      font-size: .72rem;
-      font-weight: 700;
-      padding: .3rem .75rem;
-      border-radius: 20px;
-      letter-spacing: .04em;
-    }
-    .badge-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-    }
-    .badge-green  { background: var(--green-bg);  color: var(--green); }
-    .badge-green  .badge-dot { background: var(--green); }
-    .badge-orange { background: var(--orange-bg); color: var(--orange); }
-    .badge-orange .badge-dot { background: var(--orange); }
-    .badge-red    { background: var(--red-bg);    color: var(--red); }
-    .badge-red    .badge-dot { background: var(--red); }
-
-    .card-link {
-      font-size: .8rem;
-      font-weight: 600;
-      color: var(--gold);
-      text-decoration: none;
-    }
-    .card-link:hover { text-decoration: underline; }
-
-    /* ── TREND GEHEUGEN CARD ── */
-    .trend-stats {
-      display: flex;
-      gap: 2rem;
-      margin-bottom: .85rem;
-    }
-    .trend-stat-val {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1;
-    }
-    .trend-stat-lbl {
-      font-size: .72rem;
-      color: var(--text-mid);
-      margin-top: .15rem;
-    }
-    .trend-scan-date {
-      font-size: .78rem;
-      color: var(--text-mid);
-      margin-bottom: .85rem;
-    }
-    .trend-scan-date strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    /* ── PROFIEL CARD ── */
-    .profiel-row {
-      margin-bottom: 1.25rem;
-    }
-    .profiel-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-    }
-    .profiel-tag {
-      display: inline-block;
-      padding: .3rem .8rem;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .05em;
-      color: var(--text-mid);
-      background: var(--cream-2);
-    }
-
-    /* ── EMPTY STATES ── */
-    .empty-state {
-      font-size: .82rem;
-      color: var(--text-dim);
-      font-style: italic;
-    }
-
-    /* ── THEME TOGGLE ── */
-    .theme-btn {
-      position: fixed;
-      bottom: 1.25rem;
-      right: 1.25rem;
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: var(--white);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 1rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
-      transition: box-shadow .2s;
-      z-index: 100;
-    }
-    .theme-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main { margin-left: 0; }
-      .action-row { grid-template-columns: 1fr; }
-      .middle-row { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-brand">Menu Maker</div>
-  <nav class="sidebar-nav">
-    <a href="{{ url_for('dashboard') }}" class="active">
-      <span class="nav-icon">&#9632;</span> Dashboard
-    </a>
-    <a href="{{ url_for('menu.menu_upload') }}">
-      <span class="nav-icon">&#8679;</span> Menu uploaden
-    </a>
-    <a href="{{ url_for('menu.menu_overzicht') }}">
-      <span class="nav-icon">&#9776;</span> Menu overzicht
-    </a>
-    <a href="{{ url_for('trend.trends_config') }}">
-      <span class="nav-icon">&#9881;</span> Trend configuratie
-    </a>
-    <a href="{{ url_for('trend.trends_overzicht') }}">
-      <span class="nav-icon">&#8599;</span> Trend resultaten
-    </a>
+<!-- HERO CARD -->
+<div class="hero-card animate-in" data-section="hero_card" style="transition-delay:160ms">
+  {% if not basis_bruikbaar %}
+  {# TOESTAND A: Geen menu of profiel #}
+  <h2>Maak je omgeving klaar</h2>
+  <ul class="hero-checklist">
     {% if actief_menu %}
-    <a href="{{ url_for('menu.menu_annotaties', menu_id=actief_menu.id) }}">
-      <span class="nav-icon">&#10003;</span> Annotaties
-    </a>
+    <li><span class="check-icon check-ok">&#10003;</span> Menu ge&uuml;pload</li>
     {% else %}
-    <a href="#">
-      <span class="nav-icon">&#10003;</span> Annotaties
-    </a>
+    <li><span class="check-icon check-warn">!</span> Upload een actief menu <a href="{{ url_for('menu.menu_upload') }}" class="btn-ghost" style="font-size:.85rem;padding:0;margin-left:4px">Uploaden &rarr;</a></li>
     {% endif %}
-    <a href="{{ url_for('ingredient.ingredienten_overzicht') }}">
-      <span class="nav-icon">&#127807;</span> Ingrediënten
-    </a>
-    {% if is_admin %}
-    <a href="{{ url_for('admin_panel') }}">
-      <span class="nav-icon">&#9679;</span> Admin
-    </a>
+    {% if segment %}
+    <li><span class="check-icon check-ok">&#10003;</span> Restaurantprofiel bevestigd</li>
+    {% else %}
+    <li><span class="check-icon check-warn">!</span> Bevestig je restaurantprofiel <a href="{{ url_for('segment.segment_bewerken') }}" class="btn-ghost" style="font-size:.85rem;padding:0;margin-left:4px">Instellen &rarr;</a></li>
     {% endif %}
-  </nav>
-  <div class="sidebar-footer">
-    <div class="org-name">{{ org.naam }}</div>
-    <a href="{{ url_for('auth.logout') }}">Uitloggen</a>
-    <div class="version">Menu Maker v1.0 &mdash; 2026</div>
-  </div>
-</aside>
-
-<!-- MAIN CONTENT -->
-<main class="main">
-
-  <!-- PAGE HEADER -->
-  <div class="page-header">
-    <div>
-      <h1>Welkom terug</h1>
-      <div class="sub">{{ org.naam }}</div>
-    </div>
-    <div class="avatar">{{ current_user.naam[0].upper() if current_user.naam else '?' }}</div>
+    {% if geheugen and marktinzichten_actueel %}
+    <li><span class="check-icon check-ok">&#10003;</span> Marktinzichten actueel</li>
+    {% else %}
+    <li><span class="check-icon check-pending">&#9675;</span> Werk marktinzichten bij</li>
+    {% endif %}
+  </ul>
+  <div class="hero-ctas">
+    {% if not actief_menu %}
+    <a href="{{ url_for('menu.menu_upload') }}" class="btn btn-primary">Volgende stap</a>
+    {% elif not segment %}
+    <a href="{{ url_for('segment.segment_bewerken') }}" class="btn btn-primary">Volgende stap</a>
+    {% endif %}
   </div>
 
-  <!-- ACTION CARDS -->
-  <div class="action-row">
+  {% elif basis_bruikbaar and not marktinzichten_actueel %}
+  {# TOESTAND B: Menu + profiel, maar marktinzichten ontbreken/verouderd #}
+  <h2>Werk je marktinzichten bij</h2>
+  <p>Menu Advies is beschikbaar, maar werk eerst je marktinzichten bij voor beter advies.</p>
+  <div class="hero-ctas">
+    <a href="{{ url_for('trend.trends_analyseer') }}" class="btn btn-primary">Marktinzichten vernieuwen</a>
+    <a href="{{ url_for('voorstel.ontwerpruimte') }}" class="btn btn-secondary">Toch Menu Advies openen</a>
+  </div>
 
-    <div class="action-card">
-      <div class="action-card-icon">&#8679;</div>
-      <h3>Menu Uploaden</h3>
-      <p>Upload je menukaart als PDF of afbeelding voor analyse.</p>
-      <a href="{{ url_for('menu.menu_upload') }}" class="btn-action">Uploaden</a>
+  {% else %}
+  {# TOESTAND C: Alles aanwezig #}
+  <h2>Menu Advies</h2>
+  <p>Ontwikkel gericht menuadvies op basis van marktinzichten, restaurantprofiel en ingredi&euml;nten.</p>
+  {% if laatste_sessie %}
+  <div style="font-size:.85rem;color:var(--color-text-secondary);margin-bottom:16px">
+    Laatste sessie: <strong style="color:var(--color-text)">{{ laatste_sessie.titel or 'Sessie' }}</strong>
+    <a href="{{ url_for('voorstel.voorstel_resultaat', sessie_id=laatste_sessie.id) }}" class="btn-ghost" style="font-size:.85rem;padding:0;margin-left:8px">Bekijk laatste advies &rarr;</a>
+  </div>
+  {% endif %}
+  <div class="hero-ctas">
+    <a href="{{ url_for('voorstel.ontwerpruimte') }}" class="btn btn-primary" data-track="open_menu_advies">Open Menu Advies</a>
+  </div>
+  {% if actief_menu and not laatste_sessie %}
+  <div class="text-secondary" style="font-size:.8rem;margin-top:12px">
+    Aanbevolen: genereer je eerste menuadvies op basis van je huidige menu en inzichten.
+  </div>
+  {% elif geheugen_dagen_oud > 14 and marktinzichten_actueel %}
+  <div class="text-secondary" style="font-size:.8rem;margin-top:12px">
+    Tip: je marktinzichten zijn {{ geheugen_dagen_oud }} dagen oud.
+    <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-ghost" style="font-size:.8rem;padding:0">Vernieuwen</a>
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+
+<!-- STATUSKAARTEN -->
+<div class="grid-3 animate-in" style="transition-delay:200ms;margin-bottom:32px">
+
+  <!-- Kaart 1: Actief Menu -->
+  <div class="card" data-section="status_menu">
+    <div class="card-header">
+      <h3 style="font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin:0">Actief Menu</h3>
     </div>
-
-    <div class="action-card">
-      <div class="action-card-icon">&#8599;</div>
-      <h3>Trends Scannen</h3>
-      <p>Ontdek welke food trends relevant zijn voor jouw restaurant.</p>
-      <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-action">Scannen</a>
-    </div>
-
-    <div class="action-card">
-      <div class="action-card-icon">&#10003;</div>
-      <h3>Annotaties Bekijken</h3>
-      <p>Bekijk de AI-analyse en aanbevelingen per gerecht.</p>
-      {% if actief_menu %}
-      <a href="{{ url_for('menu.menu_annotaties', menu_id=actief_menu.id) }}" class="btn-action">Bekijken</a>
-      {% else %}
-      <a href="{{ url_for('menu.menu_upload') }}" class="btn-action">Bekijken</a>
+    {% if actief_menu %}
+      <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-bottom:4px">{{ actief_menu.naam }}</div>
+      <div class="text-secondary" style="font-size:.8rem;margin-bottom:12px">
+        {% set gerecht_count = actief_menu.gerechten | length %}
+        {% set cat_set = actief_menu.gerechten | map(attribute='categorie') | select | unique | list %}
+        {{ gerecht_count }} gerecht{{ 'en' if gerecht_count != 1 }} in {{ cat_set | length }} categorie&euml;n
+      </div>
+      <div class="text-secondary" style="font-size:.78rem;margin-bottom:12px">
+        Ge&uuml;pload: {{ actief_menu.aangemaakt_op | nl_datum }}
+      </div>
+      {% set h = annotatie_counts.HOUDEN %}
+      {% set a = annotatie_counts.AANPASSEN %}
+      {% set v = annotatie_counts.VERVANGEN %}
+      {% set totaal_annotaties = h + a + v %}
+      {% if totaal_annotaties > 0 %}
+      <div class="text-secondary" style="font-size:.8rem;margin-bottom:12px">
+        {{ totaal_annotaties }} gerechten beoordeeld{% if a + v > 0 %} &mdash; {{ a + v }} vragen om aandacht{% endif %}
+      </div>
       {% endif %}
-    </div>
-
+      <div style="display:flex;gap:12px">
+        <a href="{{ url_for('menu.menu_detail', menu_id=actief_menu.id) }}" class="btn-ghost" style="font-size:.85rem">Bekijk &rarr;</a>
+        <a href="{{ url_for('menu.menu_upload') }}" class="btn-ghost" style="font-size:.85rem">Upload nieuw</a>
+      </div>
+    {% else %}
+      <p class="text-secondary" style="font-size:.85rem;font-style:italic;margin-bottom:16px">Geen actief menu.</p>
+      <a href="{{ url_for('menu.menu_upload') }}" class="btn-ghost" style="font-size:.85rem">Upload &rarr;</a>
+    {% endif %}
   </div>
 
-  <!-- MIDDLE ROW: Laatste Menu + Trend Geheugen -->
-  <div class="middle-row">
-
-    <!-- Laatste Menu -->
-    <div class="info-card">
-      <h2>Laatste Menu</h2>
-      {% if actief_menu %}
-        <div class="menu-naam">{{ actief_menu.naam }}</div>
-        <div class="menu-meta">
-          Geüpload: {{ actief_menu.aangemaakt_op.strftime('%-d %B %Y') if actief_menu.aangemaakt_op else '—' }}
-          {% set gerecht_count = actief_menu.gerechten | length %}
-          {% if gerecht_count > 0 %}
-           &mdash; {{ gerecht_count }} gerecht{{ 'en' if gerecht_count != 1 }} in
-            {% set cat_set = actief_menu.gerechten | map(attribute='categorie') | select | unique | list %}
-            {{ cat_set | length }} categorie&euml;n
-          {% endif %}
-        </div>
-        {% set h = annotatie_counts.HOUDEN %}
-        {% set a = annotatie_counts.AANPASSEN %}
-        {% set v = annotatie_counts.VERVANGEN %}
-        {% if h + a + v > 0 %}
-        <div class="badge-row">
-          {% if h > 0 %}<span class="badge badge-green"><span class="badge-dot"></span>{{ h }}x HOUDEN</span>{% endif %}
-          {% if a > 0 %}<span class="badge badge-orange"><span class="badge-dot"></span>{{ a }}x AANPASSEN</span>{% endif %}
-          {% if v > 0 %}<span class="badge badge-red"><span class="badge-dot"></span>{{ v }}x VERVANGEN</span>{% endif %}
-        </div>
-        {% else %}
-        <div class="badge-row">
-          <span class="empty-state">Nog geen annotaties gegenereerd.</span>
-        </div>
-        {% endif %}
-        <a href="{{ url_for('menu.menu_detail', menu_id=actief_menu.id) }}" class="card-link">Bekijk details &rarr;</a>
-      {% else %}
-        <div class="empty-state">Nog geen menu geüpload.</div>
-        <br>
-        <a href="{{ url_for('menu.menu_upload') }}" class="card-link">Upload je eerste menu &rarr;</a>
-      {% endif %}
+  <!-- Kaart 2: Marktinzichten -->
+  <div class="card" data-section="status_trends">
+    <div class="card-header">
+      <h3 style="font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin:0">Marktinzichten</h3>
     </div>
+    {% if geheugen %}
+      <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;line-height:1;margin-bottom:4px">{{ trend_actief }}</div>
+      <div class="text-secondary" style="font-size:.75rem;margin-bottom:12px">actieve inzichten</div>
+      <div class="text-secondary" style="font-size:.78rem;margin-bottom:12px">
+        Laatst bijgewerkt: <strong style="color:var(--color-text)">{{ geheugen.laatst_bijgewerkt | nl_datum }}</strong>
+      </div>
+      {% if geheugen_dagen_oud > 30 %}
+      <div class="callout-warning">
+        Bijwerken aanbevolen &mdash; laatste analyse is {{ geheugen_dagen_oud }} dagen geleden.
+      </div>
+      {% endif %}
+      <div style="display:flex;gap:12px">
+        <a href="{{ url_for('trend.trends_overzicht') }}" class="btn-ghost" style="font-size:.85rem">Bekijk &rarr;</a>
+        <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-ghost" style="font-size:.85rem">Vernieuwen</a>
+      </div>
+    {% else %}
+      <p class="text-secondary" style="font-size:.85rem;font-style:italic;margin-bottom:16px">Nog geen analyse uitgevoerd.</p>
+      <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-ghost" style="font-size:.85rem">Eerste scan &rarr;</a>
+    {% endif %}
+  </div>
 
-    <!-- Trend Geheugen -->
-    <div class="info-card">
-      <h2>Trend Geheugen</h2>
-      {% if geheugen %}
-        <div class="trend-stats">
-          <div>
-            <div class="trend-stat-val">{{ trend_actief }}</div>
-            <div class="trend-stat-lbl">Actief</div>
-          </div>
-          <div>
-            <div class="trend-stat-val">{{ trend_afgeschreven }}</div>
-            <div class="trend-stat-lbl">Afgeschreven</div>
-          </div>
-        </div>
-        <div class="trend-scan-date">
-          Laatst gescand: <strong>
-          {% if geheugen.laatst_bijgewerkt %}
-            {{ geheugen.laatst_bijgewerkt.strftime('%-d %B %Y') }}
+  <!-- Kaart 3: Restaurantprofiel -->
+  <div class="card" data-section="status_profiel">
+    <div class="card-header">
+      <h3 style="font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin:0">Restaurantprofiel</h3>
+    </div>
+    {% if segment and segment.data %}
+      {% set sd = segment.data %}
+      {% if sd.get('prijssegment') %}
+      <div style="font-size:.8rem;color:var(--color-text-secondary);margin-bottom:8px">Prijssegment: <strong style="color:var(--color-text)">{{ sd.prijssegment | capitalize }}</strong></div>
+      {% endif %}
+      {% if sd.get('culinaire_stijl') %}
+      <div style="font-size:.8rem;color:var(--color-text-secondary);margin-bottom:12px">Stijl: <strong style="color:var(--color-text)">{{ sd.culinaire_stijl | join(', ') if sd.culinaire_stijl is iterable and sd.culinaire_stijl is not string else sd.culinaire_stijl }}</strong></div>
+      {% endif %}
+      {% if klant_segmenten %}
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+        {% for tag in klant_segmenten %}
+        <span class="badge badge-outline">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if segment.goedgekeurd_op %}
+      <div class="text-secondary" style="font-size:.78rem;margin-bottom:12px">
+        Laatst aangepast: {{ segment.goedgekeurd_op | nl_datum }}
+      </div>
+      {% endif %}
+      <div style="display:flex;gap:12px">
+        <a href="{{ url_for('segment.segment_overzicht') }}" class="btn-ghost" style="font-size:.85rem">Bekijk &rarr;</a>
+        <a href="{{ url_for('segment.segment_bewerken') }}" class="btn-ghost" style="font-size:.85rem">Bewerken</a>
+      </div>
+    {% else %}
+      <p class="text-secondary" style="font-size:.85rem;font-style:italic;margin-bottom:16px">Niet ingesteld.</p>
+      <a href="{{ url_for('segment.segment_bewerken') }}" class="btn-ghost" style="font-size:.85rem">Instellen &rarr;</a>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- RECENTE ACTIVITEIT -->
+{% if recente_sessies %}
+<div class="animate-in" data-section="recent_activity" style="transition-delay:240ms">
+  <h3 style="font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:16px">Recente activiteit</h3>
+  <div style="display:grid;gap:12px">
+    {% for sessie in recente_sessies %}
+    <a href="{{ url_for('voorstel.voorstel_resultaat', sessie_id=sessie.id) }}" class="activity-card" style="text-decoration:none;color:inherit">
+      <div class="activity-info">
+        <div class="activity-title">{{ sessie.titel or 'Sessie' }}</div>
+        <div class="activity-meta">
+          {% set doel_labels = {'diagnose': 'Diagnose', 'verbeteren': 'Verbeteren', 'nieuwe_gerechten': 'Nieuwe gerechten'} %}
+          <span class="badge-doel badge-{{ sessie.doel }}">{{ doel_labels.get(sessie.doel, sessie.doel) }}</span>
+          {% if sessie.focus_type == 'categorie' and sessie.config %}
+            <span>{{ sessie.config.get('categorie_naam', '') }}</span>
+          {% elif sessie.focus_type == 'gerechten' and sessie.config %}
+            <span>{{ sessie.config.get('gerecht_ids', []) | length }} gerechten</span>
           {% else %}
-            &mdash;
+            <span>Hele menu</span>
           {% endif %}
-          </strong>
+          {% if sessie.config and sessie.config.get('focus_trends') %}
+            <span>&middot; {{ sessie.config.get('focus_trends', []) | length }} trends</span>
+          {% endif %}
+          <span>&middot; {{ sessie.aangemaakt_op | nl_datum }}</span>
         </div>
-        <a href="{{ url_for('trend.trends_overzicht') }}" class="card-link">Bekijk trends &rarr;</a>
-      {% else %}
-        <div class="empty-state">Nog geen trendanalyse uitgevoerd.</div>
-        <br>
-        <a href="{{ url_for('trend.trends_analyseer') }}" class="card-link">Start eerste analyse &rarr;</a>
-      {% endif %}
-    </div>
-
+      </div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20" style="flex-shrink:0;color:var(--color-text-secondary)"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+    {% endfor %}
   </div>
+</div>
+{% endif %}
 
-  <!-- RESTAURANT PROFIEL -->
-  <div class="info-card profiel-row">
-    <h2>Restaurant Profiel</h2>
-    {% if klant_segmenten %}
-    <div class="profiel-tags">
-      {% for tag in klant_segmenten %}
-      <span class="profiel-tag">{{ tag }}</span>
-      {% endfor %}
-    </div>
-    {% elif segment %}
-    <div class="empty-state">Profiel beschikbaar — geen klant­segmenten ingesteld.</div>
-    {% else %}
-    <div class="empty-state">Nog geen restaurant­profiel ingesteld.</div>
-    {% endif %}
-  </div>
-
-</main>
-
-<!-- THEME TOGGLE (minimal, just a sun icon for now) -->
-<button class="theme-btn" title="Thema" onclick="window.location.href='{{ url_for('segment.segment_overzicht') }}'">&#9776;</button>
-
-</body>
-</html>
+{% endblock %}

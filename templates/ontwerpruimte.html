@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% block title %}Menu Advies — {{ org.naam }}{% endblock %}
+
+{% block extra_head %}
+<style>
+.builder-section { margin-bottom: 28px; }
+.builder-label { font-size: .8125rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 10px; letter-spacing: .02em; display: block; }
+.context-bar { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: var(--color-card-header); border: 1px solid var(--color-gold-border); border-radius: var(--radius-sm); margin-bottom: 28px; font-size: .875rem; flex-wrap: wrap; }
+.context-tag { background: var(--color-gold-bg); color: var(--color-gold); padding: 3px 10px; border-radius: var(--radius-pill); font-size: .75rem; font-weight: 600; }
+
+.radio-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.radio-card { position: relative; }
+.radio-card input { position: absolute; opacity: 0; }
+.radio-card label { display: block; padding: 14px 16px; background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: var(--radius-sm); cursor: pointer; transition: all .18s; }
+.radio-card label:hover { border-color: var(--color-gold); }
+.radio-card input:checked + label { border-color: var(--color-gold); background: var(--color-gold-bg); }
+.radio-card .rc-title { font-weight: 600; font-size: .9rem; margin-bottom: 4px; }
+.radio-card .rc-help { font-size: .78rem; color: var(--color-text-secondary); line-height: 1.4; }
+
+.focus-selector { display: none; margin-top: 12px; }
+.focus-selector.visible { display: block; }
+
+.trend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .5rem; max-height: 300px; overflow-y: auto; padding: 2px; }
+
+.collapsible-toggle { background: none; border: 1px solid var(--color-gold-border); color: var(--color-text-secondary); padding: 8px 16px; border-radius: var(--radius-sm); font-size: .82rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .18s; }
+.collapsible-toggle:hover { border-color: var(--color-gold); color: var(--color-gold); }
+.collapsible-content { display: none; margin-top: 12px; }
+.collapsible-content.open { display: block; }
+
+.gerecht-select { max-height: 250px; overflow-y: auto; border: 1px solid var(--color-gold-border); border-radius: var(--radius-sm); padding: 8px; }
+.gerecht-select label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: .85rem; cursor: pointer; border-radius: 4px; }
+.gerecht-select label:hover { background: var(--color-card-header); }
+.gerecht-cat { font-size: .75rem; color: var(--color-text-secondary); padding: 4px 8px; margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+.textarea-count { text-align: right; font-size: .75rem; color: var(--color-text-secondary); margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Stel je menuadvies samen</h1>
+  <p class="subtitle">Kies je doel, focus en databronnen voor een gepersonaliseerd advies.</p>
+</div>
+
+<!-- Context bar -->
+<div class="context-bar" data-section="context_bar">
+  <span style="font-weight:600">{{ menu.naam }}</span>
+  {% if segment and segment.data %}
+    {% if segment.data.get('restaurant_type') %}
+      <span class="context-tag">{{ segment.data['restaurant_type']|join(', ') }}</span>
+    {% endif %}
+    {% if segment.data.get('prijssegment') %}
+      <span class="context-tag">{{ segment.data['prijssegment'] }}</span>
+    {% endif %}
+  {% endif %}
+  {% if geheugen %}
+    <span class="context-tag">{{ actieve_trends|length }} actieve trends</span>
+  {% endif %}
+</div>
+
+{% if not segment or not geheugen %}
+<div class="card" style="border-left:3px solid var(--color-orange);margin-bottom:24px">
+  <p style="font-size:.9rem">
+    {% if not segment %}Restaurantprofiel ontbreekt — <a href="{{ url_for('segment.segment_overzicht') }}" class="text-gold">profiel instellen</a>{% endif %}
+    {% if not segment and not geheugen %} | {% endif %}
+    {% if not geheugen %}Marktinzichten ontbreken — <a href="{{ url_for('trend.trends_config') }}" class="text-gold">voer trendanalyse uit</a>{% endif %}
+  </p>
+</div>
+{% endif %}
+
+<form method="POST" action="{{ url_for('voorstel.voorstel_start') }}" id="builderForm">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if basis_config %}
+  <input type="hidden" name="basis_sessie_id" value="{{ basis_config.basis_sessie_id }}">
+  {% endif %}
+
+  <!-- Doel -->
+  <div class="builder-section" id="doelSection" data-section="stap_doel" style="padding:28px 0 0">
+    <span class="text-gold" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Stap 1</span>
+    <span class="builder-label" style="font-size:.9rem">Wat wil je weten?</span>
+    <div class="radio-cards">
+      <div class="radio-card">
+        <input type="radio" name="doel" id="doel_diagnose" value="diagnose" {% if not basis_config or basis_config.doel == 'diagnose' %}checked{% endif %}>
+        <label for="doel_diagnose">
+          <div class="rc-title">Diagnose</div>
+          <div class="rc-help">Hoe goed sluit je menu aan bij trends en doelgroep?</div>
+        </label>
+      </div>
+      <div class="radio-card">
+        <input type="radio" name="doel" id="doel_verbeteren" value="verbeteren" {% if basis_config and basis_config.doel == 'verbeteren' %}checked{% endif %}>
+        <label for="doel_verbeteren">
+          <div class="rc-title">Verbeteren</div>
+          <div class="rc-help">Welke gerechten moet je aanpassen, en hoe?</div>
+        </label>
+      </div>
+      <div class="radio-card">
+        <input type="radio" name="doel" id="doel_nieuwe" value="nieuwe_gerechten" {% if basis_config and basis_config.doel == 'nieuwe_gerechten' %}checked{% endif %}>
+        <label for="doel_nieuwe">
+          <div class="rc-title">Nieuwe gerechten</div>
+          <div class="rc-help">Welke nieuwe gerechten passen bij je concept?</div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Focus -->
+  <div class="builder-section {% if not basis_config %}dimmed{% endif %}" id="focusSection" data-section="stap_focus">
+    <span class="dim-hint">Kies eerst een doel hierboven</span>
+    <span class="text-gold" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Stap 2</span>
+    <span class="builder-label">Focus</span>
+    <div class="radio-cards">
+      <div class="radio-card">
+        <input type="radio" name="focus_type" id="focus_heel" value="heel_menu" {% if not basis_config or basis_config.focus_type == 'heel_menu' %}checked{% endif %}>
+        <label for="focus_heel">
+          <div class="rc-title">Hele menu</div>
+        </label>
+      </div>
+      <div class="radio-card">
+        <input type="radio" name="focus_type" id="focus_cat" value="categorie" {% if basis_config and basis_config.focus_type == 'categorie' %}checked{% endif %}>
+        <label for="focus_cat">
+          <div class="rc-title">Categorie</div>
+        </label>
+      </div>
+      <div class="radio-card">
+        <input type="radio" name="focus_type" id="focus_ger" value="gerechten" {% if basis_config and basis_config.focus_type == 'gerechten' %}checked{% endif %}>
+        <label for="focus_ger">
+          <div class="rc-title">Specifieke gerechten</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Categorie selector -->
+    <div class="focus-selector" id="catSelector">
+      <select name="categorie_naam" class="form-input" style="max-width:300px">
+        {% for cat in categorieen %}
+        <option value="{{ cat }}" {% if basis_config and basis_config.config.get('categorie_naam') == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Gerechten selector -->
+    <div class="focus-selector" id="gerSelector">
+      <div class="gerecht-select">
+        {% set current_cat = {'name': ''} %}
+        {% for g in gerechten %}
+          {% if g.categorie != current_cat['name'] %}
+            {% if current_cat.update({'name': g.categorie}) %}{% endif %}
+            <div class="gerecht-cat">{{ g.categorie }}</div>
+          {% endif %}
+          <label>
+            <input type="checkbox" name="gerecht_ids" value="{{ g.id }}"
+              {% if basis_config and g.id in (basis_config.config.get('gerecht_ids') or []) %}checked{% endif %}>
+            {{ g.naam }}{% if g.prijs %} <span style="color:var(--color-text-secondary);font-size:.8rem">({{ "%.2f"|format(g.prijs) }})</span>{% endif %}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Databronnen -->
+  <div class="builder-section {% if not basis_config %}dimmed{% endif %}" id="dataSection" data-section="stap_databronnen">
+    <span class="dim-hint">Kies een focus om databronnen te selecteren</span>
+    <span class="text-gold" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Stap 3</span>
+    <span class="builder-label">Databronnen</span>
+    <div class="checkbox-grid">
+      <label class="checkbox-item">
+        <input type="checkbox" name="gebruik_trends" value="1" checked>
+        Marktinzichten (trends)
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" name="gebruik_segment" value="1" checked>
+        Bedrijfsprofiel (segment)
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" name="gebruik_kassaboek" value="1" {% if not org.kassaboek_actief %}disabled{% endif %}>
+        Kassaboek data {% if not org.kassaboek_actief %}<span style="font-size:.7rem;color:var(--color-text-secondary)">(niet actief)</span>{% endif %}
+      </label>
+    </div>
+  </div>
+
+  <!-- Trend selectie (collapsible) -->
+  {% if actieve_trends %}
+  <div class="builder-section {% if not basis_config %}dimmed{% endif %}" id="trendSection">
+    <button type="button" class="collapsible-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arrow').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+      <span class="arrow">▼</span> Trends selecteren (optioneel)
+    </button>
+    <div class="collapsible-content">
+      <p style="font-size:.8rem;color:var(--color-text-secondary);margin-bottom:10px">Selecteer specifieke trends om het advies op te richten. Zonder selectie worden alle trends meegewogen.</p>
+      <div class="trend-grid">
+        {% for t in actieve_trends %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="focus_trends" value="{{ t.naam }}"
+            {% if basis_config and t.naam in (basis_config.config.get('focus_trends') or []) %}checked{% endif %}>
+          {{ t.naam }}
+          <span style="font-size:.7rem;color:var(--color-text-secondary)">({{ t.effectieve_score|round(1) }})</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Extra instructie -->
+  <div class="builder-section" data-section="extra_instructie">
+    <label class="builder-label" for="extra_instructie">Extra instructie (optioneel)</label>
+    <textarea name="extra_instructie" id="extra_instructie" class="form-input" maxlength="500" rows="3"
+      placeholder="Bijv: focus op premium desserts, combineer met vezelrijk eten, meer plantaardige opties">{{ basis_config.config.get('extra_instructie', '') if basis_config else '' }}</textarea>
+    <div class="textarea-count"><span id="charCount">0</span>/500</div>
+  </div>
+
+  <!-- Submit -->
+  <button type="submit" class="btn btn-primary" id="submitBtn" data-track="advies_genereren" style="margin-top:8px" {% if not basis_config %}disabled{% endif %}>
+    Genereer advies
+  </button>
+</form>
+
+{% if basis_config %}
+<p style="font-size:.82rem;color:var(--color-text-secondary);margin-top:16px">
+  Verfijning van sessie #{{ basis_config.basis_sessie_id }}
+</p>
+{% endif %}
+
+<div style="margin-top:32px">
+  <a href="{{ url_for('voorstel.voorstel_geschiedenis') }}" class="btn-ghost" style="font-size:.85rem">Bekijk eerdere sessies &rarr;</a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+  // Focus selector visibility
+  var focusRadios = document.querySelectorAll('input[name="focus_type"]');
+  var catSel = document.getElementById('catSelector');
+  var gerSel = document.getElementById('gerSelector');
+
+  function updateFocus() {
+    var checked = document.querySelector('input[name="focus_type"]:checked');
+    if (!checked) return;
+    var v = checked.value;
+    catSel.classList.toggle('visible', v === 'categorie');
+    gerSel.classList.toggle('visible', v === 'gerechten');
+  }
+  focusRadios.forEach(function(r) { r.addEventListener('change', function() { updateFocus(); updateGuidance(); }); });
+  updateFocus();
+
+  // Trend section visibility based on gebruik_trends checkbox
+  var trendCheck = document.querySelector('input[name="gebruik_trends"]');
+  var trendSection = document.getElementById('trendSection');
+  if (trendCheck && trendSection) {
+    function updateTrendVis() {
+      trendSection.style.display = trendCheck.checked ? '' : 'none';
+    }
+    trendCheck.addEventListener('change', function() { updateTrendVis(); updateGuidance(); });
+    updateTrendVis();
+  }
+
+  // Soft guidance: dim sections until preceding step is completed
+  var doelRadios = document.querySelectorAll('input[name="doel"]');
+  doelRadios.forEach(function(r) { r.addEventListener('change', updateGuidance); });
+
+  // Trends <-> databron sync: auto-enable marktinzichten if specific trends are checked
+  var trendCheckboxes = document.querySelectorAll('input[name="focus_trends"]');
+  trendCheckboxes.forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      if (cb.checked && trendCheck && !trendCheck.checked) {
+        trendCheck.checked = true;
+        updateTrendVis();
+        updateGuidance();
+      }
+    });
+  });
+
+  function updateGuidance() {
+    var doelSelected = !!document.querySelector('input[name="doel"]:checked');
+    var focusSelected = !!document.querySelector('input[name="focus_type"]:checked');
+    var trendsChecked = trendCheck ? trendCheck.checked : false;
+
+    // Soft dim — no blocking, just visual guidance
+    var focusSection = document.getElementById('focusSection');
+    var dataSection = document.getElementById('dataSection');
+    if (focusSection) focusSection.classList.toggle('dimmed', !doelSelected);
+    if (dataSection) dataSection.classList.toggle('dimmed', !focusSelected);
+
+    // Trend section follows databron "marktinzichten"
+    if (trendSection) trendSection.classList.toggle('dimmed', !trendsChecked);
+
+    // Submit only enabled when doel + focus are set
+    var submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.disabled = !(doelSelected && focusSelected);
+  }
+
+  // Run initial guidance state
+  updateGuidance();
+
+  // Char counter
+  var ta = document.getElementById('extra_instructie');
+  var counter = document.getElementById('charCount');
+  if (ta && counter) {
+    function updateCount() { counter.textContent = ta.value.length; }
+    ta.addEventListener('input', updateCount);
+    updateCount();
+  }
+})();
+</script>
+{% endblock %}

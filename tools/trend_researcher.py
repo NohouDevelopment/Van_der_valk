@@ -20,7 +20,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from tools.ai_client import ai_search_json
+from tools.ai_client import ai_call
+from tools.prompt_loader import format_prompt
 
 
 # Vaste categorie-labels voor prompts
@@ -153,8 +154,7 @@ def _build_search_batches(config: dict, segment_data: dict, menu_data: dict | No
 
 
 def _build_prompt(batch: dict, config: dict, segment_data: dict, menu_context: str) -> str:
-    """Bouw de Gemini prompt voor een zoekbatch."""
-    # Segment context
+    """Bouw de prompt voor een zoekbatch via prompt_loader."""
     restaurant_type = ", ".join(segment_data.get("restaurant_type", ["restaurant"]))
     culinaire_stijl = ", ".join(segment_data.get("culinaire_stijl", ["Internationaal"]))
     prijssegment = segment_data.get("prijssegment", "middensegment")
@@ -185,50 +185,33 @@ def _build_prompt(batch: dict, config: dict, segment_data: dict, menu_context: s
     if menu_context:
         menu_sectie = f"\n{menu_context}"
 
-    prompt = f"""Zoek actuele food trends en horeca innovaties voor 2025-2026 in Nederland en Europa.
-
-Restaurant context:
-- Type: {restaurant_type}
-- Culinaire stijl: {culinaire_stijl}
-- Prijssegment: {prijssegment}
-- Doelgroep: {doelgroep}
-
-Focus op deze menucategorieën: {cat_labels}
-{inspiratie_sectie}{focus_sectie}{custom_sectie}{menu_sectie}
-
-Geef je antwoord als JSON met EXACT dit formaat (geen extra tekst eromheen):
-{{
-  "trends": [
-    {{
-      "naam": "Korte trendnaam",
-      "beschrijving": "Beschrijving in 2-3 zinnen: wat is de trend, waarom relevant, hoe toepassen",
-      "categorie": "een van: {categories_json}",
-      "relevantie_score": 7.5,
-      "tags": ["tag1", "tag2"],
-      "inspiratiebron": "naam van de bron of null"
-    }}
-  ],
-  "samenvatting": "Korte samenvatting (2-3 zinnen) van de belangrijkste trend-bewegingen"
-}}
-
-Regels:
-- Geef maximaal 5 trends per categorie
-- Score 1-10 op relevantie voor dit specifieke type restaurant
-- Categorie moet exact een van deze waarden zijn: {categories_json}
-- Tags: korte keywords die de trend beschrijven
-- Inspiratiebron: alleen invullen als de trend duidelijk gelinkt is aan een bron, anders null
-- Wees concreet: noem specifieke gerechten, ingrediënten of technieken
-- Antwoord ALLEEN met de JSON, geen markdown, geen uitleg eromheen."""
-
+    prompt, _model, _temp = format_prompt(
+        "trend_researcher", "search_trends",
+        restaurant_type=restaurant_type,
+        culinaire_stijl=culinaire_stijl,
+        prijssegment=prijssegment,
+        doelgroep=doelgroep,
+        cat_labels=cat_labels,
+        categories_json=categories_json,
+        inspiratie_sectie=inspiratie_sectie,
+        focus_sectie=focus_sectie,
+        custom_sectie=custom_sectie,
+        menu_sectie=menu_sectie,
+    )
     return prompt
 
 
 def _execute_search(prompt: str, label: str) -> dict:
     """Voer een AI search call uit via OpenRouter."""
+    from tools.prompt_loader import get_prompt, resolve_model
+    cfg = get_prompt("trend_researcher", "search_trends")
+    model = resolve_model(cfg.get("model", "search"))
+    temperature = float(cfg.get("temperature", 0.1))
+
     print(f"    Zoek: {label}...", end=" ", flush=True)
 
     try:
-        result = ai_search_json(prompt, temperature=0.1)
+        result = ai_call(prompt, model=model, temperature=temperature, json_mode=True, timeout=300)
         trend_count = len(result.get("trends", []))
         print(f"OK ({trend_count} trends)")
         return result

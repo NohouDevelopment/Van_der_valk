@@ -19,7 +19,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from tools.ai_client import ai_search_json
+from tools.ai_client import ai_call
+from tools.prompt_loader import format_prompt
 
 
 def analyze_segment(restaurant_naam: str, locatie: str) -> dict:
@@ -27,50 +28,13 @@ def analyze_segment(restaurant_naam: str, locatie: str) -> dict:
     Analyseert een restaurant en geeft een menusegment-profiel terug.
     Gebruikt Gemini + Google Search voor actuele informatie.
     """
-
-    prompt = f"""Analyseer dit restaurant en maak een compleet menusegment-profiel.
-
-Restaurant: {restaurant_naam}
-Locatie: {locatie}
-
-Zoek informatie op over dit restaurant: type, keuken, sfeer, doelgroep, prijsniveau, menukaart.
-
-Geef je antwoord als JSON met EXACT dit formaat (geen extra tekst eromheen):
-{{
-  "restaurant_naam": "{restaurant_naam}",
-  "restaurant_type": ["type1"],
-  "culinaire_stijl": ["stijl1", "stijl2"],
-  "doelgroep": ["segment1", "segment2"],
-  "prijssegment": "middensegment",
-  "waardepropositie": "Korte beschrijving (2-3 zinnen) van wat dit restaurant uniek maakt qua menu-aanbod, kwaliteit en positionering.",
-  "sfeer": "Korte beschrijving van de sfeer en ambiance.",
-  "menu_kenmerken": ["kenmerk1", "kenmerk2"],
-  "concurrenten": ["concurrent1", "concurrent2"],
-  "sterke_punten": ["punt1", "punt2"],
-  "verbeterpunten": ["punt1", "punt2"]
-}}
-
-Gebruik voor restaurant_type UITSLUITEND waarden uit deze vaste lijst:
-hotel restaurant, bistro, fine dining, casual dining, brasserie, strandtent, eetcafe, fastfood, foodtruck, grand cafe, pannenkoekhuis, pizzeria, steakhouse, sushi restaurant, wok restaurant, tapas bar
-
-Gebruik voor culinaire_stijl UITSLUITEND waarden uit deze vaste lijst:
-Frans, Italiaans, Aziatisch, Nederlands, Internationaal, Fusion, Mediterraan, Amerikaans, Japans, Mexicaans, Thais, Indonesisch, Grieks, Midden-Oosters, Scandinavisch, Klassiek Europees
-
-Gebruik voor doelgroep UITSLUITEND waarden uit deze vaste lijst:
-zakenreizigers, gezinnen, koppels, lokale bewoners, toeristen, studenten, senioren, groepen, hotelgasten, sporters, dagjesmensen, fijnproevers, young professionals
-
-Gebruik voor prijssegment UITSLUITEND een waarde uit:
-budget, middensegment, premium, fine dining
-
-Gebruik voor menu_kenmerken UITSLUITEND waarden uit deze vaste lijst:
-seizoensgebonden, lokale ingredienten, duurzaam, biologisch, plantaardig, glutenvrij opties, halal, kosher, huisgemaakt, a la carte, buffet, dagmenu, proeverijmenu, kindermenu, ontbijt, lunch, diner, high tea, bar snacks
-
-Antwoord ALLEEN met de JSON, geen markdown, geen uitleg eromheen."""
+    prompt, model, temp = format_prompt("segment_analyzer", "analyze_segment",
+                                        restaurant_naam=restaurant_naam, locatie=locatie)
 
     print(f"  Analyseer menusegment voor '{restaurant_naam}'...", end=" ", flush=True)
 
     try:
-        result = ai_search_json(prompt, temperature=0.1)
+        result = ai_call(prompt, model=model, temperature=temp, json_mode=True)
         print("OK")
         return result
     except json.JSONDecodeError:

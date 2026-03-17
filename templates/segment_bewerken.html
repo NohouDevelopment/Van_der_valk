@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+
+{% block title %}Restaurantprofiel bewerken — {{ org.naam }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-wrap { max-width: 700px; }
+  .sectie { background: var(--color-card); border: 1px solid var(--color-gold-border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
+  .sectie-titel { font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: .25rem; }
+  .sectie-hint { font-size: .73rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .5rem; margin-bottom: 1rem; }
+  .checkbox-item { display: flex; align-items: center; gap: .55rem; padding: .6rem .85rem; background: var(--color-card-header); border: 1px solid var(--color-gold-border); border-radius: 8px; cursor: pointer; transition: border-color .18s, background .18s; font-size: .85rem; color: var(--color-text); user-select: none; }
+  .checkbox-item:hover { border-color: var(--color-gold); }
+  .checkbox-item input[type="checkbox"], .checkbox-item input[type="radio"] { accent-color: var(--color-gold); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+  .checkbox-item:has(input:checked) { border-color: var(--color-gold); background: var(--color-gold-bg); }
+  .checkbox-item.disabled { opacity: .35; pointer-events: none; }
+  .radio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem; margin-bottom: 1rem; }
+  .radio-item { display: flex; align-items: center; gap: .55rem; padding: .6rem .85rem; background: var(--color-card-header); border: 1px solid var(--color-gold-border); border-radius: 8px; cursor: pointer; transition: border-color .18s, background .18s; font-size: .85rem; color: var(--color-text); user-select: none; }
+  .radio-item:hover { border-color: var(--color-gold); }
+  .radio-item input[type="radio"] { accent-color: var(--color-gold); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+  .radio-item:has(input:checked) { border-color: var(--color-gold); background: var(--color-gold-bg); }
+  .anders-row { margin-top: .25rem; }
+  .anders-label { font-size: .72rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--color-text-secondary); display: block; margin-bottom: .4rem; }
+  input[type="text"].anders-input, textarea.anders-input { background: var(--color-card-header); border: 1px solid var(--color-gold-border); border-radius: 8px; color: var(--color-text); font-size: .9rem; padding: .75rem .9rem; outline: none; width: 100%; transition: border-color .2s; }
+  input[type="text"].anders-input:focus, textarea.anders-input:focus { border-color: var(--color-gold); }
+  textarea.anders-input { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .doelgroep-primair { border-left: 3px solid var(--color-gold); }
+  .subsectie-label { font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-gold); margin-bottom: .5rem; }
+  .subsectie-label.dim { color: var(--color-text-secondary); }
+
+  /* Kaarten accordion */
+  .kaart-item { border: 1px solid var(--color-gold-border); border-radius: 10px; margin-bottom: .75rem; overflow: hidden; background: var(--color-card-header); }
+  .kaart-header { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; cursor: pointer; user-select: none; }
+  .kaart-header:hover { background: var(--color-card); }
+  .kaart-type-label { font-weight: 600; font-size: .9rem; flex: 1; }
+  .kaart-rol-badge { font-size: .65rem; font-weight: 700; padding: .2rem .55rem; border-radius: 5px; text-transform: uppercase; letter-spacing: .04em; }
+  .kaart-rol-badge.rol-leidend { background: var(--color-gold-bg); color: var(--color-gold); border: 1px solid var(--color-gold-border); }
+  .kaart-rol-badge.rol-ondersteunend { background: var(--color-card); color: var(--color-text-secondary); border: 1px solid var(--color-gold-border); }
+  .kaart-rol-badge.rol-aanvullend { background: transparent; color: var(--color-text-secondary); border: 1px solid var(--color-gold-border); opacity: .6; }
+  .kaart-verwijder { background: none; border: none; color: var(--color-red); cursor: pointer; font-size: 1.1rem; padding: 0 4px; opacity: .5; transition: opacity .15s; }
+  .kaart-verwijder:hover { opacity: 1; }
+  .kaart-chevron { width: 16px; height: 16px; color: var(--color-text-secondary); transition: transform .2s; flex-shrink: 0; }
+  .kaart-chevron.open { transform: rotate(180deg); }
+  .kaart-body { padding: 0 1rem 1rem; display: none; }
+  .kaart-body.open { display: block; }
+  .kaart-body .sectie-titel { margin-top: .75rem; }
+  .kaart-body .checkbox-grid { margin-bottom: .75rem; }
+
+  .btn-voeg-kaart { display: flex; align-items: center; gap: .5rem; background: none; border: 1px dashed var(--color-gold-border); color: var(--color-text-secondary); padding: .75rem 1rem; border-radius: 10px; cursor: pointer; font-size: .85rem; width: 100%; justify-content: center; transition: border-color .18s, color .18s; }
+  .btn-voeg-kaart:hover { border-color: var(--color-gold); color: var(--color-gold); }
+  .kaart-type-select { background: var(--color-card-header); border: 1px solid var(--color-gold-border); border-radius: 8px; color: var(--color-text); font-size: .85rem; padding: .5rem .75rem; outline: none; margin-top: .5rem; width: 100%; display: none; }
+  .kaart-type-select:focus { border-color: var(--color-gold); }
+
+  .migration-banner { background: rgba(255,152,0,.08); border-left: 3px solid var(--color-orange); padding: .75rem 1rem; margin-bottom: 1.25rem; border-radius: 0 8px 8px 0; font-size: .85rem; color: var(--color-text); }
+
+  .btn-submit { background: var(--color-gold); color: #0F0F0F; font-family: inherit; font-size: .95rem; font-weight: 600; border: none; border-radius: 10px; padding: .95rem 2rem; cursor: pointer; width: 100%; transition: background .2s; }
+  .btn-submit:hover { background: var(--color-gold-light); }
+  @media (max-width: 600px) { .checkbox-grid, .radio-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px">
+  <h1 class="animate-in">Restaurantprofiel <span style="color:var(--color-gold)">bewerken</span></h1>
+  <p class="subtitle animate-in" style="transition-delay:80ms">Pas het profiel aan voor {{ naam }}.</p>
+</div>
+
+{% if needs_migration %}
+<div class="migration-banner">
+  Dit profiel is geüpgraded naar het nieuwe formaat. Controleer de kaarten en sla op.
+</div>
+{% endif %}
+
+<div class="form-wrap">
+
+  {# === OPTIES === #}
+  {% set type_opties = [
+    ("hotel restaurant", "Hotel restaurant"), ("all-day dining", "All-day dining"),
+    ("bistro", "Bistro"), ("brasserie", "Brasserie"), ("fine dining", "Fine dining"),
+    ("casual dining", "Casual dining"), ("grand cafe", "Grand caf&eacute;"),
+    ("eetcafe", "Eetcaf&eacute;"), ("strandtent", "Strandtent"),
+    ("steakhouse", "Steakhouse"), ("pizzeria", "Pizzeria"),
+    ("sushi restaurant", "Sushi restaurant"), ("tapas bar", "Tapas bar"),
+    ("pannenkoekhuis", "Pannenkoekhuis"), ("wok restaurant", "Wok restaurant"),
+    ("foodtruck", "Foodtruck")
+  ] %}
+
+  {% set stijl_opties = [
+    ("Frans", "Frans"), ("Italiaans", "Italiaans"), ("Aziatisch", "Aziatisch"),
+    ("Nederlands", "Nederlands"), ("Internationaal", "Internationaal"), ("Fusion", "Fusion"),
+    ("Mediterraan", "Mediterraan"), ("Amerikaans", "Amerikaans"), ("Japans", "Japans"),
+    ("Mexicaans", "Mexicaans"), ("Thais", "Thais"), ("Indonesisch", "Indonesisch"),
+    ("Grieks", "Grieks"), ("Midden-Oosters", "Midden-Oosters"),
+    ("Scandinavisch", "Scandinavisch"), ("Klassiek Europees", "Klassiek Europees")
+  ] %}
+
+  {% set doelgroep_opties = [
+    ("zakenreizigers", "Zakenreizigers"), ("gezinnen", "Gezinnen"),
+    ("koppels", "Koppels"), ("lokale bewoners", "Lokale bewoners"),
+    ("toeristen", "Toeristen"), ("studenten", "Studenten"),
+    ("senioren", "Senioren"), ("groepen", "Groepen"),
+    ("hotelgasten", "Hotelgasten"), ("sporters", "Sporters / sportfans"),
+    ("dagjesmensen", "Dagjesmensen"), ("fijnproevers", "Fijnproevers"),
+    ("young professionals", "Young professionals")
+  ] %}
+
+  {% set prijs_opties = [
+    ("budget", "Budget"), ("middensegment", "Middensegment"),
+    ("premium", "Premium"), ("fine dining", "Fine dining")
+  ] %}
+
+  {% set fb_opties = [
+    ("dinner_driven", "Dinner-driven"), ("ontbijt_inclusief", "Ontbijt inclusief (hotel)"),
+    ("all_day_dining", "All-day dining"), ("seizoensgebonden", "Seizoensgebonden aanbod"),
+    ("lokaal_gedreven", "Lokaal gedreven"), ("internationale_keuken", "Internationale keuken"),
+    ("family_friendly", "Family-friendly"), ("experience_dining", "Experience dining"),
+    ("grab_and_go", "Grab &amp; Go"), ("banqueting", "Banqueting / groepsarrangementen"),
+    ("duurzaam_concept", "Duurzaam concept"), ("wellness_health", "Wellness / Health-conscious")
+  ] %}
+
+  {% set kaart_kenmerken_opties = [
+    ("a la carte", "&Agrave; la carte"), ("buffet", "Buffet"),
+    ("dagmenu", "Dagmenu / daghap"), ("proeverijmenu", "Proeverijmenu"),
+    ("seizoensgebonden", "Seizoensgebonden"), ("huisgemaakt", "Huisgemaakt"),
+    ("lokale ingredienten", "Lokale ingredi&euml;nten"), ("biologisch", "Biologisch"),
+    ("plantaardig", "Plantaardig / vegan"), ("glutenvrij opties", "Glutenvrij opties"),
+    ("duurzaam", "Duurzaam"), ("halal", "Halal")
+  ] %}
+
+  {% set kaart_type_opties = [
+    ("dinerkaart", "Dinerkaart"), ("lunchkaart", "Lunchkaart"),
+    ("ontbijtbuffet", "Ontbijtbuffet"), ("ontbijtkaart", "Ontbijtkaart"),
+    ("borrelkaart", "Borrelkaart / Bites"), ("kindermenu", "Kindermenu"),
+    ("brunchbuffet", "Brunch / Brunchbuffet"), ("roomservice", "Roomservice"),
+    ("drankenkaart", "Drankenkaart"), ("arrangementen", "Arrangementen / Groepsmenu's"),
+    ("high_tea", "High Tea"), ("seizoenskaart", "Seizoenskaart (tijdelijk)")
+  ] %}
+
+  {# === DATA EXTRACTIE === #}
+  {% set concept = profiel.get('concept', {}) %}
+  {% set ai_types = concept.get('restaurant_type', profiel.get('restaurant_type', [])) %}
+  {% set ai_stijl = concept.get('culinaire_stijl', profiel.get('culinaire_stijl', [])) %}
+  {% set ai_prijs = concept.get('prijssegment', profiel.get('prijssegment', 'middensegment')) %}
+  {% set ai_dg_primair = profiel.get('doelgroep_primair', []) %}
+  {% set ai_dg_secundair = profiel.get('doelgroep_secundair', []) %}
+  {% set ai_fb = profiel.get('fb_propositie', []) %}
+  {% set ai_kaarten = profiel.get('kaarten', []) %}
+
+  {# Anders-waarden berekenen #}
+  {% set bekende_types = type_opties | map(attribute=0) | list %}
+  {% set bekende_stijlen = stijl_opties | map(attribute=0) | list %}
+  {% set bekende_dg = doelgroep_opties | map(attribute=0) | list %}
+  {% set bekende_fb = fb_opties | map(attribute=0) | list %}
+
+  {% set ns = namespace(anders_type=[], anders_stijl=[], anders_dg_p=[], anders_dg_s=[], anders_fb=[]) %}
+  {% for s in ai_types %}{% if s not in bekende_types %}{% set ns.anders_type = ns.anders_type + [s] %}{% endif %}{% endfor %}
+  {% for s in ai_stijl %}{% if s not in bekende_stijlen %}{% set ns.anders_stijl = ns.anders_stijl + [s] %}{% endif %}{% endfor %}
+  {% for s in ai_dg_primair %}{% if s not in bekende_dg %}{% set ns.anders_dg_p = ns.anders_dg_p + [s] %}{% endif %}{% endfor %}
+  {% for s in ai_dg_secundair %}{% if s not in bekende_dg %}{% set ns.anders_dg_s = ns.anders_dg_s + [s] %}{% endif %}{% endfor %}
+  {% for s in ai_fb %}{% if s not in bekende_fb %}{% set ns.anders_fb = ns.anders_fb + [s] %}{% endif %}{% endfor %}
+
+  <form method="POST" action="{{ url_for('segment.segment_bewerken') }}" id="segmentForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- SECTIE 1: Basisprofiel -->
+    <div class="sectie" data-section="form_basisprofiel">
+      <div class="sectie-titel">Basisprofiel</div>
+      <p class="sectie-hint">Wat voor type vestiging is dit en welke keuken wordt er geserveerd?</p>
+
+      <div class="subsectie-label">Restaurant type</div>
+      <div class="checkbox-grid">
+        {% for val, lbl in type_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="restaurant_type_check" value="{{ val }}" {% if val in ai_types %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" class="anders-input" name="restaurant_type_anders" value="{{ ns.anders_type | join(', ') }}" placeholder="Ander type, komma-gescheiden">
+      </div>
+
+      <div class="subsectie-label" style="margin-top:1.25rem">Culinaire stijl</div>
+      <div class="checkbox-grid">
+        {% for val, lbl in stijl_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="culinaire_stijl_check" value="{{ val }}" {% if val in ai_stijl %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" class="anders-input" name="culinaire_stijl_anders" value="{{ ns.anders_stijl | join(', ') }}" placeholder="Andere stijl, komma-gescheiden">
+      </div>
+
+      <div class="subsectie-label" style="margin-top:1.25rem">Prijssegment</div>
+      <div class="radio-grid">
+        {% for val, lbl in prijs_opties %}
+        <label class="radio-item">
+          <input type="radio" name="prijssegment" value="{{ val }}" {% if val == ai_prijs %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- SECTIE 2: Doelgroep -->
+    <div class="sectie" data-section="form_doelgroep">
+      <div class="sectie-titel">Doelgroep</div>
+      <p class="sectie-hint">Wie zijn je klanten? Onderscheid primaire (max 3) en secundaire doelgroepen.</p>
+
+      <div class="doelgroep-primair" style="padding-left:1rem;margin-bottom:1.25rem">
+        <div class="subsectie-label">Primaire doelgroep</div>
+        <p style="font-size:.73rem;color:var(--color-text-secondary);margin-bottom:.5rem">De 1-3 belangrijkste klantgroepen waarop je inricht.</p>
+        <div class="checkbox-grid" id="dgPrimairGrid">
+          {% for val, lbl in doelgroep_opties %}
+          <label class="checkbox-item">
+            <input type="checkbox" name="doelgroep_primair_check" value="{{ val }}" {% if val in ai_dg_primair %}checked{% endif %}>
+            <span>{{ lbl }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="anders-row">
+          <span class="anders-label">Anders</span>
+          <input type="text" class="anders-input" name="doelgroep_primair_anders" value="{{ ns.anders_dg_p | join(', ') }}" placeholder="Ander klanttype, komma-gescheiden">
+        </div>
+      </div>
+
+      <div style="padding-left:1rem">
+        <div class="subsectie-label dim">Secundaire doelgroep</div>
+        <p style="font-size:.73rem;color:var(--color-text-secondary);margin-bottom:.5rem">Klantgroepen die je ook bedient, maar niet primair op richt.</p>
+        <div class="checkbox-grid" id="dgSecundairGrid">
+          {% for val, lbl in doelgroep_opties %}
+          <label class="checkbox-item">
+            <input type="checkbox" name="doelgroep_secundair_check" value="{{ val }}" {% if val in ai_dg_secundair %}checked{% endif %}>
+            <span>{{ lbl }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="anders-row">
+          <span class="anders-label">Anders</span>
+          <input type="text" class="anders-input" name="doelgroep_secundair_anders" value="{{ ns.anders_dg_s | join(', ') }}" placeholder="Ander klanttype, komma-gescheiden">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTIE 3: F&B Propositie -->
+    <div class="sectie" data-section="form_fb_propositie">
+      <div class="sectie-titel">F&amp;B Propositie</div>
+      <p class="sectie-hint">Welke kenmerken typeren het totale food &amp; beverage aanbod? (conceptniveau, niet per kaart)</p>
+      <div class="checkbox-grid">
+        {% for val, lbl in fb_opties %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="fb_propositie_check" value="{{ val }}" {% if val in ai_fb %}checked{% endif %}>
+          <span>{{ lbl }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="anders-row">
+        <span class="anders-label">Anders</span>
+        <input type="text" class="anders-input" name="fb_propositie_anders" value="{{ ns.anders_fb | join(', ') }}" placeholder="Ander kenmerk, komma-gescheiden">
+      </div>
+    </div>
+
+    <!-- SECTIE 4: Kaarten & Menu's -->
+    <div class="sectie" data-section="form_kaarten">
+      <div class="sectie-titel">Kaarten &amp; Menu's</div>
+      <p class="sectie-hint">Welke menukaarten bestaan er? Geef per kaart aan of deze leidend, ondersteunend of aanvullend is.</p>
+
+      <div id="kaartenContainer">
+        {% for kaart in ai_kaarten %}
+        {% set kidx = loop.index0 %}
+        <div class="kaart-item" data-index="{{ kidx }}">
+          <div class="kaart-header" data-accordion="kaart_{{ kaart.type }}" onclick="toggleKaart({{ kidx }})">
+            <span class="kaart-type-label">{{ kaart.label or kaart.type }}</span>
+            <span class="kaart-rol-badge rol-{{ kaart.rol }}" id="rolBadge_{{ kidx }}">{{ kaart.rol | capitalize }}</span>
+            <button type="button" class="kaart-verwijder" onclick="event.stopPropagation();verwijderKaart({{ kidx }})" title="Verwijder kaart">&times;</button>
+            <svg class="kaart-chevron" id="chevron_{{ kidx }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="kaart-body" id="kaartBody_{{ kidx }}">
+            <input type="hidden" name="kaart_type_{{ kidx }}" value="{{ kaart.type }}">
+            <input type="hidden" name="kaart_label_{{ kidx }}" value="{{ kaart.label or kaart.type }}">
+
+            <div class="sectie-titel">Rol</div>
+            <div class="radio-grid">
+              <label class="radio-item"><input type="radio" name="kaart_rol_{{ kidx }}" value="leidend" {% if kaart.rol == 'leidend' %}checked{% endif %} onchange="updateRolBadge({{ kidx }})"><span>Leidend</span></label>
+              <label class="radio-item"><input type="radio" name="kaart_rol_{{ kidx }}" value="ondersteunend" {% if kaart.rol == 'ondersteunend' %}checked{% endif %} onchange="updateRolBadge({{ kidx }})"><span>Ondersteunend</span></label>
+              <label class="radio-item"><input type="radio" name="kaart_rol_{{ kidx }}" value="aanvullend" {% if kaart.rol == 'aanvullend' %}checked{% endif %} onchange="updateRolBadge({{ kidx }})"><span>Aanvullend</span></label>
+            </div>
+
+            <div class="sectie-titel">Kenmerken</div>
+            <div class="checkbox-grid">
+              {% for kval, klbl in kaart_kenmerken_opties %}
+              <label class="checkbox-item">
+                <input type="checkbox" name="kaart_kenmerken_{{ kidx }}" value="{{ kval }}" {% if kval in (kaart.kenmerken or []) %}checked{% endif %}>
+                <span>{{ klbl }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            <div class="anders-row">
+              <span class="anders-label">Anders</span>
+              {% set bekende_kaart_k = kaart_kenmerken_opties | map(attribute=0) | list %}
+              <input type="text" class="anders-input" name="kaart_kenmerken_anders_{{ kidx }}" value="{{ (kaart.kenmerken or []) | reject('in', bekende_kaart_k) | join(', ') }}" placeholder="Ander kenmerk, komma-gescheiden">
+            </div>
+
+            <div class="sectie-titel" style="margin-top:.75rem">Notitie</div>
+            <input type="text" class="anders-input" name="kaart_notitie_{{ kidx }}" value="{{ kaart.notitie or '' }}" maxlength="200" placeholder="Optioneel: bijzonderheden over deze kaart">
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <input type="hidden" name="kaart_count" id="kaartCount" value="{{ ai_kaarten | length }}">
+
+      <button type="button" class="btn-voeg-kaart" data-track="kaart_toevoegen" onclick="toonKaartSelect()">+ Voeg kaart toe</button>
+      <select class="kaart-type-select" id="kaartTypeSelect" onchange="voegKaartToe(this.value)">
+        <option value="">Kies een kaarttype...</option>
+        {% for kval, klbl in kaart_type_opties %}
+        <option value="{{ kval }}" data-label="{{ klbl }}">{{ klbl }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- SECTIE 5: Waardepropositie -->
+    <div class="sectie" data-section="form_waardepropositie">
+      <div class="sectie-titel">Waardepropositie</div>
+      <p class="sectie-hint">Wat maakt het menu-aanbod van dit restaurant uniek? 2-3 zinnen.</p>
+      <textarea class="anders-input" name="waardepropositie" rows="4" maxlength="500">{{ profiel.waardepropositie or '' }}</textarea>
+    </div>
+
+    <!-- SECTIE 6: AI Inzichten (read-only) -->
+    {% if profiel.get('sterke_punten') or profiel.get('verbeterpunten') %}
+    <div class="sectie" style="opacity:.7">
+      <div class="sectie-titel">AI Inzichten <span style="font-size:.6rem;opacity:.5;text-transform:none;letter-spacing:0">(alleen-lezen)</span></div>
+      {% if profiel.get('sfeer') %}
+      <p style="font-size:.85rem;color:var(--color-text-secondary);margin-bottom:.75rem"><strong style="color:var(--color-text)">Sfeer:</strong> {{ profiel.sfeer }}</p>
+      {% endif %}
+      {% if profiel.get('sterke_punten') %}
+      <p style="font-size:.85rem;color:var(--color-text-secondary);margin-bottom:.5rem"><strong style="color:var(--color-text)">Sterke punten:</strong></p>
+      <ul style="font-size:.82rem;color:var(--color-text-secondary);padding-left:1.2rem;margin-bottom:.75rem">{% for p in profiel.sterke_punten %}<li>{{ p }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if profiel.get('verbeterpunten') %}
+      <p style="font-size:.85rem;color:var(--color-text-secondary);margin-bottom:.5rem"><strong style="color:var(--color-text)">Verbeterpunten:</strong></p>
+      <ul style="font-size:.82rem;color:var(--color-text-secondary);padding-left:1.2rem">{% for p in profiel.verbeterpunten %}<li>{{ p }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div data-section="submit_bar" style="display:flex;gap:1rem;align-items:center;margin-top:.5rem">
+      <button type="submit" class="btn-submit" data-track="profiel_opslaan" style="flex:1">Profiel opslaan</button>
+      <a href="{{ url_for('segment.segment_overzicht') }}" style="color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;white-space:nowrap">Annuleren</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// === Kaarten accordion ===
+function toggleKaart(idx) {
+  var body = document.getElementById('kaartBody_' + idx);
+  var chevron = document.getElementById('chevron_' + idx);
+  if (!body) return;
+  body.classList.toggle('open');
+  if (chevron) chevron.classList.toggle('open');
+}
+
+function updateRolBadge(idx) {
+  var checked = document.querySelector('input[name="kaart_rol_' + idx + '"]:checked');
+  var badge = document.getElementById('rolBadge_' + idx);
+  if (!checked || !badge) return;
+  badge.className = 'kaart-rol-badge rol-' + checked.value;
+  badge.textContent = checked.value.charAt(0).toUpperCase() + checked.value.slice(1);
+}
+
+function verwijderKaart(idx) {
+  var container = document.getElementById('kaartenContainer');
+  var items = container.querySelectorAll('.kaart-item');
+  if (items.length <= 1) { alert('Minimaal 1 kaart vereist.'); return; }
+  var item = container.querySelector('.kaart-item[data-index="' + idx + '"]');
+  if (item) item.remove();
+  herindexeerKaarten();
+}
+
+function toonKaartSelect() {
+  var sel = document.getElementById('kaartTypeSelect');
+  sel.style.display = sel.style.display === 'none' ? 'block' : 'none';
+  // Disable types die al bestaan
+  var bestaande = [];
+  document.querySelectorAll('#kaartenContainer input[name^="kaart_type_"]').forEach(function(i) { bestaande.push(i.value); });
+  sel.querySelectorAll('option').forEach(function(opt) {
+    if (opt.value) opt.disabled = bestaande.indexOf(opt.value) >= 0;
+  });
+  sel.value = '';
+}
+
+function voegKaartToe(type) {
+  if (!type) return;
+  var sel = document.getElementById('kaartTypeSelect');
+  var label = sel.querySelector('option[value="' + type + '"]').dataset.label;
+  sel.style.display = 'none';
+
+  var container = document.getElementById('kaartenContainer');
+  var idx = container.querySelectorAll('.kaart-item').length;
+
+  var kenmerkenHTML = '';
+  var kenmerkenOpties = [
+    ["a la carte","\u00c0 la carte"],["buffet","Buffet"],["dagmenu","Dagmenu / daghap"],
+    ["proeverijmenu","Proeverijmenu"],["seizoensgebonden","Seizoensgebonden"],["huisgemaakt","Huisgemaakt"],
+    ["lokale ingredienten","Lokale ingredi\u00ebnten"],["biologisch","Biologisch"],
+    ["plantaardig","Plantaardig / vegan"],["glutenvrij opties","Glutenvrij opties"],
+    ["duurzaam","Duurzaam"],["halal","Halal"]
+  ];
+  kenmerkenOpties.forEach(function(opt) {
+    kenmerkenHTML += '<label class="checkbox-item"><input type="checkbox" name="kaart_kenmerken_' + idx + '" value="' + opt[0] + '"><span>' + opt[1] + '</span></label>';
+  });
+
+  var html = '<div class="kaart-item" data-index="' + idx + '">'
+    + '<div class="kaart-header" onclick="toggleKaart(' + idx + ')">'
+    + '<span class="kaart-type-label">' + label + '</span>'
+    + '<span class="kaart-rol-badge rol-aanvullend" id="rolBadge_' + idx + '">Aanvullend</span>'
+    + '<button type="button" class="kaart-verwijder" onclick="event.stopPropagation();verwijderKaart(' + idx + ')" title="Verwijder kaart">&times;</button>'
+    + '<svg class="kaart-chevron open" id="chevron_' + idx + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>'
+    + '</div>'
+    + '<div class="kaart-body open" id="kaartBody_' + idx + '">'
+    + '<input type="hidden" name="kaart_type_' + idx + '" value="' + type + '">'
+    + '<input type="hidden" name="kaart_label_' + idx + '" value="' + label + '">'
+    + '<div class="sectie-titel">Rol</div>'
+    + '<div class="radio-grid">'
+    + '<label class="radio-item"><input type="radio" name="kaart_rol_' + idx + '" value="leidend" onchange="updateRolBadge(' + idx + ')"><span>Leidend</span></label>'
+    + '<label class="radio-item"><input type="radio" name="kaart_rol_' + idx + '" value="ondersteunend" onchange="updateRolBadge(' + idx + ')"><span>Ondersteunend</span></label>'
+    + '<label class="radio-item"><input type="radio" name="kaart_rol_' + idx + '" value="aanvullend" checked onchange="updateRolBadge(' + idx + ')"><span>Aanvullend</span></label>'
+    + '</div>'
+    + '<div class="sectie-titel">Kenmerken</div>'
+    + '<div class="checkbox-grid">' + kenmerkenHTML + '</div>'
+    + '<div class="anders-row"><span class="anders-label">Anders</span><input type="text" class="anders-input" name="kaart_kenmerken_anders_' + idx + '" placeholder="Ander kenmerk, komma-gescheiden"></div>'
+    + '<div class="sectie-titel" style="margin-top:.75rem">Notitie</div>'
+    + '<input type="text" class="anders-input" name="kaart_notitie_' + idx + '" maxlength="200" placeholder="Optioneel: bijzonderheden over deze kaart">'
+    + '</div></div>';
+
+  container.insertAdjacentHTML('beforeend', html);
+  herindexeerKaarten();
+
+  // Analytics: card_added
+  if (window.posthog) {
+    posthog.capture('card_added', {
+      page_name: window.MM_ANALYTICS ? window.MM_ANALYTICS.pageName : '',
+      target_name: type
+    });
+  }
+}
+
+function herindexeerKaarten() {
+  var items = document.querySelectorAll('#kaartenContainer .kaart-item');
+  document.getElementById('kaartCount').value = items.length;
+  // Re-index all items so Python can parse sequentially
+  items.forEach(function(item, newIdx) {
+    item.dataset.index = newIdx;
+    // Update onclick handlers
+    var header = item.querySelector('.kaart-header');
+    if (header) header.setAttribute('onclick', 'toggleKaart(' + newIdx + ')');
+    var del = item.querySelector('.kaart-verwijder');
+    if (del) del.setAttribute('onclick', 'event.stopPropagation();verwijderKaart(' + newIdx + ')');
+    // Update IDs
+    var body = item.querySelector('.kaart-body');
+    if (body) body.id = 'kaartBody_' + newIdx;
+    var chevron = item.querySelector('.kaart-chevron');
+    if (chevron) chevron.id = 'chevron_' + newIdx;
+    var badge = item.querySelector('.kaart-rol-badge');
+    if (badge) badge.id = 'rolBadge_' + newIdx;
+    // Update input names
+    item.querySelectorAll('input, textarea, select').forEach(function(inp) {
+      var name = inp.name;
+      if (name) inp.name = name.replace(/_\d+$/, '_' + newIdx);
+    });
+    // Update onchange for role radios
+    item.querySelectorAll('input[type="radio"]').forEach(function(r) {
+      r.setAttribute('onchange', 'updateRolBadge(' + newIdx + ')');
+    });
+  });
+}
+
+// === Doelgroep primair/secundair mutual exclusion ===
+(function() {
+  var primairGrid = document.getElementById('dgPrimairGrid');
+  var secundairGrid = document.getElementById('dgSecundairGrid');
+  if (!primairGrid || !secundairGrid) return;
+
+  var primairChecks = primairGrid.querySelectorAll('input[type="checkbox"]');
+  var secundairChecks = secundairGrid.querySelectorAll('input[type="checkbox"]');
+
+  function updateDoelgroep() {
+    var primairSelected = [];
+    var primairCount = 0;
+    primairChecks.forEach(function(cb) {
+      if (cb.checked) { primairSelected.push(cb.value); primairCount++; }
+    });
+
+    // Disable primair items als max 3 bereikt (alleen unchecked)
+    primairChecks.forEach(function(cb) {
+      var item = cb.closest('.checkbox-item');
+      if (!cb.checked && primairCount >= 3) {
+        item.classList.add('disabled');
+      } else {
+        item.classList.remove('disabled');
+      }
+    });
+
+    // Disable in secundair wat al primair is
+    secundairChecks.forEach(function(cb) {
+      var item = cb.closest('.checkbox-item');
+      if (primairSelected.indexOf(cb.value) >= 0) {
+        cb.checked = false;
+        item.classList.add('disabled');
+      } else {
+        item.classList.remove('disabled');
+      }
+    });
+  }
+
+  primairChecks.forEach(function(cb) { cb.addEventListener('change', updateDoelgroep); });
+  secundairChecks.forEach(function(cb) { cb.addEventListener('change', updateDoelgroep); });
+  updateDoelgroep();
+})();
+</script>
+{% endblock %}

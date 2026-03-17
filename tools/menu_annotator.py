@@ -15,13 +15,17 @@ Gebruik:
 import os
 import sys
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 
-from tools.ai_client import ai_reason_json
+from tools.ai_client import ai_call
+from tools.prompt_loader import format_prompt
 
 
 def _build_trends_context(geheugen_data: dict) -> str:
@@ -63,6 +67,31 @@ def _build_segment_context(segment_data: dict) -> str:
     return "\n".join(parts)
 
 
+def _build_ingredienten_context(menu_data: dict) -> str:
+    """Extraheer alle unieke ingrediënten uit menu_data als platte string."""
+    ingredienten = set()
+    for cat in menu_data.get("categorieën", []):
+        for g in cat.get("gerechten", []):
+            # Beschrijving als bron
+            if g.get("beschrijving"):
+                # Voeg beschrijving keywords toe als rough ingrediëntenlijst
+                for word in g["beschrijving"].split(","):
+                    word = word.strip().lower()
+                    if word and len(word) > 2:
+                        ingredienten.add(word)
+            # Expliciete ingrediëntenlijst
+            for ing in g.get("ingredienten", []):
+                if ing:
+                    ingredienten.add(str(ing).strip().lower())
+            # Tags kunnen ook ingrediënten bevatten
+            for tag in g.get("tags", []):
+                if tag:
+                    ingredienten.add(str(tag).strip().lower())
+    if not ingredienten:
+        return "Geen expliciete ingrediënten beschikbaar."
+    return ", ".join(sorted(ingredienten))
+
+
 def _build_gerechten_lijst(menu_data: dict) -> list[dict]:
     """Extraheer een platte lijst van gerechten uit menu data."""
     gerechten = []
@@ -80,7 +109,7 @@ def _build_gerechten_lijst(menu_data: dict) -> list[dict]:
     return gerechten
 
 
-def annotate_menu(menu_data: dict, geheugen_data: dict, segment_data: dict) -> list[dict]:
+def annotate_menu(menu_data: dict, geheugen_data: dict, segment_data: dict, user_instructions: str = "") -> list[dict]:
     """
     Genereer annotaties voor elk gerecht in het menu.
 
@@ -110,6 +139,7 @@ def annotate_menu(menu_data: dict, geheugen_data: dict, segment_data: dict) -> l
 
     trends_context = _build_trends_context(geheugen_data)
     segment_context = _build_segment_context(segment_data)
+    ingredienten_context = _build_ingredienten_context(menu_data)
 
     # Bouw gerechten overzicht voor de prompt
     gerechten_text = ""
@@ -118,61 +148,36 @@ def annotate_menu(menu_data: dict, geheugen_data: dict, segment_data: dict) -> l
         desc = f" — {g['beschrijving']}" if g.get('beschrijving') else ""
         gerechten_text += f"{i+1}. [{g['categorie']}] {g['naam']}{prijs_str}{desc}\n"
 
-    prompt = f"""Analyseer elk gerecht op dit menu en geef een annotatie op basis van de actuele trends en het restaurantprofiel.
+    user_instructies_sectie = ""
+    if user_instructions:
+        user_instructies_sectie = (
+            f"\nEXTRA INSTRUCTIE VAN DE GEBRUIKER (hogere prioriteit — verwerk dit in je analyse):\n"
+            f"{user_instructions}\n"
+        )
 
-RESTAURANTPROFIEL:
-{segment_context}
+    prompt, model, temp = format_prompt(
+        "menu_annotator", "annotate_menu",
+        segment_context=segment_context,
+        trends_context=trends_context,
+        gerechten_text=gerechten_text,
+        ingredienten_context=ingredienten_context,
+        user_instructies_sectie=user_instructies_sectie,
+    )
 
-ACTUELE TRENDS (gesorteerd op relevantie):
-{trends_context}
-
-MENU GERECHTEN:
-{gerechten_text}
-
-Geef per gerecht een annotatie. Geef je antwoord als JSON met EXACT dit formaat (geen extra tekst eromheen):
-{{
-  "annotaties": [
-    {{
-      "gerecht_naam": "Naam van het gerecht",
-      "categorie": "Categorie",
-      "status": "HOUDEN",
-      "score": 7.5,
-      "opmerkingen": "Korte uitleg waarom dit gerecht deze status krijgt",
-      "suggesties": ["Concrete suggestie 1", "Concrete suggestie 2"],
-      "relevante_trends": ["Trend 1", "Trend 2"],
-      "positief": ["Positief punt 1"]
-    }}
-  ]
-}}
-
-Regels:
-- Status is EXACT een van: HOUDEN, AANPASSEN, VERVANGEN
-  - HOUDEN: gerecht past goed bij trends en segment, geen grote wijzigingen nodig
-  - AANPASSEN: gerecht heeft potentieel maar kan beter aansluiten bij trends
-  - VERVANGEN: gerecht past niet meer bij trends of segment, overweeg vervanging
-- Score 1-10: hoe goed past het gerecht bij huidige trends EN het restaurantsegment
-- Opmerkingen: max 2 zinnen, concreet en actionable
-- Suggesties: max 3 concrete verbetervoorstellen (leeg bij HOUDEN)
-- Relevante trends: welke trends zijn van toepassing op dit gerecht (max 3)
-- Positief: wat is goed aan dit gerecht (max 2 punten)
-- Houd rekening met het prijssegment en de doelgroep
-- Wees realistisch: niet alles hoeft te veranderen, een goed menu heeft een mix
-- Antwoord ALLEEN met de JSON, geen markdown, geen uitleg eromheen."""
-
-    print(f"  Menu annoteren ({len(gerechten)} gerechten)...", end=" ", flush=True)
+    logger.info("Menu annoteren (%d gerechten)...", len(gerechten))
 
     try:
-        result = ai_reason_json(prompt, temperature=0.2)
+        result = ai_call(prompt, model=model, temperature=temp, json_mode=True)
         annotaties = result.get("annotaties", [])
         statussen = {}
         for a in annotaties:
             s = a.get("status", "?")
             statussen[s] = statussen.get(s, 0) + 1
         status_str = ", ".join(f"{k}:{v}" for k, v in statussen.items())
-        print(f"OK ({len(annotaties)} annotaties: {status_str})")
+        logger.info("OK (%d annotaties: %s)", len(annotaties), status_str)
         return annotaties
     except json.JSONDecodeError:
-        print("! JSON parse fout, gebruik fallback")
+        logger.warning("JSON parse fout, gebruik fallback")
         return [{
             "gerecht_naam": g["naam"],
             "categorie": g["categorie"],
@@ -183,6 +188,78 @@ Regels:
             "relevante_trends": [],
             "positief": []
         } for g in gerechten]
+
+
+def suggereer_toevoegingen(menu_data: dict, geheugen_data: dict, segment_data: dict,
+                           focus_trends: list[str] | None = None,
+                           focus_eigenschappen: list[str] | None = None,
+                           ingredient_context: str | None = None,
+                           extra_instructie: str | None = None) -> list[dict]:
+    """
+    Genereer 3-5 suggesties voor nieuwe gerechten op basis van trends en bestaande ingrediënten.
+
+    Args:
+        ingredient_context: Samenvatting van ingrediënt-analyse (risico-ingrediënten etc.)
+        extra_instructie: Vrije tekst van gebruiker
+
+    Returns:
+        list van voorstel dicts met explainability:
+        [{"naam", "categorie", "beschrijving", "gebruikte_ingredienten", "nieuwe_ingredienten",
+          "relevante_trend", "onderbouwing", "marktfit", "conceptfit", "operationele_fit"}]
+    """
+    ingredienten_ctx = _build_ingredienten_context(menu_data)
+    trends_context = _build_trends_context(geheugen_data)
+    segment_context = _build_segment_context(segment_data)
+
+    # Bestaande gerechtnamen zodat AI ze niet dupliceert
+    bestaande = []
+    for cat in menu_data.get("categorieën", []):
+        for g in cat.get("gerechten", []):
+            if g.get("naam"):
+                bestaande.append(g["naam"])
+    bestaande_str = ", ".join(bestaande[:30]) if bestaande else "geen"
+
+    focus_trends_sectie = ""
+    if focus_trends:
+        focus_trends_sectie = f"\n\nGEWENSTE TRENDS (baseer de voorstellen PRIMAIR op deze trends):\n" + "\n".join(f"- {t}" for t in focus_trends)
+
+    focus_eigenschappen_sectie = ""
+    if focus_eigenschappen:
+        focus_eigenschappen_sectie = f"\n\nGEWENSTE EIGENSCHAPPEN (elk voorstel moet aan minstens één van deze eigenschappen voldoen):\n" + "\n".join(f"- {e}" for e in focus_eigenschappen)
+
+    ingredient_context_sectie = ""
+    if ingredient_context:
+        ingredient_context_sectie = f"\n\nINGREDIËNT-ANALYSE (houd hier rekening mee bij ingrediëntkeuze):\n{ingredient_context}"
+
+    extra_instructie_sectie = ""
+    if extra_instructie:
+        extra_instructie_sectie = f"\n\nEXTRA INSTRUCTIE VAN DE GEBRUIKER (hogere prioriteit):\n{extra_instructie}"
+
+    prompt, model, temp = format_prompt(
+        "menu_annotator", "suggest_additions",
+        segment_context=segment_context,
+        trends_context=trends_context,
+        ingredienten_context=ingredienten_ctx,
+        bestaande_str=bestaande_str,
+        focus_trends_sectie=focus_trends_sectie,
+        focus_eigenschappen_sectie=focus_eigenschappen_sectie,
+        ingredient_context_sectie=ingredient_context_sectie,
+        extra_instructie_sectie=extra_instructie_sectie,
+    )
+
+    logger.info("Toevoegingen suggereren...")
+
+    try:
+        result = ai_call(prompt, model=model, temperature=temp, json_mode=True)
+        voorstellen = result.get("voorstellen", [])
+        logger.info("OK (%d suggesties)", len(voorstellen))
+        return voorstellen
+    except json.JSONDecodeError:
+        logger.warning("JSON parse fout bij toevoegingen")
+        return []
+    except Exception as e:
+        logger.warning("Fout bij toevoegingen: %s", e)
+        return []
 
 
 if __name__ == "__main__":

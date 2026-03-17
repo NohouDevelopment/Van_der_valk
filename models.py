@@ -218,3 +218,54 @@ class IngredientVoorstel(db.Model):
 
     def __repr__(self):
         return f"<IngredientVoorstel org={self.organisatie_id} status={self.status}>"
+
+
+class VoorstelSessie(db.Model):
+    """Menu Advies sessie — sla configuratie en resultaat op per analyse."""
+    __tablename__ = "voorstel_sessies"
+
+    id = db.Column(db.Integer, primary_key=True)
+    organisatie_id = db.Column(db.Integer, db.ForeignKey("organisaties.id"), nullable=False)
+    menu_id = db.Column(db.Integer, db.ForeignKey("menus.id"), nullable=False)
+    gegenereerd_door = db.Column(db.Integer, db.ForeignKey("gebruikers.id"))
+    doel = db.Column(db.String(30), nullable=False)       # diagnose | verbeteren | nieuwe_gerechten
+    focus_type = db.Column(db.String(30), nullable=False)  # heel_menu | categorie | gerechten
+    config = db.Column(db.JSON, nullable=False)
+    resultaat = db.Column(db.JSON)
+    titel = db.Column(db.String(200))
+    status = db.Column(db.String(20), default="voltooid")
+    basis_sessie_id = db.Column(db.Integer, db.ForeignKey("voorstel_sessies.id"), nullable=True)
+    aangemaakt_op = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    organisatie = db.relationship("Organisatie", backref="voorstel_sessies")
+    menu = db.relationship("Menu", backref="voorstel_sessies")
+
+    def __repr__(self):
+        return f"<VoorstelSessie id={self.id} doel={self.doel} focus={self.focus_type}>"
+
+
+def genereer_sessie_titel(doel: str, focus_type: str, config: dict) -> str:
+    """Auto-genereer een leesbare titel voor een VoorstelSessie."""
+    doel_labels = {
+        "diagnose": "Diagnose",
+        "verbeteren": "Verbeteren",
+        "nieuwe_gerechten": "Nieuwe gerechten",
+    }
+    doel_label = doel_labels.get(doel, doel.capitalize())
+
+    if focus_type == "categorie":
+        focus_label = config.get("categorie_naam", "Categorie")
+    elif focus_type == "gerechten":
+        ids = config.get("gerecht_ids", [])
+        focus_label = f"{len(ids)} gerecht{'en' if len(ids) != 1 else ''}"
+    else:
+        focus_label = "Hele menu"
+
+    parts = [doel_label, focus_label]
+
+    trend_count = len(config.get("focus_trends", []))
+    if trend_count:
+        parts.append(f"{trend_count} trends")
+
+    titel = " — ".join(parts)
+    return titel[:200]

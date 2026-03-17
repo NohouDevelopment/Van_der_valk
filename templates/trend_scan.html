@@ -53,6 +53,7 @@
 
 {% if not error %}
 <form id="scan-form" method="POST" action="{{ url_for('trend.trends_analyseer') }}" style="display:none">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 </form>
 <script>
   var stappen = document.querySelectorAll('.stap');

@@ -76,6 +76,7 @@
   <div class="org-badge">&#127970; <strong>{{ naam }}</strong> — jij wordt eerste beheerder</div>
 
   <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
       <label for="naam">Je naam <span class="req">*</span></label>
       <input type="text" id="naam" name="naam" placeholder="Jan de Vries" required value="{{ request.form.get('naam', '') }}">

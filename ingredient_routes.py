@@ -2,8 +2,10 @@
 Ingredient Blueprint — ingrediënten-analyse, metrics en slimme voorstellen.
 
 Routes:
-    /ingredienten/          — Metrics dashboard met filtertabel
-    /ingredienten/voorstel  — Slim voorstel genereren (GET=scan, POST=genereer)
+    /ingredienten/              — Metrics dashboard met filtertabel
+    /ingredienten/voorstel      — GET: trend-selectiepagina; POST: sla trends op, redirect naar scan
+    /ingredienten/voorstel/scan — GET: laadpagina; POST: genereer voorstel
+    /ingredienten/voorstel/resultaat — Toon gegenereerd voorstel
 """
 
 from flask import Blueprint, render_template, redirect, url_for, request, session
@@ -60,7 +62,24 @@ def ingredienten_overzicht():
 @ingredient_bp.route("/ingredienten/voorstel", methods=["GET", "POST"])
 @login_required
 def ingredienten_voorstel():
-    """Slim voorstel: GET toont scan-pagina, POST genereert voorstel."""
+    """Redirect naar nieuwe Ontwerpruimte (Menu Advies)."""
+    if request.method == "GET":
+        return redirect(url_for("voorstel.ontwerpruimte"))
+
+    # POST: legacy support — redirect naar scan
+    org = current_user.organisatie
+    actief_menu = Menu.query.filter_by(organisatie_id=org.id, actief=True).first()
+    if not actief_menu:
+        return redirect(url_for("ingredient.ingredienten_overzicht"))
+    focus_trends = request.form.getlist("focus_trends")
+    session["voorstel_focus_trends"] = focus_trends
+    return redirect(url_for("ingredient.ingredienten_voorstel_scan"))
+
+
+@ingredient_bp.route("/ingredienten/voorstel/scan", methods=["GET", "POST"])
+@login_required
+def ingredienten_voorstel_scan():
+    """GET: laadpagina. POST: genereer voorstel met trends uit session."""
     org = current_user.organisatie
     actief_menu = Menu.query.filter_by(organisatie_id=org.id, actief=True).first()
 
@@ -82,6 +101,7 @@ def ingredienten_voorstel():
         segment_data = segment.data if segment else None
         geheugen = TrendGeheugen.query.filter_by(organisatie_id=org.id).first()
         geheugen_data = geheugen.data if geheugen else None
+        focus_trends = session.pop("voorstel_focus_trends", [])
 
         # Kassaboek verkoop-context ophalen als actief
         verkoop_data = None
@@ -109,7 +129,7 @@ def ingredienten_voorstel():
                     "flop_5": gesorteerd[-5:] if len(gesorteerd) >= 5 else gesorteerd,
                 }
 
-        voorstellen = genereer_voorstel(analyse, segment_data, geheugen_data, verkoop_data)
+        voorstellen = genereer_voorstel(analyse, segment_data, geheugen_data, verkoop_data, focus_trends)
 
         # Sla voorstellen op in session voor de resultaatpagina
         # Beperk session grootte: max 3 voorstellen, ingredienten max 20 items per voorstel
