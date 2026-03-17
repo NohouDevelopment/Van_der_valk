@@ -36,6 +36,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
+from flask_session import Session
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -62,6 +63,9 @@ app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["POSTHOG_API_KEY"] = os.getenv("POSTHOG_API_KEY", "")
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_PERMANENT"] = True
+Session(app)
 
 # --- Database: dual support (PostgreSQL via DATABASE_URL, fallback SQLite) ---
 _db_url = os.getenv("DATABASE_URL", "")
