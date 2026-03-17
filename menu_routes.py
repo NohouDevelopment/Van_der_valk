@@ -107,7 +107,7 @@ def menu_upload():
                 bestand.seek(0)
                 if size > MAX_FILE_SIZE:
                     error = "Bestand is te groot (max 10 MB)."
-                elif not _validate_file_magic(bestand, filename.rsplit(".", 1)[1].lower()):
+                elif not _validate_file_magic(bestand, bestand.filename.rsplit(".", 1)[1].lower()):
                     error = "Bestandsinhoud komt niet overeen met het bestandstype."
                 else:
                     # Opslaan
