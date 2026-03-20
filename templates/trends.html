@@ -3,15 +3,6 @@
 {% block title %}Trendanalyse — {{ org.naam }}{% endblock %}
 
 {% block content %}
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-{% for category, message in messages %}
-<div style="margin-bottom:16px;padding:14px 18px;border-radius:var(--radius-md);font-size:.88rem;background:rgba(201,168,76,.12);color:var(--color-gold);border:1px solid rgba(201,168,76,.25)">
-  {{ message }}
-</div>
-{% endfor %}
-{% endif %}
-{% endwith %}
 {% if not segment %}
 <!-- Geen menusegment -->
 <div class="page-header">
@@ -39,9 +30,8 @@
     {% if geheugen %}
     <a href="{{ url_for('trend.trends_geheugen') }}" class="btn-sm">Geheugen (v{{ geheugen.versie }})</a>
     {% endif %}
-    <span class="btn-sm" style="opacity:.45;cursor:not-allowed;pointer-events:none" title="Tijdelijk niet beschikbaar vanwege hoge AI-computekosten">Nieuwe analyse</span>
+    <a href="{{ url_for('trend.trends_analyseer') }}" class="btn-sm gold">Nieuwe analyse</a>
   </div>
-  <p style="margin-top:10px;font-size:.78rem;color:var(--color-text-secondary)">Trendanalyse is tijdelijk gepauzeerd. Deze functie vereist veel AI-rekenkracht en is daarom uitgeschakeld om kosten beheersbaar te houden.</p>
 </div>
 
 {% if config and config.data.get('suggesties') %}
@@ -150,8 +140,8 @@ function toggleTrendDetail(idx) {
 <!-- Nog geen analyse -->
 <div class="geen-data">
   <p>Er zijn nog geen trendanalyses uitgevoerd.</p>
-  <p class="text-secondary" style="font-size:.85rem;margin-bottom:16px">Trendanalyse is tijdelijk niet beschikbaar. Deze functie vereist intensieve AI-berekeningen en is gepauzeerd om kosten beheersbaar te houden. Neem contact op met de beheerder om een analyse aan te vragen.</p>
-  <span class="btn btn-primary" style="opacity:.45;cursor:not-allowed;pointer-events:none">Analyse niet beschikbaar</span>
+  <p class="text-secondary" style="font-size:.85rem;margin-bottom:16px">Klik op "Nieuwe analyse" om AI te laten zoeken naar relevante food- en horecatrends.</p>
+  <a href="{{ url_for('trend.trends_analyseer') }}" class="btn btn-primary">Eerste analyse starten</a>
 </div>
 {% endif %}
 

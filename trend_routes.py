@@ -239,13 +239,6 @@ def trends_overzicht():
 @login_required
 def trends_analyseer():
     """Loading page (GET) + run analysis pipeline (POST)."""
-    # Tijdelijk uitgeschakeld vanwege hoge AI-computekosten
-    from flask import flash
-    flash("Trendanalyse is tijdelijk niet beschikbaar. Deze functie vereist intensieve AI-berekeningen "
-          "en is daarom gepauzeerd om de kosten beheersbaar te houden. "
-          "Neem contact op met de beheerder om een analyse aan te vragen.", "warning")
-    return redirect(url_for("trend.trends_overzicht"))
-
     org = current_user.organisatie
     segment = MenuSegment.query.filter_by(organisatie_id=org.id).first()
 
