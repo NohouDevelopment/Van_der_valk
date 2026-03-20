@@ -64,7 +64,8 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["POSTHOG_API_KEY"] = os.getenv("POSTHOG_API_KEY", "")
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_PERMANENT"] = True
+app.config["SESSION_PERMANENT"] = False
+app.config["PERMANENT_SESSION_LIFETIME"] = 3600
 Session(app)
 
 # --- Database: dual support (PostgreSQL via DATABASE_URL, fallback SQLite) ---
