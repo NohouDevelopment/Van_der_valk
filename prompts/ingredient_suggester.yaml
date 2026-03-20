@@ -1,6 +1,6 @@
 suggest_dishes:
   description: Genereer 3 gerecht-voorstellen op basis van risico-ingrediënten en trends
-  model: anthropic/claude-sonnet-4-5
+  model: anthropic/claude-sonnet-4.5
   temperature: 0.3
   template: "Je bent een menu-consultant. Genereer EXACT 3 nieuwe gerecht-voorstellen als JSON array.\r\n\r\nCONTEXT:\r\n\
     Risico-ingrediënten (single-use vers, dreigen te bederven): {risico}\r\nTop ingrediënten (al veel gebruikt): {top_5_namen}\r\
