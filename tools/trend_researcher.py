@@ -211,16 +211,16 @@ def _execute_search(prompt: str, label: str) -> dict:
     print(f"    Zoek: {label}...", end=" ", flush=True)
 
     try:
-        result = ai_call(prompt, model=model, temperature=temperature, json_mode=True, timeout=300)
+        result = ai_call(prompt, model=model, temperature=temperature, json_mode=True, timeout=60)
         trend_count = len(result.get("trends", []))
         print(f"OK ({trend_count} trends)")
         return result
 
     except json.JSONDecodeError:
-        print("! JSON parse fout")
+        print("! JSON parse fout, skip")
         return {"trends": [], "samenvatting": ""}
     except Exception as e:
-        print(f"! Fout: {e}")
+        print(f"! Fout: {str(e)[:50]}, skip")
         return {"trends": [], "samenvatting": ""}
 
 
