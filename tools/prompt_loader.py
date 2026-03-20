@@ -366,13 +366,14 @@ def _load_yaml(tool: str) -> dict:
 def get_prompt(tool: str, name: str) -> dict:
     """
     Haal prompt-config op.
-    YAML heeft prioriteit over DEFAULTS.
+    YAML overschrijft specifieke velden uit DEFAULTS (merge, niet vervangen).
     Geeft {} terug als prompt niet bestaat.
     """
+    base = DEFAULTS.get(tool, {}).get(name, {}).copy()
     yaml_data = _load_yaml(tool)
     if name in yaml_data:
-        return yaml_data[name]
-    return DEFAULTS.get(tool, {}).get(name, {})
+        base.update(yaml_data[name])
+    return base
 
 
 def format_prompt(tool: str, name: str, **kwargs) -> tuple[str, str, float]:
