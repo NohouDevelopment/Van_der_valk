@@ -22,7 +22,7 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 def main():
     parser = argparse.ArgumentParser(description="Menu Maker Server")
-    parser.add_argument("--port", type=int, default=5001, help="Poort (default: 5001)")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 5001)), help="Poort (default: 5001)")
     parser.add_argument("--host", default="localhost", help="Host (default: localhost, gebruik 0.0.0.0 voor netwerk)")
     parser.add_argument("--debug", action="store_true", help="Development mode met Flask debugger")
     args = parser.parse_args()
