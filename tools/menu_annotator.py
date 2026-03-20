@@ -194,7 +194,8 @@ def suggereer_toevoegingen(menu_data: dict, geheugen_data: dict, segment_data: d
                            focus_trends: list[str] | None = None,
                            focus_eigenschappen: list[str] | None = None,
                            ingredient_context: str | None = None,
-                           extra_instructie: str | None = None) -> list[dict]:
+                           extra_instructie: str | None = None,
+                           categorie_naam: str | None = None) -> list[dict]:
     """
     Genereer 3-5 suggesties voor nieuwe gerechten op basis van trends en bestaande ingrediënten.
 
@@ -235,12 +236,22 @@ def suggereer_toevoegingen(menu_data: dict, geheugen_data: dict, segment_data: d
     if extra_instructie:
         extra_instructie_sectie = f"\n\nEXTRA INSTRUCTIE VAN DE GEBRUIKER (hogere prioriteit):\n{extra_instructie}"
 
+    categorie_sectie = ""
+    if categorie_naam:
+        categorie_sectie = (
+            f"\n\nCATEGORIE RESTRICTIE (VERPLICHT): Alle voorstellen MOETEN in de categorie "
+            f"'{categorie_naam}' vallen. Gebruik deze exacte categorienaam in het 'categorie' veld "
+            f"van elk voorstel. Stel NOOIT gerechten voor uit andere categorieën zoals soepen, "
+            f"dranken of bijgerechten als de gevraagde categorie dat niet is."
+        )
+
     prompt, model, temp = format_prompt(
         "menu_annotator", "suggest_additions",
         segment_context=segment_context,
         trends_context=trends_context,
         ingredienten_context=ingredienten_ctx,
         bestaande_str=bestaande_str,
+        categorie_sectie=categorie_sectie,
         focus_trends_sectie=focus_trends_sectie,
         focus_eigenschappen_sectie=focus_eigenschappen_sectie,
         ingredient_context_sectie=ingredient_context_sectie,

@@ -223,7 +223,8 @@ def voorstel_genereer():
 
             resultaat = _run_nieuwe_gerechten(
                 gefilterde_data, geheugen_data, segment_data,
-                focus_trends, extra_instructie, ingredient_ctx
+                focus_trends, extra_instructie, ingredient_ctx,
+                categorie_naam=categorie_naam if focus_type == "categorie" else None
             )
 
         # --- Stap 4: Auto-titel ---
@@ -326,7 +327,7 @@ def _run_verbeteren(menu_data, geheugen_data, segment_data, extra_instructie):
     }
 
 
-def _run_nieuwe_gerechten(menu_data, geheugen_data, segment_data, focus_trends, extra_instructie, ingredient_ctx):
+def _run_nieuwe_gerechten(menu_data, geheugen_data, segment_data, focus_trends, extra_instructie, ingredient_ctx, categorie_naam=None):
     """Nieuwe gerechten: suggereer_toevoegingen met explainability."""
     from tools.menu_annotator import suggereer_toevoegingen
 
@@ -335,6 +336,7 @@ def _run_nieuwe_gerechten(menu_data, geheugen_data, segment_data, focus_trends, 
         focus_trends=focus_trends if focus_trends else None,
         ingredient_context=ingredient_ctx,
         extra_instructie=extra_instructie if extra_instructie else None,
+        categorie_naam=categorie_naam,
     )
 
     return {
