@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Gebruikers beheren — {{ org.naam }}{% endblock %}
+
+{% block content %}
+<div style="padding: 40px 20px; max-width: 1000px; margin: 0 auto;">
+
+  <!-- Back button & Org name -->
+  <div style="margin-bottom: 32px;">
+    <a href="{{ url_for('admin_panel') }}" style="color: var(--color-gold); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+      ← Terug naar admin
+    </a>
+    <h1 style="margin: 16px 0 0 0; font-size: 2rem; font-family: var(--font-display); color: var(--color-text);">
+      {{ org.naam }}
+    </h1>
+    <p style="margin: 8px 0 0 0; font-size: .875rem; color: var(--color-text-muted);">
+      Gebruikers beheren
+    </p>
+  </div>
+
+  <!-- Error/Success messages -->
+  {% if error or request.args.get('error') or request.args.get('success') %}
+  <div style="margin-bottom: 20px; padding: 12px 16px; border-radius: var(--radius-md); font-size: .875rem;">
+    {% if error %}
+      <div style="background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">{{ error }}</div>
+    {% elif request.args.get('error') == 'minimum_1_required' %}
+      <div style="background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">Kan niet: minimaal 1 gebruiker per organisatie vereist</div>
+    {% elif request.args.get('error') == 'wachtwoord_kort' %}
+      <div style="background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">Wachtwoord moet minimaal 8 karakters zijn</div>
+    {% elif request.args.get('error') == 'wachtwoord_niet_gelijk' %}
+      <div style="background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">Wachtwoorden komen niet overeen</div>
+    {% elif request.args.get('success') == 'wachtwoord_reset' %}
+      <div style="background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3);">Wachtwoord succesvol reset</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Huidige gebruikers tabel -->
+  <div style="margin-bottom: 40px; background: var(--color-bg-secondary); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border);">
+    <div style="padding: 20px; border-bottom: 1px solid var(--color-border);">
+      <h2 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--color-text);">
+        Gebruikers ({{ gebruikers|length }})
+      </h2>
+    </div>
+
+    {% if gebruikers %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--color-border); background: var(--color-bg); font-size: .875rem; font-weight: 600; color: var(--color-text-muted);">
+            <th style="text-align: left; padding: 12px 16px;">Naam</th>
+            <th style="text-align: left; padding: 12px 16px;">E-mail</th>
+            <th style="text-align: left; padding: 12px 16px;">Rol</th>
+            <th style="text-align: left; padding: 12px 16px;">Aangemaakt</th>
+            <th style="text-align: right; padding: 12px 16px;">Acties</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for g in gebruikers %}
+          <tr style="border-bottom: 1px solid var(--color-border); font-size: .875rem;">
+            <td style="padding: 12px 16px; color: var(--color-text);">{{ g.naam }}</td>
+            <td style="padding: 12px 16px; color: var(--color-text); font-family: monospace; font-size: .8rem;">{{ g.email }}</td>
+            <td style="padding: 12px 16px;">
+              <span style="display: inline-block; padding: 4px 8px; border-radius: var(--radius-sm); font-size: .75rem; font-weight: 600; {% if g.rol == 'admin' %}background: rgba(201, 168, 76, 0.2); color: var(--color-gold);{% else %}background: rgba(100, 200, 100, 0.2); color: #64c864;{% endif %}">
+                {{ g.rol }}
+              </span>
+            </td>
+            <td style="padding: 12px 16px; color: var(--color-text-muted); font-size: .8rem;">
+              {{ g.aangemaakt_op | nl_datum }}
+            </td>
+            <td style="padding: 12px 16px; text-align: right;">
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <!-- Wachtwoord reset modal toggle -->
+                <button
+                  type="button"
+                  onclick="document.getElementById('pwd_modal_{{ g.id }}').style.display='block'"
+                  style="padding: 6px 12px; background: var(--color-gold); color: #0f0f0f; border: none; border-radius: var(--radius-sm); font-size: .75rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;"
+                  onmouseover="this.style.opacity='0.8'"
+                  onmouseout="this.style.opacity='1'">
+                  Wachtwoord reset
+                </button>
+
+                <!-- Verwijder knop (alleen als meer dan 1 gebruiker) -->
+                {% if gebruikers|length > 1 %}
+                <form method="POST" action="{{ url_for('admin_gebruiker_verwijderen', user_id=g.id) }}" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button
+                    type="submit"
+                    onclick="return confirm('Weet je zeker dat je {{ g.naam }} wilt verwijderen?')"
+                    style="padding: 6px 12px; background: rgba(255, 59, 48, 0.2); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3); border-radius: var(--radius-sm); font-size: .75rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='rgba(255, 59, 48, 0.3)'"
+                    onmouseout="this.style.background='rgba(255, 59, 48, 0.2)'">
+                    Verwijderen
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+
+          <!-- Wachtwoord reset modal -->
+          <div id="pwd_modal_{{ g.id }}" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: 24px; max-width: 400px; width: 90%; border: 1px solid var(--color-border);">
+              <h3 style="margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; color: var(--color-text);">
+                Wachtwoord reset: {{ g.naam }}
+              </h3>
+
+              <form method="POST" action="{{ url_for('admin_gebruiker_wachtwoord', user_id=g.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div style="margin-bottom: 16px;">
+                  <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+                    Nieuw wachtwoord
+                  </label>
+                  <input
+                    type="password"
+                    name="nieuw_wachtwoord"
+                    required
+                    minlength="8"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                  <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+                    Bevestig wachtwoord
+                  </label>
+                  <input
+                    type="password"
+                    name="nieuw_wachtwoord_bevestiging"
+                    required
+                    minlength="8"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                  <button
+                    type="submit"
+                    style="flex: 1; padding: 10px; background: var(--color-gold); color: #0f0f0f; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: .875rem; cursor: pointer; transition: opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.8'"
+                    onmouseout="this.style.opacity='1'">
+                    Reset wachtwoord
+                  </button>
+                  <button
+                    type="button"
+                    onclick="document.getElementById('pwd_modal_{{ g.id }}').style.display='none'"
+                    style="flex: 1; padding: 10px; background: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-weight: 600; font-size: .875rem; cursor: pointer;">
+                    Annuleer
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding: 20px; text-align: center; color: var(--color-text-muted); font-size: .875rem;">
+      Geen gebruikers gevonden
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Gebruiker toevoegen formulier -->
+  <div style="background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--color-border);">
+    <h2 style="margin: 0 0 20px 0; font-size: 1.1rem; font-weight: 600; color: var(--color-text);">
+      Nieuwe gebruiker toevoegen
+    </h2>
+
+    <form method="POST" action="{{ url_for('admin_gebruiker_toevoegen', org_id=org.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+            Naam *
+          </label>
+          <input
+            type="text"
+            name="naam"
+            required
+            placeholder="Jan de Vries"
+            style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+            E-mail *
+          </label>
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="jan@example.com"
+            style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+            Rol *
+          </label>
+          <select
+            name="rol"
+            style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem;">
+            <option value="gebruiker">Gebruiker</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div></div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+            Wachtwoord (min. 8 karakters) *
+          </label>
+          <input
+            type="password"
+            name="wachtwoord"
+            required
+            minlength="8"
+            style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 500; color: var(--color-text);">
+            Bevestig wachtwoord *
+          </label>
+          <input
+            type="password"
+            name="wachtwoord_bevestiging"
+            required
+            minlength="8"
+            style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); font-size: .875rem; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        style="padding: 12px 24px; background: var(--color-gold); color: #0f0f0f; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: .9rem; cursor: pointer; transition: opacity 0.2s;"
+        onmouseover="this.style.opacity='0.8'"
+        onmouseout="this.style.opacity='1'">
+        Gebruiker toevoegen
+      </button>
+    </form>
+  </div>
+
+</div>
+
+<script>
+// Sluit modal bij klik buiten
+window.addEventListener('click', function(e) {
+  var modals = document.querySelectorAll('[id^="pwd_modal_"]');
+  modals.forEach(function(modal) {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+});
+</script>
+{% endblock %}

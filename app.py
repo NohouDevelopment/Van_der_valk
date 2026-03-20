@@ -316,6 +316,109 @@ def admin_kassaboek_toggle(org_id):
     return redirect(url_for("admin_panel"))
 
 
+# --- User Management ---
+@app.route("/admin/org/<int:org_id>/gebruikers", methods=["GET"])
+@login_required
+def admin_gebruikers(org_id):
+    if not _is_admin():
+        abort(403)
+    org = Organisatie.query.get_or_404(org_id)
+    gebruikers = Gebruiker.query.filter_by(organisatie_id=org.id).order_by(Gebruiker.aangemaakt_op.desc()).all()
+    return render_template("admin_gebruikers.html", org=org, gebruikers=gebruikers)
+
+
+@app.route("/admin/org/<int:org_id>/gebruikers/toevoegen", methods=["POST"])
+@login_required
+def admin_gebruiker_toevoegen(org_id):
+    if not _is_admin():
+        abort(403)
+    org = Organisatie.query.get_or_404(org_id)
+
+    naam = request.form.get("naam", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    rol = request.form.get("rol", "gebruiker")
+    wachtwoord = request.form.get("wachtwoord", "")
+    wachtwoord_bevestiging = request.form.get("wachtwoord_bevestiging", "")
+
+    # Validatie
+    if not naam:
+        return render_template("admin_gebruikers.html", org=org, gebruikers=org.gebruikers,
+                             error="Naam is verplicht"), 400
+    if not email or "@" not in email:
+        return render_template("admin_gebruikers.html", org=org, gebruikers=org.gebruikers,
+                             error="Geldig e-mailadres is verplicht"), 400
+    if len(wachtwoord) < 8:
+        return render_template("admin_gebruikers.html", org=org, gebruikers=org.gebruikers,
+                             error="Wachtwoord moet minimaal 8 karakters zijn"), 400
+    if wachtwoord != wachtwoord_bevestiging:
+        return render_template("admin_gebruikers.html", org=org, gebruikers=org.gebruikers,
+                             error="Wachtwoorden komen niet overeen"), 400
+    if rol not in ("admin", "gebruiker"):
+        rol = "gebruiker"
+
+    # Check e-mail uniekheid
+    bestaand = Gebruiker.query.filter_by(email=email).first()
+    if bestaand:
+        return render_template("admin_gebruikers.html", org=org, gebruikers=org.gebruikers,
+                             error="E-mailadres bestaat al"), 400
+
+    # Maak gebruiker aan
+    gebruiker = Gebruiker(
+        organisatie_id=org.id,
+        naam=naam,
+        email=email,
+        rol=rol
+    )
+    gebruiker.set_wachtwoord(wachtwoord)
+    db.session.add(gebruiker)
+    db.session.commit()
+
+    logger.info(f"Admin {current_user.email} voegde gebruiker {email} toe aan {org.naam}")
+    return redirect(url_for("admin_gebruikers", org_id=org.id))
+
+
+@app.route("/admin/gebruikers/<int:user_id>/verwijderen", methods=["POST"])
+@login_required
+def admin_gebruiker_verwijderen(user_id):
+    if not _is_admin():
+        abort(403)
+    gebruiker = Gebruiker.query.get_or_404(user_id)
+    org = gebruiker.organisatie
+
+    # Check: minimaal 1 gebruiker per org
+    count = Gebruiker.query.filter_by(organisatie_id=org.id).count()
+    if count <= 1:
+        return redirect(url_for("admin_gebruikers", org_id=org.id) + "?error=minimum_1_required"), 400
+
+    db.session.delete(gebruiker)
+    db.session.commit()
+    logger.info(f"Admin {current_user.email} verwijderde gebruiker {gebruiker.email} uit {org.naam}")
+    return redirect(url_for("admin_gebruikers", org_id=org.id))
+
+
+@app.route("/admin/gebruikers/<int:user_id>/wachtwoord", methods=["POST"])
+@login_required
+def admin_gebruiker_wachtwoord(user_id):
+    if not _is_admin():
+        abort(403)
+    gebruiker = Gebruiker.query.get_or_404(user_id)
+    org = gebruiker.organisatie
+
+    nieuw_wachtwoord = request.form.get("nieuw_wachtwoord", "").strip()
+    nieuw_wachtwoord_bevestiging = request.form.get("nieuw_wachtwoord_bevestiging", "").strip()
+
+    # Validatie
+    if len(nieuw_wachtwoord) < 8:
+        return redirect(url_for("admin_gebruikers", org_id=org.id) + "?error=wachtwoord_kort"), 400
+    if nieuw_wachtwoord != nieuw_wachtwoord_bevestiging:
+        return redirect(url_for("admin_gebruikers", org_id=org.id) + "?error=wachtwoord_niet_gelijk"), 400
+
+    gebruiker.set_wachtwoord(nieuw_wachtwoord)
+    db.session.commit()
+    logger.info(f"Admin {current_user.email} reset wachtwoord voor {gebruiker.email}")
+    return redirect(url_for("admin_gebruikers", org_id=org.id) + "?success=wachtwoord_reset")
+
+
 # --- Health check (public, no login required) ---
 @app.route("/health")
 @limiter.exempt
